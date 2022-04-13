@@ -21,7 +21,9 @@ reserved = {
     'while': 'WHILE',
     'for': 'FOR',
     'open': 'OPEN',
-    'close': 'CLOSE'
+    'close': 'CLOSE',
+    'file': 'FILE',
+    'to': 'TO'
 }
 
 # List of token names.   This is always required
@@ -37,6 +39,8 @@ tokens = [
     'NOTEQUAL',
     'LBRACKET',
     'RBRACKET',
+    'LSQRBRACKET',
+    'RSQRBRACKET',
     'LPAREN',
     'RPAREN',
     'COLON',
@@ -47,6 +51,7 @@ tokens = [
     'COMMA',
     'AND',
     'OR',
+    'DOT',
     'CTEI',
     'CTEF',
     'CTESTRING'
@@ -64,6 +69,8 @@ t_LESS = r'<'
 t_NOTEQUAL = r'<>'
 t_LBRACKET = r'\{'
 t_RBRACKET = r'\}'
+t_LSQRBRACKET = r'\['
+t_RSQRBRACKET = r'\]'
 t_COLON = r':'
 t_SEMICOLON = r'\;'
 t_EQUALS = r'\='
@@ -73,6 +80,7 @@ t_EQUAL = r'\=='
 t_NOTEQUAL = r'\!='
 t_AND = r'\&&'
 t_OR = r'\||'
+t_DOT = r'\.'
 
 # REGEX
 
