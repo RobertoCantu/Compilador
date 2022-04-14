@@ -3,6 +3,7 @@ import ply.lex as lex
 # reserved words
 reserved = {
     'if' : 'IF',
+    'var': 'VAR',
     'else' : 'ELSE',
     'program' : 'PROGRAM',
     'int' : 'INT',
@@ -22,7 +23,8 @@ reserved = {
     'close': 'CLOSE',
     'file': 'FILE',
     'to': 'TO',
-    'function': 'FUNCTION'
+    'function': 'FUNCTION',
+    'functions': 'FUNCTIONS'
 }
 
 # List of token names.   This is always required
@@ -116,19 +118,3 @@ def t_error(t):
 
 # Build the lexer
 lexer = lex.lex()
-
-# # Test it out
-# data = '''
-# 2
-# 3.17
-# '''
-
-# # Give the lexer some input
-# lexer.input(data)
-
-# # Tokenize
-# while True:
-# 		tok = lexer.token()
-# 		if not tok: 
-# 				break      # No more input
-# 		print(tok)

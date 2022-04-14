@@ -1,5 +1,22 @@
 program test_;
 
-main {
+class animal {
+    var int m;
+    var int a[5],b,c;
+    var float x,y,z;
+};
 
+functions
+void function bark(int g){
+    var int m;
+    var float z;
+    
+    m = 2 + 2;
+}
+
+var int a;
+
+main {
+    read(a);
+    write("Hola mundo");
 };

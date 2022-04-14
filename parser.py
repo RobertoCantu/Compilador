@@ -41,15 +41,15 @@ def p_bloque1(p):
 def p_tipo_simple(p):
 	'''
 	tipo_simple	: INT
-							| FLOAT
-							| STRING
-							| CHAR
+													| FLOAT
+													| STRING
+													| CHAR
 	'''
 
 def p_tipo_compuesto(p):
 	'''
 	tipo_compuesto	: FILE
-									| ID
+																| ID
 	'''
 
 def p_class_(p):
@@ -59,7 +59,7 @@ def p_class_(p):
 def p_class1_(p):
 	'''
 	class1_	: INHERITS ID
-					| class2_
+									| class2_
 	'''
 
 def p_class2_(p):
@@ -75,10 +75,12 @@ def p_class3_(p):
 	'''
 
 # <VARS>
+
 def p_vars_(p):
 	'''
-	vars_	: tipo_simple vars_2
-							| tipo_compuesto vars_2
+	vars_	: VAR tipo_simple vars_2
+								| VAR tipo_compuesto vars_2
+								| empty
 	'''
 
 def p_vars_2(p):
@@ -88,28 +90,34 @@ def p_vars_2(p):
 
 def p_vars_3(p):
 	'''
-vars_3	: vars_comma
-							| LSQRBRACKET CTEI RSQRBRACKET vars_semicolon
-							| vars_semicolon
+vars_3	: SEMICOLON vars_
+							| vars_4
 	'''
 
-def p_vars_comma(p):
-		'''
-		vars_comma	: vars_2
-		'''
+def p_vars_4(p):
+	'''
+	vars_4	: COMMA ID vars_4
+								| LSQRBRACKET CTEI RSQRBRACKET vars_5
+								| SEMICOLON vars_
+	'''
 
-def p_vars_semicolon(p):
-		'''
-		vars_semicolon  : vars_
-																		| empty
-		'''
+def p_vars_5(p):
+	'''
+	vars_5	: COMMA vars_2
+								| SEMICOLON vars_
+	'''
 
 # <FUNCIONES>
 def p_funciones(p):
 	'''
-	funciones	: tipo_simple FUNCTION LPAREN param RPAREN LBRACKET vars_ estatutos RETURN LPAREN exp RPAREN RBRACKET funciones
-											| VOID FUNCTION LPAREN param RPAREN LBRACKET vars_ estatutos RBRACKET funciones
+	funciones	: FUNCTIONS funciones2
 											| empty
+	'''
+def p_funciones2(p):
+	'''
+	funciones2	:  tipo_simple FUNCTION ID LPAREN param RPAREN LBRACKET vars_ estatutos RETURN LPAREN exp RPAREN RBRACKET funciones2
+												|  VOID FUNCTION ID LPAREN param RPAREN LBRACKET vars_ estatutos RBRACKET funciones2
+												| empty
 	'''
 
 # <EXP>
@@ -201,7 +209,7 @@ def p_param(p):
 def p_param2(p):
 	'''
 	param2	: COMMA tipo_simple ID param2
-					| empty
+								| empty
 '''
 
 def p_estatutos(p):
@@ -285,8 +293,8 @@ def p_write(p):
 
 def p_write_2(p):
 	'''
-	write_2	:	exp  RPAREN write_3
-									| CTESTRING RPAREN write_3
+	write_2	:	exp  RPAREN write_3 SEMICOLON
+									| CTESTRING RPAREN write_3 SEMICOLON
 	'''
 
 def p_write_3(p):
@@ -375,7 +383,7 @@ def p_empty(p):
 
 # Error rule for syntax errors
 def p_error(p):
-	print("Syntax error in input!")
+	print ("Line %s, illegal token %s" % (p.lineno, p.value))
 
 parser = yacc.yacc()
 
