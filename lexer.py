@@ -5,10 +5,8 @@ reserved = {
     'if' : 'IF',
     'else' : 'ELSE',
     'program' : 'PROGRAM',
-    'var' : 'VAR',
     'int' : 'INT',
     'float': 'FLOAT',
-    'print' : 'PRINT',
     'class': 'CLASS',
     'string': 'STRING',
     'char': 'CHAR',
@@ -23,13 +21,13 @@ reserved = {
     'open': 'OPEN',
     'close': 'CLOSE',
     'file': 'FILE',
-    'to': 'TO'
+    'to': 'TO',
+    'function': 'FUNCTION'
 }
 
 # List of token names.   This is always required
 tokens = [
     'ID',
-    'NUMBER',
     'PLUS',
     'MINUS',
     'TIMES',
@@ -43,11 +41,9 @@ tokens = [
     'RSQRBRACKET',
     'LPAREN',
     'RPAREN',
-    'COLON',
     'SEMICOLON',
     'EQUALS',
     'EQUAL',
-    'NOTEQUAL',
     'COMMA',
     'AND',
     'OR',
@@ -66,12 +62,10 @@ t_LPAREN  = r'\('
 t_RPAREN  = r'\)'
 t_GREATER = r'>'
 t_LESS = r'<'
-t_NOTEQUAL = r'<>'
 t_LBRACKET = r'\{'
 t_RBRACKET = r'\}'
 t_LSQRBRACKET = r'\['
 t_RSQRBRACKET = r'\]'
-t_COLON = r':'
 t_SEMICOLON = r'\;'
 t_EQUALS = r'\='
 t_COMMA = r'\,'
@@ -79,7 +73,7 @@ t_CTESTRING = r'\".*\"'
 t_EQUAL = r'\=='
 t_NOTEQUAL = r'\!='
 t_AND = r'\&&'
-t_OR = r'\||'
+t_OR = r'\|\|'
 t_DOT = r'\.'
 
 # REGEX
@@ -102,10 +96,10 @@ def t_CTEI(t):
     t.value = int(t.value)
     return t
 
-# Define a constant string
-def t_CTESTRING(t):
-    r'\"([^\\\"]|\\.)*\" 
-    return t
+# # Define a constant string
+# def t_CTESTRING(t):
+#     r'\"([^\\\"]|\\.)*\"'
+#     return t
 
 # Define a rule so we can track line numbers
 def t_newline(t):
