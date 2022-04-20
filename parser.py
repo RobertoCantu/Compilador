@@ -9,15 +9,24 @@ dirFunc = {}
 
 def p_program(p):
 	'''
-	program 		: PROGRAM ID SEMICOLON program2 program3 program4 MAIN LBRACKET bloque RBRACKET SEMICOLON
+	program 		: PROGRAM ID add_func SEMICOLON program2 program3 program4 MAIN LBRACKET bloque RBRACKET SEMICOLON
 	'''
-	addFunc(dirFunc, p[2], "void");
-	print(dirFunc)
 	p[0] = 'Code compiled successfully'
 
 	# while True:
 	# 	print("hola222")
 	
+
+def p_add_func(p):
+	'''
+	add_func		: empty
+	'''
+	if (p[-2] == "program"):
+		addFunc(dirFunc, p[-1], "void")
+	elif (p[-2] == "function"):
+		if (p[-1] not in dirFunc.keys()):
+			addFunc(dirFunc, p[-1], p[-3])
+	print(dirFunc)
 
 def p_program2(p):
 	'''
@@ -135,8 +144,8 @@ def p_funciones(p):
 	'''
 def p_funciones2(p):
 	'''
-	funciones2		:  tipo_simple FUNCTION ID LPAREN param RPAREN LBRACKET vars_ estatutos RETURN LPAREN exp RPAREN RBRACKET funciones2
-					|  VOID FUNCTION ID LPAREN param RPAREN LBRACKET vars_ estatutos RBRACKET funciones2
+	funciones2		:  tipo_simple FUNCTION ID add_func LPAREN param RPAREN LBRACKET vars_ estatutos RETURN LPAREN exp RPAREN RBRACKET funciones2
+					|  VOID FUNCTION ID add_func LPAREN param RPAREN LBRACKET vars_ estatutos RBRACKET funciones2
 					| empty
 	'''
 
