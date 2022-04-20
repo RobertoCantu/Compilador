@@ -1,12 +1,23 @@
 import sys
+from Directory import addFunc, createVarTable, addVar
 import ply.yacc as yacc
 from lexer import tokens
+
+# Dict
+dirFunc = {}
+
 
 def p_program(p):
 	'''
 	program 		: PROGRAM ID SEMICOLON program2 program3 program4 MAIN LBRACKET bloque RBRACKET SEMICOLON
 	'''
+	addFunc(dirFunc, p[2], "void");
+	print(dirFunc)
 	p[0] = 'Code compiled successfully'
+
+	# while True:
+	# 	print("hola222")
+	
 
 def p_program2(p):
 	'''
@@ -45,12 +56,13 @@ def p_tipo_simple(p):
 					| STRING
 					| CHAR
 	'''
-
+	p[0] = p[1]
 def p_tipo_compuesto(p):
 	'''
 	tipo_compuesto	: FILE
 					| ID
 	'''
+	p[0] = p[1]
 
 def p_class_(p):
 	'''
@@ -82,6 +94,14 @@ def p_vars_(p):
 					| VAR tipo_compuesto vars_2
 					| empty
 	'''
+
+	if(len(p) == 4):
+		p[0] = p[2]
+		print(p[0])
+		# p[2].append(p[3])
+		# p[0] = p[2]
+	# print(p[2])
+	# print("hola")
 
 def p_vars_2(p):
 	'''

@@ -49,10 +49,10 @@ def addVar(dir, funcName, varName, varType):
 	return dir
 
 
-test = createDic()
-test = addFunc(test, "pato", "void")
+# test = createDic()
+# test = addFunc(test, "pato", "void")
 
-test = createVarTable(test, "pato")
-test = addVar(test, "pato", "var1", "int")
+# test = createVarTable(test, "pato")
+# test = addVar(test, "pato", "var1", "int")
 
-print(test)
+# print(test)
