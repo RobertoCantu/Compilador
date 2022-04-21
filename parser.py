@@ -12,6 +12,7 @@ globalVars = {}
 currentType = "" 		# current type being asigned to variable
 programName = ""		# 
 currentFunction = ""	# 
+currentVarsTable = ""
 
 
 def p_program(p):
@@ -19,7 +20,8 @@ def p_program(p):
 	program 		: PROGRAM ID create_main_func SEMICOLON program2 program3 program4 MAIN LBRACKET bloque RBRACKET SEMICOLON
 	'''
 	p[0] = 'Code compiled successfully'
-
+	
+	print(dirFunc)
 	# while True:
 	# 	print("hola222")
 		
@@ -94,7 +96,7 @@ def p_class3_(p):
 
 def p_vars_(p):
 	'''
-	vars_ 			: VAR vars_type
+	vars_ 			: VAR create_var_table vars_type
 	'''
 
 
@@ -415,8 +417,10 @@ def p_create_main_func(p):
 	global programName
 	global currentFunction
 		
-	dirFunc = dc.DirFunc()
-	dirFunc.addFunc({"name": p[-1], "type": "global", "table": None })
+	dirFunc[p[-1]] = {"name": p[-1], "type": "global", "table": None}
+	
+	# = dc.DirFunc()
+	# dirFunc.addFunc({"name": p[-1], "type": "global", "table": None })
 	programName = p[-1]
 	currentFunction = p[-1]
 	
@@ -428,8 +432,9 @@ def p_add_func(p):
 	global dirFunc
 	global currentFunction
 	
-	dirFunc = dc.DirFunc()
-	dirFunc.addFunc({"name": p[-1], "type": p[-3], "table": None })
+	# dirFunc = dc.DirFunc()
+	# dirFunc.addFunc({"name": p[-1], "type": p[-3], "table": None })
+	dirFunc[p[-1]] = {"name": p[-1], "type": p[-3], "table": None }
 	currentFunction = p[-1]
 
 
@@ -445,15 +450,20 @@ def p_id_seen(p):
 	id_seen			: empty
 	'''
 	global currentFunction
-	print(f"function: {currentFunction}, current type: {currentType}, var: {p[-1]}")
-
-
+	global dirFunc
+	global currentType
+	dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': currentType}
+	
 def p_class_seen(p):
 	'''
 	class_seen		: empty
 	'''
 	global currentFunction
+	global dirFunc
+	global currentType
 	currentFunction = p[-1]
+	dirFunc[p[-1]] = {"name": p[-1], "type": "class", "table": None }
+
 
 
 def p_end_of_func(p):
@@ -463,6 +473,18 @@ def p_end_of_func(p):
 	global currentFunction
 	global programName
 	currentFunction = programName
+
+def p_create_var_table(p):
+	'''
+	create_var_table	: empty
+	'''
+
+	global currentFunction
+	global dirFunc
+	print(dirFunc)
+
+	if not (dirFunc[currentFunction]["table"]):
+		dirFunc[currentFunction]["table"] = {}
 
 
 
