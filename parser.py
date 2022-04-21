@@ -9,7 +9,9 @@ dirFunc = {}
 globalVars = {}
 
 # Global vars
-currentType = ""
+currentType = "" 		# current type being asigned to variable
+programName = ""		# 
+currentFunction = ""	# 
 
 
 def p_program(p):
@@ -68,7 +70,7 @@ def p_tipo_compuesto(p):
 
 def p_class_(p):
 	'''
-	class_			: CLASS ID class1_ 
+	class_			: CLASS ID class_seen class1_ 
 	'''
 def p_class1_(p):
 	'''
@@ -78,7 +80,7 @@ def p_class1_(p):
 
 def p_class2_(p):
 	'''
-	class2_			: LBRACKET class3_ RBRACKET SEMICOLON
+	class2_			: LBRACKET class3_ RBRACKET end_of_func SEMICOLON
 	'''
 
 def p_class3_(p):
@@ -137,8 +139,8 @@ def p_funciones(p):
 	'''
 def p_funciones2(p):
 	'''
-	funciones2		:  tipo_simple FUNCTION ID add_func LPAREN param RPAREN LBRACKET vars_ estatutos RETURN LPAREN exp RPAREN RBRACKET funciones2
-					|  VOID FUNCTION ID add_func LPAREN param RPAREN LBRACKET vars_ estatutos RBRACKET funciones2
+	funciones2		:  tipo_simple FUNCTION ID add_func LPAREN param RPAREN LBRACKET vars_ estatutos RETURN LPAREN exp RPAREN RBRACKET end_of_func funciones2
+					|  VOID FUNCTION ID add_func LPAREN param RPAREN LBRACKET vars_ estatutos RBRACKET end_of_func funciones2
 					| empty
 	'''
 
@@ -410,9 +412,13 @@ def p_create_main_func(p):
 	'''
 
 	global dirFunc
+	global programName
+	global currentFunction
 		
 	dirFunc = dc.DirFunc()
 	dirFunc.addFunc({"name": p[-1], "type": "global", "table": None })
+	programName = p[-1]
+	currentFunction = p[-1]
 	
 def p_add_func(p):
 	'''
@@ -420,9 +426,11 @@ def p_add_func(p):
 	'''
 
 	global dirFunc
+	global currentFunction
 	
 	dirFunc = dc.DirFunc()
 	dirFunc.addFunc({"name": p[-1], "type": p[-3], "table": None })
+	currentFunction = p[-1]
 
 
 def p_type_seen(p):
@@ -434,9 +442,27 @@ def p_type_seen(p):
 
 def p_id_seen(p):
 	'''
-	id_seen		: empty
+	id_seen			: empty
 	'''
-	print(f"current type: {currentType}, var: {p[-1]}")
+	global currentFunction
+	print(f"function: {currentFunction}, current type: {currentType}, var: {p[-1]}")
+
+
+def p_class_seen(p):
+	'''
+	class_seen		: empty
+	'''
+	global currentFunction
+	currentFunction = p[-1]
+
+
+def p_end_of_func(p):
+	'''
+	end_of_func		: empty
+	'''
+	global currentFunction
+	global programName
+	currentFunction = programName
 
 
 
