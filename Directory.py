@@ -38,10 +38,10 @@ class Vars:
 			return self.dirFunc[name]["table"]
 		else:
 			return None
+
 dic = DirFunc()
 
-dic.addFunc({"name": "hola", "type": "void", "table": None})
-dic.addVarsTable('hola', {"name": "perro", "type": "int"} )
-dic.addVarsTable('hola', {"name": "gato", "type": "float"} )
-
-print(dic.dirFunc)
+# dic.addFunc({"name": "hola", "type": "void", "table": None})
+# dic.addVarsTable('hola', {"name": "perro", "type": "int"} )
+# dic.addVarsTable('hola', {"name": "gato", "type": "float"} )
+# print(dic.dirFunc)

@@ -8,6 +8,9 @@ import Directory as dc
 dirFunc = {}
 globalVars = {}
 
+# Global vars
+currentType = ""
+
 
 def p_program(p):
 	'''
@@ -89,41 +92,40 @@ def p_class3_(p):
 
 def p_vars_(p):
 	'''
-	vars_			: VAR tipo_simple vars_2
-					| VAR tipo_compuesto vars_2
+	vars_ 			: VAR vars_type
+	'''
+
+
+def p_vars_type(p):
+	'''
+	vars_type		: tipo_simple type_seen vars_s
+					| tipo_compuesto type_seen vars_c
+	'''
+
+def p_vars_c(p):
+	'''
+	vars_c			: ID id_seen COMMA
+					| ID id_seen SEMICOLON vars_end
+	'''
+
+def p_vars_s(p):
+	'''
+	vars_s			: ID id_seen SEMICOLON vars_end
+					| ID id_seen LSQRBRACKET CTEI RSQRBRACKET vars_array
+					| ID id_seen COMMA vars_s
+	'''
+
+def p_vars_array(p):
+	'''
+	vars_array		: SEMICOLON vars_end
+					| COMMA vars_s
+	'''
+
+
+def p_vars_end(p):
+	'''
+	vars_end		: vars_
 					| empty
-	'''
-
-	# if(len(p) == 4):
-	# 	p[0] = p[2]
-	# 	print(p[0])
-	# 	# p[2].append(p[3])
-	# 	# p[0] = p[2]
-	# # print(p[2])
-	# # print("hola")
-
-def p_vars_2(p):
-	'''
-	vars_2			: ID vars_3
-	'''
-
-def p_vars_3(p):
-	'''
-	vars_3			: SEMICOLON vars_
-					| vars_4
-	'''
-
-def p_vars_4(p):
-	'''
-	vars_4			: COMMA ID vars_4
-					| LSQRBRACKET CTEI RSQRBRACKET vars_5
-					| SEMICOLON vars_
-	'''
-
-def p_vars_5(p):
-	'''
-	vars_5			: COMMA vars_2
-					| SEMICOLON vars_
 	'''
 
 
@@ -402,9 +404,9 @@ def p_empty(p):
 	pass
 
 # Neural points
-def create_main_func(p):
+def p_create_main_func(p):
 	'''
-	create_main_func: empty
+	create_main_func : empty
 	'''
 
 	global dirFunc
@@ -422,22 +424,26 @@ def p_add_func(p):
 	dirFunc = dc.DirFunc()
 	dirFunc.addFunc({"name": p[-1], "type": p[-3], "table": None })
 
+
+def p_type_seen(p):
+	'''
+	type_seen		: empty
+	'''
+	global currentType
+	currentType = p[-1]
+
+def p_id_seen(p):
+	'''
+	id_seen		: empty
+	'''
+	print(f"current type: {currentType}, var: {p[-1]}")
+
+
+
 # Error rule for syntax errors
 def p_error(p):
 	print ("Line %s, illegal token %s" % (p.lineno, p.value))
 
-
-# DirFunc
-# name: [type, varTable]
-
-# VarTables
-# id_name: [type, value]
-
-dirFunc = {}
-
-# dirFunc = {
-#	'global': ['void', { 'i': ['int', #], }],
-# }
 
 parser = yacc.yacc()
 
