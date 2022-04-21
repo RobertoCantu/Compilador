@@ -27,21 +27,21 @@ class Vars:
 		self.data[item["name"]] = item
 
 	def getVarByName(self,name):
-		if(name in self.dirFunc):
-			return self.dirFunc[name]
+		if(name in self.data):
+			return self.data[name]
 		else:
 			return None
 
-	def addVarsTable(self,name, item):
-		if (name in self.dirFunc):
-			self.dirFunc[name]["table"] = item
-			return self.dirFunc[name]["table"]
-		else:
-			return None
-dic = DirFunc()
+	# def addVarsTable(self,name, item):
+	# 	if (name in self.data):
+	# 		self.dirFunc[name]["table"] = item
+	# 		return self.dirFunc[name]["table"]
+	# 	else:
+	# 		return None
+# dic = DirFunc()
 
-dic.addFunc({"name": "hola", "type": "void", "table": None})
-dic.addVarsTable('hola', {"name": "perro", "type": "int"} )
-dic.addVarsTable('hola', {"name": "gato", "type": "float"} )
+# dic.addFunc({"name": "hola", "type": "void", "table": None})
+# dic.addVarsTable('hola', {"name": "perro", "type": "int"} )
+# dic.addVarsTable('hola', {"name": "gato", "type": "float"} )
 
-print(dic.dirFunc)
+# print(dic.dirFunc)
