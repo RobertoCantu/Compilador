@@ -1,7 +1,8 @@
 import sys
-from Directory import addFunc, createVarTable, addVar
+# from Directory import addFunc, createVarTable, addVar
 import ply.yacc as yacc
 from lexer import tokens
+import Directory as dc
 
 # Dict
 dirFunc = {}
@@ -10,25 +11,13 @@ globalVars = {}
 
 def p_program(p):
 	'''
-	program 		: PROGRAM ID add_func SEMICOLON program2 program3 program4 MAIN LBRACKET bloque RBRACKET SEMICOLON
+	program 		: PROGRAM ID create_main_func SEMICOLON program2 program3 program4 MAIN LBRACKET bloque RBRACKET SEMICOLON
 	'''
 	p[0] = 'Code compiled successfully'
 
 	# while True:
 	# 	print("hola222")
-	
-
-def p_add_func(p):
-	'''
-	add_func		: empty
-	'''
-	if (p[-2] == "program"):
-		addFunc(dirFunc, p[-1], "void")
-	elif (p[-2] == "function"):
-		if (p[-1] not in dirFunc.keys()):
-			addFunc(dirFunc, p[-1], p[-3])
-	print(dirFunc)
-
+		
 def p_program2(p):
 	'''
 	program2		: class_
@@ -96,7 +85,7 @@ def p_class3_(p):
 					| empty
 	'''
 
-# <VARS>
+# <VARS>
 
 def p_vars_(p):
 	'''
@@ -105,13 +94,13 @@ def p_vars_(p):
 					| empty
 	'''
 
-	if(len(p) == 4):
-		p[0] = p[2]
-		print(p[0])
-		# p[2].append(p[3])
-		# p[0] = p[2]
-	# print(p[2])
-	# print("hola")
+	# if(len(p) == 4):
+	# 	p[0] = p[2]
+	# 	print(p[0])
+	# 	# p[2].append(p[3])
+	# 	# p[0] = p[2]
+	# # print(p[2])
+	# # print("hola")
 
 def p_vars_2(p):
 	'''
@@ -136,6 +125,7 @@ def p_vars_5(p):
 	vars_5			: COMMA vars_2
 					| SEMICOLON vars_
 	'''
+
 
 # <FUNCIONES>
 def p_funciones(p):
@@ -410,6 +400,27 @@ def p_empty(p):
 	empty	:
 	'''
 	pass
+
+# Neural points
+def create_main_func(p):
+	'''
+	create_main_func: empty
+	'''
+
+	global dirFunc
+		
+	dirFunc = dc.DirFunc()
+	dirFunc.addFunc({"name": p[-1], "type": "global", "table": None })
+	
+def p_add_func(p):
+	'''
+	add_func		: empty
+	'''
+
+	global dirFunc
+	
+	dirFunc = dc.DirFunc()
+	dirFunc.addFunc({"name": p[-1], "type": p[-3], "table": None })
 
 # Error rule for syntax errors
 def p_error(p):

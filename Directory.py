@@ -19,6 +19,25 @@ class DirFunc:
 		else:
 			return None
 
+class Vars:
+	def __init__(self):
+		self.data = {}
+
+	def addVar(self,item):
+		self.data[item["name"]] = item
+
+	def getVarByName(self,name):
+		if(name in self.dirFunc):
+			return self.dirFunc[name]
+		else:
+			return None
+
+	def addVarsTable(self,name, item):
+		if (name in self.dirFunc):
+			self.dirFunc[name]["table"] = item
+			return self.dirFunc[name]["table"]
+		else:
+			return None
 dic = DirFunc()
 
 dic.addFunc({"name": "hola", "type": "void", "table": None})

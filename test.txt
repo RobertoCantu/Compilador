@@ -11,7 +11,7 @@ void function bark(int g){
     var int m;
     var float z;
     
-    m = 2 + 2;
+    o = 2 + 2;
 }
 
 var int a;
