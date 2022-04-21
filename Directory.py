@@ -1,58 +1,28 @@
-# dirFun = {
-# 	{
-# 		'name': '',
-# 		'type': '',
-# 		'vars': {}
-# 	},
-# 	{
-# 		'name': '',
-# 		'type': '',
-# 		'vars': {}
-# 	}
-# }
 
-dirFun = {'correr': {'type': 'void', 'vars': {}}}
-# devBio = {
-# 	"name": "Ihechikara",
-# 	"age": 120,
-# 	"language": "JavaScript"
-# }
+class DirFunc:
+	def __init__(self):
+		self.dirFunc = {}
 
-# devBio["age"] = 1
+	def addFunc(self,item):
+		self.dirFunc[item["name"]] = item
 
-# print(devBio)
+	def getFuncByName(self,name):
+		if(name in self.dirFunc):
+			return self.dirFunc[name]
+		else:
+			return None
 
+	def addVarsTable(self,name, item):
+		if (name in self.dirFunc):
+			self.dirFunc[name]["table"] = item
+			return self.dirFunc[name]["table"]
+		else:
+			return None
 
-def createDic():
-	dirFun = {}
-	return dirFun
+dic = DirFunc()
 
+dic.addFunc({"name": "hola", "type": "void", "table": None})
+dic.addVarsTable('hola', {"name": "perro", "type": "int"} )
+dic.addVarsTable('hola', {"name": "gato", "type": "float"} )
 
-def addFunc(dir, name, type):
-	dir[f"{name}"] = {
-			'type': type
-			#Mas campos en el futuro
-	}
-	return dir
-
-
-def createVarTable(dir, funcName):
-	dir[f"{funcName}"]['vars'] = {}
-	#Mas campos en el futuro
-	return dir
-
-
-def addVar(dir, funcName, varName, varType):
-	dir[f"{funcName}"]['vars'][f"{varName}"] = {
-		'type': varType
-	}
-	return dir
-
-
-# test = createDic()
-# test = addFunc(test, "pato", "void")
-
-# test = createVarTable(test, "pato")
-# test = addVar(test, "pato", "var1", "int")
-
-# print(test)
+print(dic.dirFunc)

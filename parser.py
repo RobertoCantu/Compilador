@@ -5,6 +5,7 @@ from lexer import tokens
 
 # Dict
 dirFunc = {}
+globalVars = {}
 
 
 def p_program(p):
