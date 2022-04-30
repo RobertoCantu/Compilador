@@ -3,6 +3,7 @@ import sys
 import ply.yacc as yacc
 from lexer import tokens
 import Directory as dc
+from cube import SEMANTIC
 
 # Dict
 dirFunc = {}
@@ -213,18 +214,14 @@ def p_t_2(p):
 # <F>
 def p_f(p):
 	'''
-	f			: LPAREN exp RPAREN f_2
-				| CTEI f_2
-				| CTEF f_2
-				| CTESTRING f_2
-				| variable f_2
-				| llamada f_2
-				| ID DOT ID f_2
-	'''
-
-def p_f_2(p):
-	'''
-	f_2				: empty
+	f			: LPAREN exp RPAREN
+				| CTEI
+				| CTEF
+				| CTESTRING
+				| variable
+				| llamada
+				| ID DOT ID
+				| ID
 	'''
 
 def p_param(p):
