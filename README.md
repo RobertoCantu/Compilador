@@ -18,3 +18,8 @@ En este segundo avance se creo el directorio de funciones como variable global.
 Tambien se insertaron puntos dentro de las reglas para poder implementar el funcionamiento correcto. 
 
 Se guardan las funciones, en el directorio, asi como las variables en una tabla de variables la cual esta dentro de la funcion correspondiente. 
+
+
+# Avance #3
+
+Mayo 1 - Se agrego el cubo Semantico
