@@ -1,13 +1,13 @@
 program test_;
 
-var int a,z,b,c;
+var int a,b,c,z;
 var float w;
 
 main {
-    a = z + 1;
+    a = z + 1 - 1;
     b = 2 * 3;
     c = (22+3) + 1;
     print(22);
 
-    w = 1 + 1;
+    w = 1 / 1;
 };

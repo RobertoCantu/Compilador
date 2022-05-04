@@ -1,4 +1,4 @@
-from msilib.schema import Error
+# from msilib.schema import Error
 import sys
 # from Directory import addFunc, createVarTable, addVar
 import ply.yacc as yacc
@@ -203,9 +203,10 @@ def p_g_exp_2(p):
 	'''
 
 # <M_EXP>
+# Calls to + (SUM) or - (SUB)
 def p_m_exp(p):
 	'''
-	m_exp			: t m_exp_2
+	m_exp			: t check_sum_sub m_exp_2
 	'''
 
 def p_m_exp_2(p):
@@ -214,10 +215,13 @@ def p_m_exp_2(p):
 					| MINUS add_poper m_exp
 					| empty
 	'''
+
+
 # <T>
+# Calls to * (MUL) or / (DIV)
 def p_t(p):
 	'''
-	t				: f t_2 
+	t				: f check_mul_div t_2 
 	'''
 
 def p_t_2(p):
@@ -284,8 +288,10 @@ def p_llamada_void2(p):
 
 def p_asignacion(p):
 	'''
-	asignacion	: variable EQUALS exp SEMICOLON
+	asignacion	: variable EQUALS add_equals exp SEMICOLON
 	'''
+	# When the call returns it creates the equal quadruple
+	quadruple.found_equal()
 
 def p_variable(p):
 	'''
@@ -418,7 +424,8 @@ def p_empty(p):
 	'''
 	pass
 
-# NEURAL POINTS
+
+################ NEURAL POINTS ################
 
 def p_create_main_func(p):
 	'''
@@ -497,6 +504,8 @@ def p_create_var_table(p):
 	if not (dirFunc[currentFunction]["table"]):
 		dirFunc[currentFunction]["table"] = {}
 
+
+
 def p_add_id(p):
 	'''
 	add_id : empty
@@ -506,8 +515,6 @@ def p_add_id(p):
 	global currentFunction
 	global globalVars
 	global dirFunc
-
-	#print(p[-1])
 
 	if (p[-2] in dirFunc[currentFunction]['table']):
 
@@ -532,31 +539,34 @@ def p_add_float(p):
 	quadruple.push_pTypes("float")
 	quadruple.push_pilaO(p[-1])
 
+# Adds equal to poper
+def p_add_equals(p):
+	'''
+	add_equals	: empty
+	'''
+	quadruple.poper.append("=")
+
+
 def p_add_poper(p):
 	'''
 	add_poper	: empty
 	'''
-
 	quadruple.push_poper(p[-1])
 
-
-	# try:
-
-	# 	dirFunc[currentFunction]['table'][p[-2]] in 
-	# 	quadruple.push_pilaO(p[-2])
-
-	# except KeyError:
-	# 	return print(f"Variable {p[-2]} no declarada ")
-	# 	#raise key(f"Variable {p[-2]} no declarada ")
-	# 	raise NameError("hola")
+def p_check_sum_sub(p):
+	'''
+	check_sum_sub	: empty
+	'''
+	if(quadruple.poper_top() == "+" or quadruple.poper_top() == "-"):
+		quadruple.found_operator(quadruple.poper_top())
 
 
-	# else:
-	# 	raise Exception(f"Variable {p[-2]} no declarada ")
-	# # print(dirFunc[currentFunction]['table'][p[-2]])
-	# # quadruple.push_pilaO(p[-2])
-	# # print(currentFunction)
-	# #print(globalVars)
+def p_check_mul_div(p):
+	'''
+	check_mul_div	: empty
+	'''
+	if(quadruple.poper_top() == "*" or quadruple.poper_top() == "/"):
+		quadruple.found_operator(quadruple.poper_top())
 
 
 # Error rule for syntax errors

@@ -1,4 +1,5 @@
 from collections import deque
+from cube import SEMANTIC
 
 '''
 deque = stack 
@@ -31,6 +32,7 @@ class Quadruple:
         self.pilaO = deque()
         self.pTypes = deque()
         self.pSaltos = deque()
+        self.counter = 666
 
 
     # FUNCTIONS ADD TO STACKS 
@@ -59,6 +61,77 @@ class Quadruple:
     def get_pilaSaltos_stack(self):
         return self.pSaltos
 
+
+    # Get TOP from stacks
+    def poper_top(self):
+        if(len(self.poper) > 0):
+            return self.poper[len(self.poper)-1]
+        else:
+            return None
+
+    def pilaO_top(self):
+        if(len(self.pilaO) > 0):
+            return self.pilaO[len(self.pilaO)-1]
+        else:
+            return None
+
+
+    def pTypes_top(self):
+        if(len(self.pTypes) > 0):
+            return self.pTypes[len(self.pTypes)-1]
+        else:
+            return None
+    
+    def pSaltos_top(self):
+        if(len(self.pSaltos) > 0):
+            return self.pSaltos[len(self.pSaltos)-1]
+        else:
+            return None
+
+    # When an operator is found it creates the quadruple
+    def found_operator(self, operator):
+        operator = self.poper.pop()
+
+        r_type = self.pTypes.pop()
+        l_type = self.pTypes.pop()
+
+        try:
+            res_type = SEMANTIC[l_type][r_type][operator]
+
+            # print(res_type)
+
+            self.pTypes.append(res_type)
+
+            r_operand = self.pilaO.pop()
+            l_operand = self.pilaO.pop()
+
+
+            print(f"{operator}, {l_operand}, {r_operand}, t{self.counter}")
+            self.pilaO.append(self.counter)
+            self.counter = self.counter + 1
+
+        except:
+            print('Error')
+            exit()
+    
+    # When the call is returned, it creates an quadruple with equal. 
+    def found_equal(self):
+        operator = self.poper.pop()
+
+        r_type = self.pTypes.pop()
+        l_type = self.pTypes.pop()
+
+        try:
+            res_type = SEMANTIC[l_type][r_type][operator]
+
+            r_operand = self.pilaO.pop()
+            l_operand = self.pilaO.pop()
+
+            print(f"{operator}, t{r_operand}, null, {l_operand}")
+
+        except:
+            print('Error')
+            exit()
 
 
     # VALUES = { _ , _ , _ , _ }
