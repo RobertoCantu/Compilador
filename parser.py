@@ -4,6 +4,7 @@ import ply.yacc as yacc
 from lexer import tokens
 import Directory as dc
 from cube import SEMANTIC
+from Quadruples import Quadruple
 
 # Dict
 dirFunc = {}
@@ -14,6 +15,13 @@ currentType = "" 		# current type being asigned to variable
 programName = ""		# 
 currentFunction = ""	# 
 currentVarsTable = ""
+
+# Quads
+quadruple = Quadruple()
+
+quadruple.generateQuad('plus', 2, 3, 4)
+
+print(quadruple.quadruples)
 
 
 def p_program(p):

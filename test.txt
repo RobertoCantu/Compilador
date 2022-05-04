@@ -17,12 +17,8 @@ void function bark(int g){
 var int a;
 
 main {
-    read(a);
-    write("Hola mundo");
-
-    if (x > 10) {
-        a = 10 - 1;
-    } else {
-        a = 10 + 1; 
-    };
+    a = a + 1;
+    b = 22 * 3;
+    c = (22+3) + 1;
+    print(22);
 };

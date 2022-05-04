@@ -46,11 +46,27 @@ class Quadruple:
     def push_pSaltos(self, value):
         self.pSaltos.append(value)
 
+    # Get stacks
+    def get_poper_stack(self):
+        return self.poper
+
+    def get_pilaO_stack(self):
+        return self.pilaO
+
+    def get_pilaTypes_stack(self):
+        return self.pTypes
+
+    def get_pilaSaltos_stack(self):
+        return self.pSaltos
+
 
 
     # VALUES = { _ , _ , _ , _ }
     # IF NO VALUE SEND IT AS "NULL"
 
-    def generate(self, values):
-        print(values)
-        self.quadruples.append(values)
+    def generateQuad(self, operator, left_operand, right_operand, result):
+        # print(values)
+        self.quadruples.append([operator, left_operand, right_operand, result])
+
+    def fillQuad(self, index, val):
+        self.quadruples[index][3] = val
