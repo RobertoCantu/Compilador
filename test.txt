@@ -19,4 +19,10 @@ var int a;
 main {
     read(a);
     write("Hola mundo");
+
+    if (x > 10) {
+        a = 10 - 1;
+    } else {
+        a = 10 + 1; 
+    };
 };

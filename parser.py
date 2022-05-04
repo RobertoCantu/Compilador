@@ -22,9 +22,12 @@ def p_program(p):
 	'''
 	p[0] = 'Code compiled successfully'
 	
-	print(dirFunc)
-	# while True:
-	# 	print("hola222")
+	keys = dirFunc.keys()
+
+	for key in keys: 
+		print(key)
+		print(dirFunc[key]['table'])
+		print('--------')
 		
 def p_program2(p):
 	'''
@@ -287,12 +290,12 @@ def p_variable2(p):
 
 def p_condicion(p):
 	'''
-	condicion	: IF LPAREN exp RPAREN bloque condicion2 SEMICOLON
+	condicion	: IF LPAREN exp RPAREN LBRACKET bloque RBRACKET condicion2 SEMICOLON
 	'''
 
 def p_condicion2(p):
 	'''
-	condicion2	: ELSE bloque
+	condicion2	: ELSE LBRACKET bloque RBRACKET
 				| empty
 	'''
 
@@ -404,7 +407,8 @@ def p_empty(p):
 	'''
 	pass
 
-# Neural points
+# NEURAL POINTS
+
 def p_create_main_func(p):
 	'''
 	create_main_func : empty
@@ -478,7 +482,6 @@ def p_create_var_table(p):
 
 	global currentFunction
 	global dirFunc
-	print(dirFunc)
 
 	if not (dirFunc[currentFunction]["table"]):
 		dirFunc[currentFunction]["table"] = {}
