@@ -1,3 +1,4 @@
+from msilib.schema import Error
 import sys
 # from Directory import addFunc, createVarTable, addVar
 import ply.yacc as yacc
@@ -21,7 +22,8 @@ quadruple = Quadruple()
 
 quadruple.generateQuad('plus', 2, 3, 4)
 
-print(quadruple.quadruples)
+# print(quadruple.quadruples)
+
 
 
 def p_program(p):
@@ -32,10 +34,13 @@ def p_program(p):
 	
 	keys = dirFunc.keys()
 
-	for key in keys: 
-		print(key)
-		print(dirFunc[key]['table'])
-		print('--------')
+	# for key in keys: 
+	# 	print(key)
+	# 	print(dirFunc[key]['table'])
+	# 	print('--------')
+	print(quadruple.pilaO)
+	print(quadruple.pTypes)
+	print(quadruple.poper)
 		
 def p_program2(p):
 	'''
@@ -205,20 +210,20 @@ def p_m_exp(p):
 
 def p_m_exp_2(p):
 	'''
-	m_exp_2			: PLUS  m_exp
-					| MINUS m_exp
+	m_exp_2			: PLUS add_poper  m_exp
+					| MINUS add_poper m_exp
 					| empty
 	'''
 # <T>
 def p_t(p):
 	'''
-	t				: f t_2
+	t				: f t_2 
 	'''
 
 def p_t_2(p):
 	'''
-	t_2				: TIMES t
-					| DIVIDE t
+	t_2				: TIMES add_poper t
+					| DIVIDE add_poper t
 					| empty
 	'''
 
@@ -226,15 +231,13 @@ def p_t_2(p):
 def p_f(p):
 	'''
 	f			: LPAREN exp RPAREN
-				| CTEI
-				| CTEF
+				| CTEI add_int
+				| CTEF add_float
 				| CTESTRING
 				| variable
 				| llamada
-				| ID DOT ID
-				| ID
 	'''
-
+	
 def p_param(p):
 	'''
 	param			: tipo_simple ID param2
@@ -286,7 +289,7 @@ def p_asignacion(p):
 
 def p_variable(p):
 	'''
-	variable	: ID variable2
+	variable	: ID  variable2 add_id
 	'''
 
 def p_variable2(p):
@@ -494,6 +497,66 @@ def p_create_var_table(p):
 	if not (dirFunc[currentFunction]["table"]):
 		dirFunc[currentFunction]["table"] = {}
 
+def p_add_id(p):
+	'''
+	add_id : empty
+
+	'''
+
+	global currentFunction
+	global globalVars
+	global dirFunc
+
+	#print(p[-1])
+
+	if (p[-2] in dirFunc[currentFunction]['table']):
+
+		var_type = dirFunc[currentFunction]['table'][p[-2]]["type"]
+		quadruple.push_pTypes(var_type)
+		quadruple.push_pilaO(p[-2])
+	else:
+		print(f"Variable \"{p[-2]}\" no declarada ")
+		exit()
+
+def p_add_int(p):
+	"""
+	add_int : empty
+	"""
+	quadruple.push_pTypes("int")
+	quadruple.push_pilaO(p[-1])
+
+def p_add_float(p):
+	"""
+	add_float : empty
+	"""
+	quadruple.push_pTypes("float")
+	quadruple.push_pilaO(p[-1])
+
+def p_add_poper(p):
+	'''
+	add_poper	: empty
+	'''
+
+	quadruple.push_poper(p[-1])
+
+
+	# try:
+
+	# 	dirFunc[currentFunction]['table'][p[-2]] in 
+	# 	quadruple.push_pilaO(p[-2])
+
+	# except KeyError:
+	# 	return print(f"Variable {p[-2]} no declarada ")
+	# 	#raise key(f"Variable {p[-2]} no declarada ")
+	# 	raise NameError("hola")
+
+
+	# else:
+	# 	raise Exception(f"Variable {p[-2]} no declarada ")
+	# # print(dirFunc[currentFunction]['table'][p[-2]])
+	# # quadruple.push_pilaO(p[-2])
+	# # print(currentFunction)
+	# #print(globalVars)
 
 
 # Error rule for syntax errors
