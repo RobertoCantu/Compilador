@@ -234,7 +234,7 @@ def p_t_2(p):
 # <F>
 def p_f(p):
 	'''
-	f			: LPAREN exp RPAREN
+	f			: LPAREN add_fake_bottom exp pop_fake_bottom RPAREN
 				| CTEI add_int
 				| CTEF add_float
 				| CTESTRING
@@ -568,6 +568,17 @@ def p_check_mul_div(p):
 	if(quadruple.poper_top() == "*" or quadruple.poper_top() == "/"):
 		quadruple.found_operator(quadruple.poper_top())
 
+def p_add_fake_bottom(p):
+	'''
+	add_fake_bottom 	: empty
+	'''
+	quadruple.push_poper(p[-1])
+
+def p_pop_fake_bottom(p):
+	'''
+	pop_fake_bottom 	: empty
+	'''
+	quadruple.get_poper_stack().pop()
 
 # Error rule for syntax errors
 def p_error(p):
