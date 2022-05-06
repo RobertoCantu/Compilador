@@ -317,16 +317,10 @@ def p_condicion2(p):
 				| empty
 	'''
 
+# <READ>
 def p_read(p):
 	'''
-	read		: READ LPAREN ID read2 RPAREN SEMICOLON
-	'''
-
-def p_read2(p):
-	'''
-	read2		: DOT ID
-				| COMMA ID read2
-				| empty
+	read		: READ LPAREN variable add_read RPAREN SEMICOLON
 	'''
 
 # <WRITE>
@@ -589,6 +583,17 @@ def p_add_write(p):
 	res = quadruple.pilaO_top()
 	quadruple.get_pilaO_stack().pop()
 	quadruple.generateQuad('WRITE', 'empty', 'empty', res)
+	quadruple.get_poper_stack().pop()
+	quadruple.get_pilaTypes_stack().pop()
+
+def p_add_read(p):
+	'''
+	add_read	: empty
+	'''
+	quadruple.push_poper('read')
+	res = quadruple.pilaO_top()
+	quadruple.get_pilaO_stack().pop()
+	quadruple.generateQuad('READ', 'empty', 'empty', res)
 	quadruple.get_poper_stack().pop()
 	quadruple.get_pilaTypes_stack().pop()
 
