@@ -20,7 +20,7 @@ currentVarsTable = ""
 # Quads
 quadruple = Quadruple()
 
-quadruple.generateQuad('plus', 2, 3, 4)
+#quadruple.generateQuad('plus', 2, 3, 4)
 
 # print(quadruple.quadruples)
 
@@ -38,9 +38,10 @@ def p_program(p):
 	# 	print(key)
 	# 	print(dirFunc[key]['table'])
 	# 	print('--------')
-	print(quadruple.pilaO)
-	print(quadruple.pTypes)
-	print(quadruple.poper)
+	print("Pila de operandos", quadruple.pilaO)
+	print("Pila de tipos", quadruple.pTypes)
+	print("Pila de operadores", quadruple.poper)
+	print("Lista de cuadruplos", quadruple.get_quads_list())
 		
 def p_program2(p):
 	'''
@@ -336,14 +337,14 @@ def p_write(p):
 
 def p_write_2(p):
 	'''
-	write_2		: exp  RPAREN write_3 SEMICOLON
-				| CTESTRING RPAREN write_3 SEMICOLON
+	write_2		: exp add_write write_3
+						| CTESTRING write_3 
 	'''
 
 def p_write_3(p):
 	'''
 	write_3		: COMMA write_2
-				| empty
+						| RPAREN SEMICOLON
 	'''
 
 def p_var_cte(p):
@@ -579,6 +580,17 @@ def p_pop_fake_bottom(p):
 	pop_fake_bottom 	: empty
 	'''
 	quadruple.get_poper_stack().pop()
+
+def p_add_write(p):
+	'''
+	add_write	: empty
+	'''
+	quadruple.push_poper('write')
+	res = quadruple.pilaO_top()
+	quadruple.get_pilaO_stack().pop()
+	quadruple.generateQuad('WRITE', 'empty', 'empty', res)
+	quadruple.get_poper_stack().pop()
+	quadruple.get_pilaTypes_stack().pop()
 
 # Error rule for syntax errors
 def p_error(p):

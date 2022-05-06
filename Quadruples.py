@@ -61,6 +61,9 @@ class Quadruple:
     def get_pilaSaltos_stack(self):
         return self.pSaltos
 
+    def get_quads_list(self):
+        return self.quadruples
+
 
     # Get TOP from stacks
     def poper_top(self):
@@ -107,6 +110,7 @@ class Quadruple:
 
 
             print(f"{operator}, {l_operand}, {r_operand}, t{self.counter}")
+            self.quadruples.append([operator, l_operand, r_operand, self.counter])
             self.pilaO.append(self.counter)
             self.counter = self.counter + 1
 
@@ -128,6 +132,8 @@ class Quadruple:
             l_operand = self.pilaO.pop()
 
             print(f"{operator}, t{r_operand}, null, {l_operand}")
+            self.quadruples.append([operator, 'empty', r_operand, l_operand])
+
 
         except:
             print('Error')
