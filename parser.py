@@ -41,8 +41,12 @@ def p_program(p):
 	print("Pila de operandos", quadruple.pilaO)
 	print("Pila de tipos", quadruple.pTypes)
 	print("Pila de operadores", quadruple.poper)
-	print()
-	print("Lista de cuadruplos", quadruple.get_quads_list())
+	print("Pila Saltos", quadruple.pSaltos)
+	print("Lista de cuadruplos: ")
+	i = 0
+	for quad in quadruple.get_quads_list():
+		print(f"{i}", quad)
+		i = i + 1
 		
 def p_program2(p):
 	'''
@@ -311,13 +315,13 @@ def p_variable2(p):
 
 def p_condicion(p):
 	'''
-	condicion	: IF LPAREN exp if_cond RPAREN LBRACKET bloque RBRACKET if_false condicion2 SEMICOLON
+	condicion	: IF LPAREN exp if_cond RPAREN LBRACKET bloque RBRACKET if_end condicion2 SEMICOLON
 	'''
 
 def p_condicion2(p):
 	'''
-	condicion2	: ELSE LBRACKET bloque RBRACKET
-				| empty
+	condicion2	: ELSE LBRACKET bloque end_of_else RBRACKET
+				| end_of_else empty
 	'''
 
 # <READ>
@@ -635,17 +639,23 @@ def p_if_cond(p):
 	'''
 	if_cond		: empty
 	'''
-	# Check last QUADRUPLE IS A BOOLEAN
-	# create quadruple as a func
-	quad = ['GOTOF', quadruple.pilaO_top(), None, None]
-
-	print(quad)
+	quadruple.createIf('GOTOF')
 	
 
-def p_if_false(p):
+# END OF IF, START OF ELSE (IF ANY)
+def p_if_end(p):
 	'''
-	if_false	: empty
+	if_end	: empty
 	'''
+	quadruple.if_end()
+
+# ELSE 
+
+def p_end_of_else(p):
+	'''
+	end_of_else	: empty
+	'''
+	quadruple.else_end()
 
 # Error rule for syntax errors
 def p_error(p):

@@ -33,6 +33,7 @@ class Quadruple:
         self.pTypes = deque()
         self.pSaltos = deque()
         self.counter = 666
+        self.quad_counter = 0
 
 
     # FUNCTIONS ADD TO STACKS 
@@ -110,7 +111,7 @@ class Quadruple:
 
 
             # print(f"{operator}, {l_operand}, {r_operand}, t{self.counter}")
-            self.quadruples.append([operator, l_operand, r_operand, self.counter])
+            self.generateQuad(operator, l_operand, r_operand, self.counter)
             self.pilaO.append(self.counter)
             self.counter = self.counter + 1
 
@@ -132,7 +133,7 @@ class Quadruple:
             l_operand = self.pilaO.pop()
 
             # print(f"{operator}, t{r_operand}, null, {l_operand}")
-            self.quadruples.append([operator, 'empty', r_operand, l_operand])
+            self.generateQuad(operator, r_operand, 'empty', l_operand)
 
 
         except:
@@ -140,12 +141,34 @@ class Quadruple:
             exit()
 
 
-    # VALUES = { _ , _ , _ , _ }
-    # IF NO VALUE SEND IT AS "NULL"
 
     def generateQuad(self, operator, left_operand, right_operand, result):
-        # print(values)
         self.quadruples.append([operator, left_operand, right_operand, result])
+        self.quad_counter = self.quad_counter + 1
 
     def fillQuad(self, index, val):
         self.quadruples[index][3] = val
+
+    def createIf(self, tag):
+        if(self.pTypes.pop() != "bool"): 
+            print('Expected boolean exp')
+            exit()
+
+        oper = self.pilaO.pop()
+        
+        self.pSaltos.append(self.quad_counter)
+        self.generateQuad(tag, oper, None, None)
+
+    def if_end(self):
+        # 1 - Pop pSaltos
+        jump = self.pSaltos.pop()
+        # 2 - Guarda contador actual en pSaltos
+        self.pSaltos.append(self.quad_counter)
+        # 3 - Genera GOTO para el else
+        self.generateQuad('GOTO', None, None, None)
+        # 4 - Rellena jump: GOTOF original con valor del contador actual
+        self.fillQuad(jump, self.quad_counter)
+    
+    def else_end(self):
+        jump = self.pSaltos.pop()
+        self.fillQuad(jump, self.quad_counter)
