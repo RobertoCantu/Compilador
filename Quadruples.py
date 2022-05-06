@@ -109,7 +109,7 @@ class Quadruple:
             l_operand = self.pilaO.pop()
 
 
-            print(f"{operator}, {l_operand}, {r_operand}, t{self.counter}")
+            # print(f"{operator}, {l_operand}, {r_operand}, t{self.counter}")
             self.quadruples.append([operator, l_operand, r_operand, self.counter])
             self.pilaO.append(self.counter)
             self.counter = self.counter + 1
@@ -131,7 +131,7 @@ class Quadruple:
             r_operand = self.pilaO.pop()
             l_operand = self.pilaO.pop()
 
-            print(f"{operator}, t{r_operand}, null, {l_operand}")
+            # print(f"{operator}, t{r_operand}, null, {l_operand}")
             self.quadruples.append([operator, 'empty', r_operand, l_operand])
 
 

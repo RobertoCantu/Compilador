@@ -42,6 +42,8 @@ def p_program(p):
 	print("Pila de tipos", quadruple.pTypes)
 	print("Pila de operadores", quadruple.poper)
 	print("Lista de cuadruplos", quadruple.get_quads_list())
+	print("directory of functions: ")
+	print(dirFunc)
 		
 def p_program2(p):
 	'''
@@ -159,8 +161,8 @@ def p_funciones(p):
 	'''
 def p_funciones2(p):
 	'''
-	funciones2		:  tipo_simple FUNCTION ID add_func LPAREN param RPAREN LBRACKET vars_ estatutos RETURN LPAREN exp RPAREN RBRACKET end_of_func funciones2
-					|  VOID FUNCTION ID add_func LPAREN param RPAREN LBRACKET vars_ estatutos RBRACKET end_of_func funciones2
+	funciones2		:  tipo_simple FUNCTION ID add_func LPAREN create_var_table param RPAREN LBRACKET vars_ estatutos RETURN LPAREN exp RPAREN RBRACKET end_of_func funciones2
+					|  VOID FUNCTION ID add_func LPAREN  create_var_table param RPAREN LBRACKET vars_ estatutos RBRACKET end_of_func funciones2
 					| empty
 	'''
 
@@ -245,12 +247,12 @@ def p_f(p):
 	
 def p_param(p):
 	'''
-	param			: tipo_simple ID param2
+	param			: tipo_simple ID add_param param2
 	'''
 
 def p_param2(p):
 	'''
-	param2			: COMMA tipo_simple ID param2
+	param2			: COMMA tipo_simple add_param ID param2
 					| empty
 '''
 
@@ -486,6 +488,10 @@ def p_end_of_func(p):
 	'''
 	global currentFunction
 	global programName
+	global dirFunc
+
+	dirFunc[currentFunction]['table'] = None # Delete function's var table at the end. 
+
 	currentFunction = programName
 
 def p_create_var_table(p):
@@ -518,6 +524,19 @@ def p_add_id(p):
 		quadruple.push_pilaO(p[-2])
 	else:
 		print(f"Variable \"{p[-2]}\" no declarada ")
+		exit()
+
+def p_add_param(p):
+	'''
+	add_param	: empty
+	'''
+	global currentFunction
+	global dirFunc
+
+	if ( p[-1] not in dirFunc[currentFunction]['table']):
+		dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': p[-2]}
+	else:
+		print(f"Variable \"{p[-1]}\" ya declarada ")
 		exit()
 
 def p_add_int(p):
