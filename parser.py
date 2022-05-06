@@ -41,9 +41,8 @@ def p_program(p):
 	print("Pila de operandos", quadruple.pilaO)
 	print("Pila de tipos", quadruple.pTypes)
 	print("Pila de operadores", quadruple.poper)
+	print()
 	print("Lista de cuadruplos", quadruple.get_quads_list())
-	print("directory of functions: ")
-	print(dirFunc)
 		
 def p_program2(p):
 	'''
@@ -193,15 +192,17 @@ def p_t_exp_2(p):
 # <G_EXP>
 def p_g_exp(p):
 	'''
-	g_exp			: m_exp g_exp_2
+	g_exp			: m_exp check_comparator g_exp_2
 	'''
+	if(quadruple.poper_top() == ">" or quadruple.poper_top() == "<" or quadruple.poper_top() == "!=" or quadruple.poper_top() == "=="):
+		quadruple.found_operator(quadruple.poper_top())
 
 def p_g_exp_2(p):
 	'''
-	g_exp_2			:	GREATER m_exp
-					| LESS m_exp
-					| NOTEQUAL m_exp
-					| EQUAL m_exp
+	g_exp_2			: GREATER add_comparator m_exp
+					| LESS add_comparator m_exp
+					| NOTEQUAL add_comparator m_exp
+					| EQUAL add_comparator m_exp
 					| empty
 	'''
 
@@ -310,7 +311,7 @@ def p_variable2(p):
 
 def p_condicion(p):
 	'''
-	condicion	: IF LPAREN exp RPAREN LBRACKET bloque RBRACKET condicion2 SEMICOLON
+	condicion	: IF LPAREN exp if_cond RPAREN LBRACKET bloque RBRACKET if_false condicion2 SEMICOLON
 	'''
 
 def p_condicion2(p):
@@ -582,6 +583,19 @@ def p_check_mul_div(p):
 	if(quadruple.poper_top() == "*" or quadruple.poper_top() == "/"):
 		quadruple.found_operator(quadruple.poper_top())
 
+def p_check_comparator(p):
+	'''
+	check_comparator	: empty
+	'''
+	if(quadruple.poper_top() == ">" or quadruple.poper_top() == "<" or quadruple.poper_top() == "!=" or quadruple.poper_top() == "=="):
+		quadruple.found_operator(quadruple.poper_top())
+
+def p_add_comparator(p):
+	'''
+	add_comparator	: empty
+	'''
+	quadruple.push_poper(p[-1])
+
 def p_add_fake_bottom(p):
 	'''
 	add_fake_bottom 	: empty
@@ -615,6 +629,23 @@ def p_add_read(p):
 	quadruple.generateQuad('READ', 'empty', 'empty', res)
 	quadruple.get_poper_stack().pop()
 	quadruple.get_pilaTypes_stack().pop()
+
+# IF
+def p_if_cond(p):
+	'''
+	if_cond		: empty
+	'''
+	# Check last QUADRUPLE IS A BOOLEAN
+	# create quadruple as a func
+	quad = ['GOTOF', quadruple.pilaO_top(), None, None]
+
+	print(quad)
+	
+
+def p_if_false(p):
+	'''
+	if_false	: empty
+	'''
 
 # Error rule for syntax errors
 def p_error(p):
