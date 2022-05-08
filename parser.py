@@ -42,6 +42,7 @@ def p_program(p):
 	print("Pila de tipos", quadruple.pTypes)
 	print("Pila de operadores", quadruple.poper)
 	print("Pila Saltos", quadruple.pSaltos)
+	print("Size of quads list", quadruple.quad_counter)
 	print("Lista de cuadruplos: ")
 	i = 0
 	for quad in quadruple.get_quads_list():
@@ -358,52 +359,54 @@ def p_var_cte(p):
 
 def p_while_loop(p):
 	'''
-	while_loop	: WHILE LPAREN loop_cond RPAREN LBRACKET exp RBRACKET
-	'''
-# <LOOP_COND>
-def p_loop_cond(p):
-	'''
-	loop_cond	:	l_1 loop_cond_2
+	while_loop	: WHILE while_jump LPAREN exp RPAREN while_eval_exp LBRACKET bloque RBRACKET while_return SEMICOLON
 	'''
 
-def p_loop_cond_2(p):
-	'''
-	loop_cond_2	: OR loop_cond
-				| empty
-	'''
 
-# <L_1>
-def p_l_1(p):
-	'''
-	l_1			: l_2 l_1_2
-	'''
+# # <LOOP_COND>
+# def p_loop_cond(p):
+# 	'''
+# 	loop_cond	:	l_1 loop_cond_2
+# 	'''
 
-def p_l_1_2(p):
-	'''
-	l_1_2		: AND l_1
-				| empty
-	'''
+# def p_loop_cond_2(p):
+# 	'''
+# 	loop_cond_2	: OR loop_cond
+# 				| empty
+# 	'''
 
-# <L_2>
-def p_l_2(p):
-	'''
-	l_2			: l_3 l_2_2
-	'''
+# # <L_1>
+# def p_l_1(p):
+# 	'''
+# 	l_1			: l_2 l_1_2
+# 	'''
 
-def p_l_2_2(p):
-	'''
-	l_2_2		: GREATER l_3
-				| LESS l_3
-				| NOTEQUAL l_3
-				| EQUAL l_3
-				| empty
-	'''
+# def p_l_1_2(p):
+# 	'''
+# 	l_1_2		: AND l_1
+# 				| empty
+# 	'''
 
-def p_l_3(p):
-	'''
-	l_3			:	CTEI empty
-				| LPAREN loop_cond RPAREN empty
-	'''
+# # <L_2>
+# def p_l_2(p):
+# 	'''
+# 	l_2			: l_3 l_2_2
+# 	'''
+
+# def p_l_2_2(p):
+# 	'''
+# 	l_2_2		: GREATER l_3
+# 				| LESS l_3
+# 				| NOTEQUAL l_3
+# 				| EQUAL l_3
+# 				| empty
+# 	'''
+
+# def p_l_3(p):
+# 	'''
+# 	l_3			:	CTEI empty
+# 				| LPAREN loop_cond RPAREN empty
+# 	'''
 
 def p_for_loop(p):
 	'''
@@ -656,6 +659,37 @@ def p_end_of_else(p):
 	end_of_else	: empty
 	'''
 	quadruple.else_end()
+
+# WHILE Points
+def p_while_jump(p):
+	'''
+	while_jump	: empty
+	'''
+	count = quadruple.quad_counter
+	quadruple.push_pSaltos(count)
+
+def p_while_eval_exp(p):
+	'''
+	while_eval_exp 	: empty
+	'''
+	cond = quadruple.get_pilaO_stack().pop()
+	type_condition = quadruple.get_pilaTypes_stack().pop()
+	if (type_condition != 'bool'):
+		print('Expected boolean exp')
+		exit()
+	else:
+		quadruple.generateQuad('GOTOF', cond, 'empty', 'empty')
+		quadruple.push_pSaltos(quadruple.quad_counter - 1)
+
+def p_while_return(p):
+	'''
+	while_return	: empty
+	'''
+	false_quad = quadruple.get_pilaSaltos_stack().pop()
+	return_quad = quadruple.get_pilaSaltos_stack().pop()
+	quadruple.generateQuad('GOTO', None, None, return_quad)
+	quadruple.fillQuad(false_quad, quadruple.quad_counter)
+
 
 # Error rule for syntax errors
 def p_error(p):
