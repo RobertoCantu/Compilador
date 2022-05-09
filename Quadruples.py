@@ -1,42 +1,21 @@
 from collections import deque
 from cube import SEMANTIC
 
-'''
-deque = stack 
-
-s.append(x) --> pushes into top of stack
-s.pop() --> pops top of
-
-
-QUADRUPLES --> LIST
-
-Pila de Operadores
-poper
-
-Pila de Operandos
-pilaO
-
-Pila de tipos
-pTypes
-
-Pila de Saltos
-pSaltos 
-
-'''
-
 class Quadruple:
 
     def __init__(self):
         self.quadruples = []
-        self.poper = deque()
-        self.pilaO = deque()
-        self.pTypes = deque()
-        self.pSaltos = deque()
-        self.counter = 666
-        self.quad_counter = 0
+        self.poper = deque()    # poper = PILA OPERADORES
+        self.pilaO = deque()    # pilaO = PILA DE OPERANDOS
+        self.pTypes = deque()   # pTypes = PILA DE TIPOS
+        self.pSaltos = deque()  # pSaltos = PILA DE SALTOS
+        self.counter = 666      # 
+        self.quad_counter = 0   # CONT. PARA LISTA DE CUADRUPLOS
 
+    def increment_counter(self):
+        self.counter = self.counter + 1
 
-    # FUNCTIONS ADD TO STACKS 
+    # ADD TO STACKS 
     def push_poper(self, value):
         self.poper.append(value)
 
@@ -79,7 +58,6 @@ class Quadruple:
         else:
             return None
 
-
     def pTypes_top(self):
         if(len(self.pTypes) > 0):
             return self.pTypes[len(self.pTypes)-1]
@@ -113,7 +91,7 @@ class Quadruple:
             # print(f"{operator}, {l_operand}, {r_operand}, t{self.counter}")
             self.generateQuad(operator, l_operand, r_operand, self.counter)
             self.pilaO.append(self.counter)
-            self.counter = self.counter + 1
+            self.increment_counter()
 
         except:
             print('Error')
@@ -134,14 +112,11 @@ class Quadruple:
 
             # print(f"{operator}, t{r_operand}, null, {l_operand}")
             self.generateQuad(operator, r_operand, 'empty', l_operand)
-
-
         except:
             print('Error')
             exit()
 
-
-
+    # QUADRUPLE GENERATION AND FILL FUNCTIONS (GOTOs)
     def generateQuad(self, operator, left_operand, right_operand, result):
         self.quadruples.append([operator, left_operand, right_operand, result])
         self.quad_counter = self.quad_counter + 1
@@ -149,6 +124,8 @@ class Quadruple:
     def fillQuad(self, index, val):
         self.quadruples[index][3] = val
 
+    
+    # FUNCTIONS FOR IF, ELSE 
     def createIf(self, tag):
         if(self.pTypes.pop() != "bool"): 
             print('Expected boolean exp')
@@ -172,3 +149,72 @@ class Quadruple:
     def else_end(self):
         jump = self.pSaltos.pop()
         self.fillQuad(jump, self.quad_counter)
+
+    
+    # FOR FUNCTIONS
+    def for_equal_exp(self):
+        exp_type = self.pTypes.pop()
+        exp_res = self.pilaO.pop()
+
+        if not ( numerical(exp_type) ):
+            print(f"Variable \"{exp_type}\" no numerica ")
+            exit()
+	
+        v_control = self.pilaO_top()
+        v_control_type = self.pTypes_top()
+
+        # NO SEGURO SI DEJAR O BORRAR
+        self.pilaO.append(v_control) # Para poder luego incrementarla
+        self.pTypes.append(v_control_type) # Para poder luego incrementarla
+
+        res_type = SEMANTIC[v_control_type][exp_type]["="]
+        # Error if result not found
+        self.generateQuad("=", exp_res, None, v_control)
+    
+    def for_comparison(self):
+        exp_type = self.pTypes.pop()
+        exp_res = self.pilaO.pop()
+
+        if not(numerical(exp_type)):
+            print(f"Variable \"{exp_type}\" no numerica ")
+            exit()
+        
+        self.generateQuad('=', exp_res, None, 'v_final')
+        v_control = self.pilaO_top()
+
+        self.generateQuad('<', v_control, 'v_final', self.counter)
+        self.increment_counter()
+        self.pSaltos.append(self.quad_counter-1)
+        self.generateQuad('GOTOF', self.counter - 1, None, None)
+        self.pSaltos.append(self.quad_counter-1)
+
+    def for_end(self):
+        v_control = self.pilaO.pop()
+        v_control_type = self.pTypes.pop()
+
+        self.generateQuad('+', v_control, 1, self.counter) 
+        self.generateQuad('=', self.counter, None, v_control)
+        self.generateQuad('=', self.counter, None, self.pilaO_top())
+        self.increment_counter()
+
+        end = self.pSaltos.pop()
+        ret = self.pSaltos.pop()
+
+        self.generateQuad('GOTO', None, None, ret)
+        self.fillQuad(end, self.quad_counter)
+
+        # ELIM COUNTER
+        self.pilaO.pop()
+        self.pTypes.pop()
+
+
+        
+
+################ AUX FUNCTIONS ################
+def numerical(val):
+	if (val != "int" and val != "float"):
+			return False
+	else:
+		return True
+
+################ END OF AUX FUNCTIONS ################

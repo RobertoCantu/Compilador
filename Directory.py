@@ -18,6 +18,9 @@ class DirFunc:
 			return self.dirFunc[name]["table"]
 		else:
 			return None
+	
+	def addVar(self, name, type):
+		print('Add var')
 
 class Vars:
 	def __init__(self):

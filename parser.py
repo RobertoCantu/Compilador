@@ -213,6 +213,7 @@ def p_g_exp_2(p):
 
 # <M_EXP>
 # Calls to + (SUM) or - (SUB)
+# WHERE EXPs IN FOR LOOP STARTS m_exp
 def p_m_exp(p):
 	'''
 	m_exp			: t check_sum_sub m_exp_2
@@ -299,7 +300,6 @@ def p_asignacion(p):
 	'''
 	asignacion	: variable EQUALS add_equals exp SEMICOLON
 	'''
-	# When the call returns it creates the equal quadruple
 	quadruple.found_equal()
 
 def p_variable(p):
@@ -357,60 +357,16 @@ def p_var_cte(p):
 				| CTESTRING
 	'''
 
+# <WHILE LOOP>
 def p_while_loop(p):
 	'''
 	while_loop	: WHILE while_jump LPAREN exp RPAREN while_eval_exp LBRACKET bloque RBRACKET while_return SEMICOLON
 	'''
 
-
-# # <LOOP_COND>
-# def p_loop_cond(p):
-# 	'''
-# 	loop_cond	:	l_1 loop_cond_2
-# 	'''
-
-# def p_loop_cond_2(p):
-# 	'''
-# 	loop_cond_2	: OR loop_cond
-# 				| empty
-# 	'''
-
-# # <L_1>
-# def p_l_1(p):
-# 	'''
-# 	l_1			: l_2 l_1_2
-# 	'''
-
-# def p_l_1_2(p):
-# 	'''
-# 	l_1_2		: AND l_1
-# 				| empty
-# 	'''
-
-# # <L_2>
-# def p_l_2(p):
-# 	'''
-# 	l_2			: l_3 l_2_2
-# 	'''
-
-# def p_l_2_2(p):
-# 	'''
-# 	l_2_2		: GREATER l_3
-# 				| LESS l_3
-# 				| NOTEQUAL l_3
-# 				| EQUAL l_3
-# 				| empty
-# 	'''
-
-# def p_l_3(p):
-# 	'''
-# 	l_3			:	CTEI empty
-# 				| LPAREN loop_cond RPAREN empty
-# 	'''
-
+# <FOR LOOP>
 def p_for_loop(p):
 	'''
-	for_loop	: FOR LPAREN ID EQUALS CTEI TO CTEI RPAREN LBRACKET exp RBRACKET
+	for_loop	: FOR ID for_store_id EQUALS exp for_exp_equal_id TO exp for_comparison DO LBRACKET bloque RBRACKET for_end SEMICOLON
 	'''
 
 def p_open_file(p):
@@ -652,8 +608,8 @@ def p_if_end(p):
 	'''
 	quadruple.if_end()
 
-# ELSE 
 
+# ELSE 
 def p_end_of_else(p):
 	'''
 	end_of_else	: empty
@@ -690,6 +646,66 @@ def p_while_return(p):
 	quadruple.generateQuad('GOTO', None, None, return_quad)
 	quadruple.fillQuad(false_quad, quadruple.quad_counter)
 
+
+# FOR LOOP
+def p_for_store_id(p):
+	'''
+	for_store_id		: empty
+	'''
+	global currentFunction
+	global dirFunc
+
+	v_control = p[-1]
+
+	# Check it exists and is a numerical var
+	if ( v_control in dirFunc[currentFunction]['table']):
+
+		v_type = dirFunc[currentFunction]['table'][v_control]['type']
+
+		# Check it's type
+		if not (numerical(v_type)):
+			print(f"Variable \"{v_control}\" no numerica ")
+			exit()
+
+		# PUSH pilaO & pTypes
+		quadruple.pilaO.append(v_control)
+		quadruple.pTypes.append(v_type)
+	else:
+		print(f"Variable \"{v_control}\" no declarada en el for ")
+		exit()
+
+
+def p_for_exp_equal_id(p):
+	'''
+	for_exp_equal_id	: empty
+	'''
+	quadruple.for_equal_exp()
+
+
+def p_for_comparison(p):
+	'''
+	for_comparison		: empty
+	'''
+	quadruple.for_comparison()
+
+
+def p_for_end(p):
+	'''
+	for_end				: empty
+	'''
+	quadruple.for_end()
+
+################ END OF NEURAL POINTS ################
+
+
+################ AUX FUNCTIONS ################
+def numerical(val):
+	if (val != "int" and val != "float"):
+			return False
+	else:
+		return True
+
+################ END OF AUX FUNCTIONS ################
 
 # Error rule for syntax errors
 def p_error(p):

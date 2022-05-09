@@ -24,7 +24,8 @@ reserved = {
     'file': 'FILE',
     'to': 'TO',
     'function': 'FUNCTION',
-    'functions': 'FUNCTIONS'
+    'functions': 'FUNCTIONS',
+    'do': 'DO',
 }
 
 # List of token names.   This is always required
@@ -44,6 +45,7 @@ tokens = [
     'LPAREN',
     'RPAREN',
     'SEMICOLON',
+    'COLON',
     'EQUALS',
     'EQUAL',
     'COMMA',
@@ -69,6 +71,7 @@ t_RBRACKET = r'\}'
 t_LSQRBRACKET = r'\['
 t_RSQRBRACKET = r'\]'
 t_SEMICOLON = r'\;'
+t_COLON = r'\:'
 t_EQUALS = r'\='
 t_COMMA = r'\,'
 t_CTESTRING = r'\".*\"'
