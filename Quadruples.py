@@ -155,7 +155,7 @@ class Quadruple:
     def for_equal_exp(self):
         exp_type = self.pTypes.pop()
         exp_res = self.pilaO.pop()
-
+        # Debe ser solo entera
         if not ( numerical(exp_type) ):
             print(f"Variable \"{exp_type}\" no numerica ")
             exit()

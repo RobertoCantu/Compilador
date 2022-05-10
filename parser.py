@@ -654,25 +654,31 @@ def p_for_store_id(p):
 	'''
 	global currentFunction
 	global dirFunc
+	global programName
 
 	v_control = p[-1]
 
-	# Check it exists and is a numerical var
+	# Check it exists in local function if not checks in global and is a numerical var
 	if ( v_control in dirFunc[currentFunction]['table']):
 
 		v_type = dirFunc[currentFunction]['table'][v_control]['type']
 
-		# Check it's type
-		if not (numerical(v_type)):
-			print(f"Variable \"{v_control}\" no numerica ")
-			exit()
+	elif(v_control in dirFunc[programName]['table']):
+		v_type = dirFunc[programName]['table'][v_control]['type']
 
-		# PUSH pilaO & pTypes
-		quadruple.pilaO.append(v_control)
-		quadruple.pTypes.append(v_type)
 	else:
-		print(f"Variable \"{v_control}\" no declarada en el for ")
+		print(f"Semantic Error: Type mismatch, Variable \"{v_control}\" no existe")
 		exit()
+
+	# Check it's type
+	if not (numerical(v_type)):
+		print(f"Semantic Error: Type missmatch, Variable \"{v_control}\" no numerica ")
+		exit()
+
+	# PUSH pilaO & pTypes
+	quadruple.pilaO.append(v_control)
+	quadruple.pTypes.append(v_type)
+	
 
 
 def p_for_exp_equal_id(p):
