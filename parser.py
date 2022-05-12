@@ -70,7 +70,7 @@ def p_program4(p):
 def p_bloque(p):
 	'''
 	bloque			: estatutos bloque1
-					| empty
+							| empty
 	'''
 
 def p_bloque1(p):
@@ -121,6 +121,7 @@ def p_class3_(p):
 def p_vars_(p):
 	'''
 	vars_ 			: VAR create_var_table vars_type
+							| empty
 	'''
 
 
@@ -165,8 +166,8 @@ def p_funciones(p):
 	'''
 def p_funciones2(p):
 	'''
-	funciones2		:  tipo_simple FUNCTION ID add_func LPAREN create_var_table param RPAREN LBRACKET vars_ estatutos RETURN LPAREN exp RPAREN RBRACKET end_of_func funciones2
-					|  VOID FUNCTION ID add_func LPAREN  create_var_table param RPAREN LBRACKET vars_ estatutos RBRACKET end_of_func funciones2
+	funciones2		:  FUNCTION tipo_simple ID add_func LPAREN create_var_table param RPAREN LBRACKET vars_ bloque RETURN LPAREN exp RPAREN RBRACKET end_of_func funciones2
+					|  FUNCTION VOID ID add_func LPAREN  create_var_table param RPAREN LBRACKET vars_ bloque RBRACKET end_of_func funciones2
 					| empty
 	'''
 
@@ -255,6 +256,7 @@ def p_f(p):
 def p_param(p):
 	'''
 	param			: tipo_simple ID add_param param2
+						| empty
 	'''
 
 def p_param2(p):

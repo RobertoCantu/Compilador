@@ -1,5 +1,14 @@
 program test_;
 
+functions
+function void bark(){
+    
+}
+
+function void fly(int a, int b){
+    
+}
+
 var int a,b,c,z;
 var float w;
 
