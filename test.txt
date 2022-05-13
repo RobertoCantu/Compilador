@@ -6,7 +6,9 @@ function void bark(){
 }
 
 function void fly(int a, int b){
-    
+    if(a > b){
+        a = a + 4;
+    };
 }
 
 var int a,b,c,z;
@@ -16,6 +18,11 @@ main {
     a = z + 1 - 1;
     b = 2 * 3;
     c = 2 * (22+3) + 1;
+
+    if(a > b){
+        write(a);
+    };
+    
     write(22 + 1, 4);
     read(a);
     while(a > b){

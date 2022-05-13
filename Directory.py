@@ -1,4 +1,3 @@
-
 class DirFunc:
 	def __init__(self):
 		self.dirFunc = {}
@@ -16,6 +15,13 @@ class DirFunc:
 		if (name in self.dirFunc):
 			self.dirFunc[name]["table"] = item
 			return self.dirFunc[name]["table"]
+		else:
+			return None
+
+	def addParamsTable(self,name, item):
+		if (name in self.dirFunc):
+			self.dirFunc[name]["paramsTable"] = item
+			return self.dirFunc[name]["paramsTable"]
 		else:
 			return None
 	

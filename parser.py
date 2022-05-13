@@ -1,4 +1,5 @@
 # from msilib.schema import Error
+from calendar import c
 import sys
 # from Directory import addFunc, createVarTable, addVar
 import ply.yacc as yacc
@@ -38,6 +39,7 @@ def p_program(p):
 	# 	print(key)
 	# 	print(dirFunc[key]['table'])
 	# 	print('--------')
+	print("Diccionario de funciones", dirFunc)
 	print("Pila de operandos", quadruple.pilaO)
 	print("Pila de tipos", quadruple.pTypes)
 	print("Pila de operadores", quadruple.poper)
@@ -167,7 +169,7 @@ def p_funciones(p):
 def p_funciones2(p):
 	'''
 	funciones2		:  FUNCTION tipo_simple ID add_func LPAREN create_var_table param RPAREN LBRACKET vars_ bloque RETURN LPAREN exp RPAREN RBRACKET end_of_func funciones2
-					|  FUNCTION VOID ID add_func LPAREN  create_var_table param RPAREN LBRACKET vars_ bloque RBRACKET end_of_func funciones2
+					|  FUNCTION VOID ID add_func LPAREN  create_var_table param RPAREN LBRACKET vars_ count_parameters count_locals count_quads bloque RBRACKET end_of_func funciones2
 					| empty
 	'''
 
@@ -261,7 +263,7 @@ def p_param(p):
 
 def p_param2(p):
 	'''
-	param2			: COMMA tipo_simple add_param ID param2
+	param2			: COMMA tipo_simple ID add_param param2
 					| empty
 '''
 
@@ -399,7 +401,7 @@ def p_create_main_func(p):
 	global programName
 	global currentFunction
 		
-	dirFunc[p[-1]] = {"name": p[-1], "type": "global", "table": None}
+	dirFunc[p[-1]] = {"name": p[-1], "type": "global", "table": None, "paramsTable": None}
 	
 	# = dc.DirFunc()
 	# dirFunc.addFunc({"name": p[-1], "type": "global", "table": None })
@@ -416,7 +418,7 @@ def p_add_func(p):
 	
 	# dirFunc = dc.DirFunc()
 	# dirFunc.addFunc({"name": p[-1], "type": p[-3], "table": None })
-	dirFunc[p[-1]] = {"name": p[-1], "type": p[-3], "table": None }
+	dirFunc[p[-1]] = {"name": p[-1], "type": p[-3], "table": None, "paramsTable": None }
 	currentFunction = p[-1]
 
 
@@ -470,8 +472,10 @@ def p_create_var_table(p):
 
 	if not (dirFunc[currentFunction]["table"]):
 		dirFunc[currentFunction]["table"] = {}
-
-
+		# dirFunc[currentFunction]["paramsTable"] = []
+	if(currentFunction != programName):
+		if not (dirFunc[currentFunction]["paramsTable"]):
+			dirFunc[currentFunction]["paramsTable"] = []
 
 def p_add_id(p):
 	'''
@@ -501,6 +505,9 @@ def p_add_param(p):
 
 	if ( p[-1] not in dirFunc[currentFunction]['table']):
 		dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': p[-2]}
+		# Add signature
+		dirFunc[currentFunction]['paramsTable'].append(p[-2])
+
 	else:
 		print(f"Variable \"{p[-1]}\" ya declarada ")
 		exit()
@@ -702,6 +709,33 @@ def p_for_end(p):
 	for_end				: empty
 	'''
 	quadruple.for_end()
+
+# Functions 
+def p_count_parameters(p):
+	'''
+	count_parameters	: empty
+	'''
+	global currentFunction
+	global dirFunc
+
+	totalParams = len(dirFunc[currentFunction]["paramsTable"])
+	dirFunc[currentFunction]["totalParams"] = totalParams
+
+def p_count_locals(p):
+	'''
+	count_locals	: empty
+	'''
+	global currentFunction
+	global dirFunc
+
+	totalLocals = len(dirFunc[currentFunction]["table"])
+	dirFunc[currentFunction]["totalLocals"] = totalLocals - dirFunc[currentFunction]["totalParams"]
+
+def p_count_quads(p):
+	'''
+	count_quads : empty
+	'''
+	dirFunc[currentFunction]["startAtQuad"] = quadruple.quad_counter
 
 ################ END OF NEURAL POINTS ################
 
