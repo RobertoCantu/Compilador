@@ -27,6 +27,8 @@ main {
     if(a > b){
         write(a);
     };
+
+    fly(5,4);
     
     write(22 + 1, 4);
     read(a);

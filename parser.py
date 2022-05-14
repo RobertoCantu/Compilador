@@ -22,11 +22,11 @@ currentVarsTable = ""
 # Quads
 quadruple = Quadruple()
 
-#quadruple.generateQuad('plus', 2, 3, 4)
-
-# print(quadruple.quadruples)
-
-
+# Functions calls and params
+funcCalled = None
+funcCalledStack = []
+paramCounter = None
+currentParamTable = None
 
 def p_program(p):
 	'''
@@ -277,18 +277,19 @@ def p_estatutos(p):
 					| write
 					| for_loop
 					| while_loop
-					| llamada_void
+					| llamada SEMICOLON
 	'''
 
 def p_llamada(p):
 	'''
-	llamada			: ID LPAREN exp RPAREN llamada2
+	llamada			: ID verify_func_exist create_era LPAREN llamada2 RPAREN verify_params_coherency
+							| ID verify_func_exist create_era LPAREN RPAREN verify_params_coherency
 '''
 
 def p_llamada2(p):
 	'''
-	llamada2		: COMMA LPAREN exp RPAREN llamada2
-					| empty
+	llamada2		: exp verify_param
+							| exp verify_param COMMA next_param llamada2
 	'''
 
 def p_llamada_void(p):
@@ -803,6 +804,78 @@ def p_func_return(p):
 	except:
 		print(f'Comp. error: in function: {currentFunction}, return value not correct')
 		exit()
+
+# Functions call
+def p_verify_func_exist(p):
+	'''
+	verify_func_exist : empty
+	'''
+	global funcCalled, funcCalledStack
+	if(p[-1] in dirFunc):
+		funcCalledStack.append(p[-1])
+		funcCalled = p[-1]
+	
+	else:
+		print('Semantic Error: Funcion no declarada')
+		exit()
+
+def p_create_era(p):
+	'''
+	create_era	: empty
+	'''
+	global funcCalled
+	global paramCounter
+	global currentParamTable
+	quadruple.generateQuad("ERA", funcCalled, None, None)
+	paramCounter = 1
+	currentParamTable = dirFunc[funcCalled]["paramsTable"]
+
+def p_verify_param(p):
+	'''
+	verify_param	: empty
+	'''
+	argument = quadruple.get_pilaO_stack().pop()
+	argument_type = quadruple.get_pilaTypes_stack().pop()
+	
+	# Verify types
+	real_param_type = currentParamTable[paramCounter - 1]
+	if(argument_type == real_param_type):
+		quadruple.generateQuad("PARAMETER", argument, None, paramCounter)
+	
+	else:
+		print(f"Semanticr error: Firma incorrecta, arugmento {paramCounter} no es de tipo {real_param_type}")
+		exit()
+
+def p_next_param(p):
+	'''
+	next_param	: empty
+	'''
+	global paramCounter
+	paramCounter += 1
+
+def p_verify_params_coherency(p):
+	'''
+	verify_params_coherency	: empty
+	'''
+	global funcCalled, funcCalledStack
+	global dirFunc
+	
+	#Check if table of params is empty
+	paramsTable = dirFunc[funcCalled]['paramsTable']
+	if(len(paramsTable) != paramCounter):
+		print("Semantic Error: Numero de parametros incorrecto")
+		exit()
+		
+	else:
+		quadruple.generateQuad("GOSUB", funcCalled, None, dirFunc[funcCalled]['startAtQuad'])
+
+		funcCalledStack.pop()
+		if(len(funcCalledStack) > 0):
+			# Get last element from stack
+			funcCalled = funcCalledStack[-1]
+		else:
+			funcCalled = None
+
 	
 def p_add_to_global_vars(p):
 	'''
