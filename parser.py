@@ -1,4 +1,5 @@
 # from msilib.schema import Error
+from asyncio import constants
 from calendar import c
 import sys
 # from Directory import addFunc, createVarTable, addVar
@@ -53,7 +54,7 @@ def p_program(p):
 		
 def p_program2(p):
 	'''
-	program2		: class_
+	program2		: vars_ add_to_global_vars
 					| empty
 	'''
 
@@ -65,14 +66,14 @@ def p_program3(p):
 
 def p_program4(p):
 	'''
-	program4		: vars_
+	program4		: class_
 					| empty
 	'''
 
 def p_bloque(p):
 	'''
 	bloque			: estatutos bloque1
-							| empty
+					| empty
 	'''
 
 def p_bloque1(p):
@@ -89,6 +90,7 @@ def p_tipo_simple(p):
 					| CHAR
 	'''
 	p[0] = p[1]
+
 def p_tipo_compuesto(p):
 	'''
 	tipo_compuesto	: FILE
@@ -123,7 +125,7 @@ def p_class3_(p):
 def p_vars_(p):
 	'''
 	vars_ 			: VAR create_var_table vars_type
-							| empty
+					| empty
 	'''
 
 
@@ -168,8 +170,8 @@ def p_funciones(p):
 	'''
 def p_funciones2(p):
 	'''
-	funciones2		:  FUNCTION tipo_simple ID add_func LPAREN create_var_table param RPAREN LBRACKET vars_ bloque RETURN LPAREN exp RPAREN RBRACKET end_of_func funciones2
-					|  FUNCTION VOID ID add_func LPAREN  create_var_table param RPAREN LBRACKET vars_ count_parameters count_locals count_quads bloque RBRACKET end_of_func funciones2
+	funciones2		:  FUNCTION tipo_simple ID add_func func_add_return LPAREN create_var_table param RPAREN LBRACKET vars_ count_function_elements bloque RETURN LPAREN exp RPAREN func_return SEMICOLON RBRACKET end_of_func funciones2
+					|  FUNCTION VOID ID add_func LPAREN create_var_table param RPAREN LBRACKET vars_ count_parameters count_locals count_quads bloque RBRACKET end_of_func funciones2
 					| empty
 	'''
 
@@ -736,6 +738,76 @@ def p_count_quads(p):
 	count_quads : empty
 	'''
 	dirFunc[currentFunction]["startAtQuad"] = quadruple.quad_counter
+
+
+def p_count_function_elements(p):
+	'''
+	count_function_elements	: empty
+	'''
+	global currentFunction
+	global dirFunc
+
+	totalParams = len(dirFunc[currentFunction]["paramsTable"])
+	dirFunc[currentFunction]["totalParams"] = totalParams
+
+	totalLocals = len(dirFunc[currentFunction]["table"])
+	dirFunc[currentFunction]["totalLocals"] = totalLocals - dirFunc[currentFunction]["totalParams"]
+
+	dirFunc[currentFunction]["startAtQuad"] = quadruple.quad_counter
+
+def p_func_add_return(p):
+	'''
+	func_add_return			: empty
+	'''
+	global currentFunction
+	global dirFunc
+	global globalVars
+
+	varName = p[-2]
+	varType = p[-3]
+
+	# CHECK GLOBAL VARS
+	if (varName in globalVars):
+		print(f'error {varName} already exists')
+		exit()
+	else:
+		# ADD VALUE AND TYPE TO GLOBAL VARS
+		globalVars[varName] = {'name': varName, 'type': varType}
+
+def p_func_return(p):
+	'''
+	func_return			: empty
+	'''
+	global currentFunction
+	global dirFunc
+	global globalVars
+
+	# GET FUNCTION'S TYPE AND RETURN VAR
+	funcVar = globalVars[currentFunction]['name']
+	funcVarType = globalVars[currentFunction]['type']
+
+	# CHECK RETURN VALUE IS EQUAL TO TYPE OF FUNCTION
+	retVar = quadruple.pilaO.pop()
+	retVarType = quadruple.pTypes.pop()
+
+	try:
+		retType = SEMANTIC[funcVarType][retVarType]['=']
+		# GENERATE QUAD, ASIGN RETURN TO FUNCTION'S RETURN VAR
+		quadruple.generateQuad('=', retVar, None, funcVar)
+	except:
+		print(f'Comp. error: in function: {currentFunction}, return value not correct')
+		exit()
+	
+def p_add_to_global_vars(p):
+	'''
+	add_to_global_vars 		: empty
+	'''
+	global currentFunction
+	global dirFunc
+	global globalVars
+
+	globalVars = dirFunc[currentFunction]["table"]
+
 
 ################ END OF NEURAL POINTS ################
 

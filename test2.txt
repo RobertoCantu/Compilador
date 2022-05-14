@@ -1,5 +1,7 @@
 program test_;
 
+var int y, z, b, c;
+
 class animal {
     var int m;
     var int a[5] , b , c;
@@ -13,8 +15,6 @@ void function bark(int g){
     
     o = 2 + 2;
 }
-
-var int y, z, b, c;
 
 main {
     y = z + 1;

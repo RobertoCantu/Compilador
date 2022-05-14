@@ -1,8 +1,16 @@
 program test_;
 
+var int a,b,c,z;
+var float w;
+
 functions
-function void bark(){
+function int bark(int i){
+
+    var int c;
+
+    c = 10;
     
+    return (c);
 }
 
 function void fly(int a, int b){
@@ -10,9 +18,6 @@ function void fly(int a, int b){
         a = a + 4;
     };
 }
-
-var int a,b,c,z;
-var float w;
 
 main {
     a = z + 1 - 1;
