@@ -461,7 +461,7 @@ def p_end_of_func(p):
 	global dirFunc
 
 	dirFunc[currentFunction]['table'] = None # Delete function's var table at the end. 
-
+	quadruple.generateQuad('ENDFUNC', None, None, None)
 	currentFunction = programName
 
 def p_create_var_table(p):
@@ -754,6 +754,12 @@ def p_count_function_elements(p):
 	dirFunc[currentFunction]["totalLocals"] = totalLocals - dirFunc[currentFunction]["totalParams"]
 
 	dirFunc[currentFunction]["startAtQuad"] = quadruple.quad_counter
+
+# def p_end_func(p):
+# 	'''
+# 	end_func	: empty
+# 	'''
+# 	quadruple.generateQuad('ENDFUNC', None, None, None)
 
 def p_func_add_return(p):
 	'''
