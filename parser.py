@@ -799,8 +799,11 @@ def p_func_return(p):
 
 	try:
 		retType = SEMANTIC[funcVarType][retVarType]['=']
+		# quadruple.get_pilaTypes_stack().append(retType)
 		# GENERATE QUAD, ASIGN RETURN TO FUNCTION'S RETURN VAR
-		quadruple.generateQuad('=', retVar, None, funcVar)
+		temp = quadruple.counter
+		quadruple.counter += 1
+		quadruple.generateQuad('RETURN', None, None, temp)
 	except:
 		print(f'Comp. error: in function: {currentFunction}, return value not correct')
 		exit()
