@@ -1,4 +1,5 @@
 # from msilib.schema import Error
+from ast import arg
 from asyncio import constants
 from calendar import c
 import sys
@@ -31,16 +32,12 @@ currentParamTable = None
 
 def p_program(p):
 	'''
-	program 		: PROGRAM ID create_main_func SEMICOLON program2 program3 program4 MAIN LBRACKET bloque RBRACKET SEMICOLON
+	program 		: PROGRAM ID create_main_func SEMICOLON program2 program3 program4 MAIN start_main LBRACKET bloque RBRACKET SEMICOLON
 	'''
 	p[0] = 'Code compiled successfully'
 	
 	keys = dirFunc.keys()
 
-	# for key in keys: 
-	# 	print(key)
-	# 	print(dirFunc[key]['table'])
-	# 	print('--------')
 	print("Diccionario de funciones", dirFunc)
 	print("Pila de operandos", quadruple.pilaO)
 	print("Pila de tipos", quadruple.pTypes)
@@ -250,12 +247,12 @@ def p_t_2(p):
 # <F>
 def p_f(p):
 	'''
-	f			: LPAREN add_fake_bottom exp pop_fake_bottom RPAREN
-				| CTEI add_int
+	f			: CTEI add_int
 				| CTEF add_float
 				| CTESTRING
-				| variable
 				| llamada
+				| variable
+				| LPAREN add_fake_bottom exp pop_fake_bottom RPAREN
 	'''
 	
 def p_param(p):
@@ -278,19 +275,19 @@ def p_estatutos(p):
 					| write
 					| for_loop
 					| while_loop
-					| llamada SEMICOLON
+					| llamada_void
 	'''
 
 def p_llamada(p):
 	'''
-	llamada			: ID verify_func_exist create_era LPAREN llamada2 RPAREN verify_params_coherency
-							| ID verify_func_exist create_era LPAREN RPAREN verify_params_coherency
+	llamada			: ID LPAREN verify_func_exist create_era llamada2 RPAREN verify_params_coherency
+					| ID LPAREN verify_func_exist create_era RPAREN verify_params_coherency
 	'''
 
 def p_llamada2(p):
 	'''
 	llamada2		: exp verify_param
-							| exp verify_param COMMA next_param llamada2
+					| exp verify_param COMMA next_param llamada2
 	'''
 
 def p_llamada_void(p):
@@ -412,6 +409,19 @@ def p_create_main_func(p):
 	# dirFunc.addFunc({"name": p[-1], "type": "global", "table": None })
 	programName = p[-1]
 	currentFunction = p[-1]
+
+	# GENERATE QUAD FOR GOTO MAIN FUNCTION
+	quadruple.generateQuad('GOTO', None, None, None)
+	quadruple.pSaltos.append(quadruple.quad_counter-1)
+
+
+# FILL GOTO MAIN FUNCTION
+def p_start_main(p):
+    '''
+    start_main          : empty
+    '''
+    quadruple.fillQuad(quadruple.pSaltos.pop(), quadruple.quad_counter)
+
 	
 def p_add_func(p):
 	'''
@@ -846,6 +856,9 @@ def p_verify_param(p):
 	'''
 	argument = quadruple.get_pilaO_stack().pop()
 	argument_type = quadruple.get_pilaTypes_stack().pop()
+
+
+	print(argument)
 	
 	# Verify types
 	real_param_type = currentParamTable[paramCounter - 1]
@@ -853,7 +866,7 @@ def p_verify_param(p):
 		quadruple.generateQuad("PARAMETER", argument, None, paramCounter)
 	
 	else:
-		print(f"Semanticr error: Firma incorrecta, arugmento {paramCounter} no es de tipo {real_param_type}")
+		print(f"Semantic error: Firma incorrecta, arugmento {paramCounter} no es de tipo {real_param_type}")
 		exit()
 
 def p_next_param(p):
