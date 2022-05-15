@@ -1,6 +1,6 @@
 program test_;
 
-var int a, a;
+var int a;
 
 functions
 function int lol(int i){
