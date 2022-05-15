@@ -421,7 +421,7 @@ def p_add_func(p):
 	
 	# dirFunc = dc.DirFunc()
 	# dirFunc.addFunc({"name": p[-1], "type": p[-3], "table": None })
-	dirFunc[p[-1]] = {"name": p[-1], "type": p[-3], "table": None, "paramsTable": None }
+	dirFunc[p[-1]] = {"name": p[-1], "type": p[-2], "table": None, "paramsTable": None }
 	currentFunction = p[-1]
 
 
@@ -862,6 +862,7 @@ def p_verify_params_coherency(p):
 	'''
 	global funcCalled, funcCalledStack
 	global dirFunc
+	global programName
 	
 	#Check if table of params is empty
 	paramsTable = dirFunc[funcCalled]['paramsTable']
@@ -871,13 +872,19 @@ def p_verify_params_coherency(p):
 		
 	else:
 		quadruple.generateQuad("GOSUB", funcCalled, None, dirFunc[funcCalled]['startAtQuad'])
-
-		funcCalledStack.pop()
-		if(len(funcCalledStack) > 0):
-			# Get last element from stack
-			funcCalled = funcCalledStack[-1]
-		else:
-			funcCalled = None
+		funcCalledType = dirFunc[funcCalled]["type"]
+		if(funcCalledType != 'void'):
+			print("Entrooo")
+			# Save return value in global vars table
+			dirFunc[programName]["table"][funcCalled] = {'name': funcCalled, 'type': funcCalledType, 'dir': quadruple.counter}
+			quadruple.generateQuad("=", funcCalled, None, quadruple.counter )
+			quadruple.counter += 1	
+	funcCalledStack.pop()
+	if(len(funcCalledStack) > 0):
+		# Get last element from stack
+		funcCalled = funcCalledStack[-1]
+	else:
+		funcCalled = None
 
 	
 def p_add_to_global_vars(p):
