@@ -451,12 +451,16 @@ def p_id_seen(p):
 	global currentFunction
 	global dirFunc
 	global currentType
-	if(currentFunction == programName):
-		dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': currentType, 'address': virtualAddress.setAdress(currentType, 'global')}
-	else:
-		dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': currentType, 'address': virtualAddress.setAdress(currentType, 'local')}
 
-	
+	if(p[-1] in dirFunc[currentFunction]["table"]):
+		print("Semantic Error: Declaracion multiple de variables")
+		exit()
+	else:
+		if(currentFunction == programName):
+			dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': currentType, 'address': virtualAddress.setAdress(currentType, 'global')}
+		else:
+			dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': currentType, 'address': virtualAddress.setAdress(currentType, 'local')}
+
 def p_class_seen(p):
 	'''
 	class_seen		: empty
@@ -466,7 +470,6 @@ def p_class_seen(p):
 	global currentType
 	currentFunction = p[-1]
 	dirFunc[p[-1]] = {"name": p[-1], "type": "class", "table": None }
-
 
 
 def p_end_of_func(p):
