@@ -816,6 +816,7 @@ def p_verify_func_exist(p):
 	verify_func_exist : empty
 	'''
 	global funcCalled, funcCalledStack
+	global dirFunc
 	if(p[-1] in dirFunc):
 		funcCalledStack.append(p[-1])
 		funcCalled = p[-1]
