@@ -3,6 +3,7 @@ from ast import arg
 from asyncio import constants
 from calendar import c
 import sys
+import virtualAddress
 # from Directory import addFunc, createVarTable, addVar
 import ply.yacc as yacc
 from lexer import tokens
@@ -10,6 +11,8 @@ import Directory as dc
 from cube import SEMANTIC
 from Quadruples import Quadruple
 
+virtualAddress.setAdress("int", "global")
+print(virtualAddress.intGlobalAddress)
 # Dict
 dirFunc = {}
 globalVars = {}
@@ -826,9 +829,10 @@ def p_verify_func_exist(p):
 	verify_func_exist : empty
 	'''
 	global funcCalled, funcCalledStack
-	if(p[-2] in dirFunc):
-		funcCalledStack.append(p[-2])
-		funcCalled = p[-2]
+	global dirFunc
+	if(p[-1] in dirFunc):
+		funcCalledStack.append(p[-1])
+		funcCalled = p[-1]
 	
 	else:
 		print('Semantic Error: Funcion no declarada')
