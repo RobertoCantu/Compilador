@@ -1,47 +1,15 @@
 program test_;
 
-var int a,b,c,z;
-var float w;
+var int a;
 
 functions
-function int hot(int i){
+function int lol(int i){
 
-    var int c;
-
-    c = 10;
+   
     
-    return (c);
-}
-
-function void fly(int a, int b){
-    if(a > b){
-        a = a + 4;
-    };
+    return (i);
 }
 
 main {
-    a = z + 1 - 1;
-    b = 2 * 3;
-    c = 2 * (22+3) + 1;
-
-    if(a > b){
-        write(a);
-    };
-
-    fly(3 + 1,4);
-    
-    write(22 + 1, 4);
-    read(a);
-    while(a > b){
-        if(c > a){
-            b = 2 + 2;
-        };
-        a = 2 + 3;
-    };
-
-    for w = 1 * 14 to 10 do{
-        write(a);
-    }; 
-
-    w = 1 / 1;
+    a = 2 + lol(333);
 };

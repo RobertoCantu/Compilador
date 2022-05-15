@@ -284,7 +284,8 @@ def p_llamada(p):
 	'''
 	llamada			: ID verify_func_exist create_era LPAREN llamada2 RPAREN verify_params_coherency
 							| ID verify_func_exist create_era LPAREN RPAREN verify_params_coherency
-'''
+	'''
+	print("Mo")
 
 def p_llamada2(p):
 	'''
@@ -312,6 +313,7 @@ def p_asignacion(p):
 def p_variable(p):
 	'''
 	variable	: ID  variable2 add_id
+					
 	'''
 
 def p_variable2(p):
@@ -878,7 +880,10 @@ def p_verify_params_coherency(p):
 			# Save return value in global vars table
 			dirFunc[programName]["table"][funcCalled] = {'name': funcCalled, 'type': funcCalledType, 'dir': quadruple.counter}
 			quadruple.generateQuad("=", funcCalled, None, quadruple.counter )
-			quadruple.counter += 1	
+			quadruple.push_pilaO(quadruple.counter)
+			quadruple.push_pTypes(funcCalledType)
+			quadruple.counter += 1
+
 	funcCalledStack.pop()
 	if(len(funcCalledStack) > 0):
 		# Get last element from stack
