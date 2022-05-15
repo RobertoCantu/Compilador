@@ -10,8 +10,6 @@ import Directory as dc
 from cube import SEMANTIC
 from Quadruples import Quadruple
 
-virtualAddress.setAdress("int", "global")
-print(virtualAddress.intGlobalAddress)
 # Dict
 dirFunc = {}
 globalVars = {}
@@ -288,7 +286,6 @@ def p_llamada(p):
 	llamada			: ID verify_func_exist create_era LPAREN llamada2 RPAREN verify_params_coherency
 							| ID verify_func_exist create_era LPAREN RPAREN verify_params_coherency
 	'''
-	print("Mo")
 
 def p_llamada2(p):
 	'''
@@ -444,7 +441,11 @@ def p_id_seen(p):
 	global currentFunction
 	global dirFunc
 	global currentType
-	dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': currentType}
+	if(currentFunction == programName):
+		dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': currentType, 'address': virtualAddress.setAdress(currentType, 'global')}
+	else:
+		dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': currentType, 'address': virtualAddress.setAdress(currentType, 'local')}
+
 	
 def p_class_seen(p):
 	'''
@@ -466,7 +467,7 @@ def p_end_of_func(p):
 	global programName
 	global dirFunc
 
-	dirFunc[currentFunction]['table'] = None # Delete function's var table at the end. 
+	dirFunc[currentFunction]['table'] = None # Delete function's var table at the end.
 	quadruple.generateQuad('ENDFUNC', None, None, None)
 	currentFunction = programName
 
@@ -880,7 +881,6 @@ def p_verify_params_coherency(p):
 		quadruple.generateQuad("GOSUB", funcCalled, None, dirFunc[funcCalled]['startAtQuad'])
 		funcCalledType = dirFunc[funcCalled]["type"]
 		if(funcCalledType != 'void'):
-			print("Entrooo")
 			# Save return value in global vars table
 			dirFunc[programName]["table"][funcCalled] = {'name': funcCalled, 'type': funcCalledType, 'dir': quadruple.counter}
 			quadruple.generateQuad("=", funcCalled, None, quadruple.counter )
