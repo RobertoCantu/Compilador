@@ -2,6 +2,7 @@
 from asyncio import constants
 from calendar import c
 import sys
+import virtualAddress
 # from Directory import addFunc, createVarTable, addVar
 import ply.yacc as yacc
 from lexer import tokens
@@ -9,6 +10,8 @@ import Directory as dc
 from cube import SEMANTIC
 from Quadruples import Quadruple
 
+virtualAddress.setAdress("int", "global")
+print(virtualAddress.intGlobalAddress)
 # Dict
 dirFunc = {}
 globalVars = {}

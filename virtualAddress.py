@@ -22,6 +22,7 @@ floatConstAddress = 14000
 charConstAddress = 15000
 
 def setAdress(type, scope):
+  global intGlobalAddress, floatGlobalAddress, charGlobalAddress, intLocalAddress, floatLocalAddress, charLocalAddress, intTempGlobalAdress, floatTempGlobalAdress, charTempGlobalAdress, intTempLocalAdress, floatTempLocalAdress, charTempLocalAdress, intConstAddress, floatConstAddress, charConstAddress
   if(type == "int" and scope == "global"):
     if(intGlobalAddress >= 1000 and intGlobalAddress <= 1999):
       aux = intGlobalAddress
