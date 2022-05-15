@@ -11,5 +11,5 @@ function int lol(int i){
 }
 
 main {
-    a = 2 + lol(333);
+    a = 2 + 2;
 };
