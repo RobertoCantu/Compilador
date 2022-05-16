@@ -252,7 +252,7 @@ def p_f(p):
 				| CTESTRING
 				| llamada
 				| variable
-				| LPAREN add_fake_bottom exp pop_fake_bottom RPAREN
+				| tzt LPAREN add_fake_bottom exp pop_fake_bottom RPAREN
 	'''
 	
 def p_param(p):
@@ -831,9 +831,9 @@ def p_verify_func_exist(p):
 	'''
 	global funcCalled, funcCalledStack
 	global dirFunc
-	if(p[-1] in dirFunc):
-		funcCalledStack.append(p[-1])
-		funcCalled = p[-1]
+	if(p[-2] in dirFunc):
+		funcCalledStack.append(p[-2])
+		funcCalled = p[-2]
 	
 	else:
 		print('Semantic Error: Funcion no declarada')
@@ -918,6 +918,13 @@ def p_add_to_global_vars(p):
 	global globalVars
 
 	globalVars = dirFunc[currentFunction]["table"]
+
+def p_tzt(p):
+	'''
+	tzt	: empty
+	'''
+
+	print('why here')
 
 
 ################ END OF NEURAL POINTS ################
