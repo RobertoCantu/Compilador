@@ -451,12 +451,17 @@ def p_id_seen(p):
 	global currentFunction
 	global dirFunc
 	global currentType
-	if(currentFunction == programName):
-		dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': currentType, 'address': virtualAddress.setAdress(currentType, 'global')}
-	else:
-		dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': currentType, 'address': virtualAddress.setAdress(currentType, 'local')}
+	global programName
 
-	
+	if(p[-1] in dirFunc[currentFunction]["table"]):
+		print("Semantic Error: Declaracion multiple de variables")
+		exit()
+	else:
+		if(currentFunction == programName):
+			dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': currentType, 'address': virtualAddress.setAdress(currentType, 'global')}
+		else:
+			dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': "wtfffs", 'address': virtualAddress.setAdress(currentType, 'global')}
+
 def p_class_seen(p):
 	'''
 	class_seen		: empty
@@ -468,7 +473,6 @@ def p_class_seen(p):
 	dirFunc[p[-1]] = {"name": p[-1], "type": "class", "table": None }
 
 
-
 def p_end_of_func(p):
 	'''
 	end_of_func		: empty
@@ -477,7 +481,7 @@ def p_end_of_func(p):
 	global programName
 	global dirFunc
 
-	dirFunc[currentFunction]['table'] = None # Delete function's var table at the end.
+	# dirFunc[currentFunction]['table'] = None # Delete function's var table at the end.
 	quadruple.generateQuad('ENDFUNC', None, None, None)
 	currentFunction = programName
 
@@ -507,10 +511,12 @@ def p_add_id(p):
 	global dirFunc
 
 	if (p[-2] in dirFunc[currentFunction]['table']):
-
+		address = dirFunc[currentFunction]['table'][p[-2]]["address"]
 		var_type = dirFunc[currentFunction]['table'][p[-2]]["type"]
+		# Add type of id to type stack
 		quadruple.push_pTypes(var_type)
-		quadruple.push_pilaO(p[-2])
+		# Add address to operands stack
+		quadruple.push_pilaO(address)
 	else:
 		print(f"Variable \"{p[-2]}\" no declarada ")
 		exit()
@@ -523,7 +529,7 @@ def p_add_param(p):
 	global dirFunc
 
 	if ( p[-1] not in dirFunc[currentFunction]['table']):
-		dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': p[-2]}
+		dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': p[-2], 'address': virtualAddress.setAdress(p[-2], 'local')}
 		# Add signature
 		dirFunc[currentFunction]['paramsTable'].append(p[-2])
 
