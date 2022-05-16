@@ -18,8 +18,9 @@ globalVars = {}
 # Global vars
 currentType = "" 		# current type being asigned to variable
 programName = ""		# 
-currentFunction = ""	# 
+currentFunction = ""	# current function
 currentVarsTable = ""
+
 
 # Quads
 quadruple = Quadruple()
@@ -29,6 +30,7 @@ funcCalled = None
 funcCalledStack = []
 paramCounter = None
 currentParamTable = None
+inCall = False			# USED TO KNOW IF WE ARE CURRENTLY IN A FUNCTION CALL
 
 def p_program(p):
 	'''
@@ -252,13 +254,13 @@ def p_f(p):
 				| CTESTRING
 				| llamada
 				| variable
-				| tzt LPAREN add_fake_bottom exp pop_fake_bottom RPAREN
+				| LPAREN add_fake_bottom exp pop_fake_bottom RPAREN
 	'''
 	
 def p_param(p):
 	'''
 	param			: tipo_simple ID add_param param2
-						| empty
+					| empty
 	'''
 
 def p_param2(p):
@@ -280,14 +282,14 @@ def p_estatutos(p):
 
 def p_llamada(p):
 	'''
-	llamada			: ID LPAREN verify_func_exist create_era llamada2 RPAREN verify_params_coherency
-					| ID LPAREN verify_func_exist create_era RPAREN verify_params_coherency
+	llamada			: ID LPAREN func_exists_create_era llamada2 RPAREN verify_params_coherency
+					| ID LPAREN func_exists_create_era RPAREN verify_params_coherency
 	'''
 
 def p_llamada2(p):
 	'''
-	llamada2		: exp verify_param
-					| exp verify_param COMMA next_param llamada2
+	llamada2		: add_fake_bottom exp pop_fake_bottom verify_param
+					| add_fake_bottom exp pop_fake_bottom verify_param COMMA next_param llamada2
 	'''
 
 def p_llamada_void(p):
@@ -316,7 +318,7 @@ def p_variable(p):
 def p_variable2(p):
 	'''
 	variable2	: DOT ID
-				| LSQRBRACKET CTEI RSQRBRACKET
+				| LSQRBRACKET exp RSQRBRACKET
 				| empty
 	'''
 
@@ -453,14 +455,16 @@ def p_id_seen(p):
 	global currentType
 	global programName
 
-	if(p[-1] in dirFunc[currentFunction]["table"]):
+	varID = p[-1]
+
+	if(varID in dirFunc[currentFunction]["table"]):
 		print("Semantic Error: Declaracion multiple de variables")
 		exit()
 	else:
 		if(currentFunction == programName):
-			dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': currentType, 'address': virtualAddress.setAdress(currentType, 'global')}
+			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAdress(currentType, 'global')}
 		else:
-			dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': "wtfffs", 'address': virtualAddress.setAdress(currentType, 'global')}
+			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': "wtfffs", 'address': virtualAddress.setAdress(currentType, 'global')}
 
 def p_class_seen(p):
 	'''
@@ -831,12 +835,15 @@ def p_func_return(p):
 		exit()
 
 # Functions call
-def p_verify_func_exist(p):
+def p_func_exists_create_era(p):
 	'''
-	verify_func_exist : empty
+	func_exists_create_era : empty
 	'''
-	global funcCalled, funcCalledStack
+	global funcCalled, funcCalledStack, inCall
 	global dirFunc
+	global paramCounter
+	global currentParamTable
+
 	if(p[-2] in dirFunc):
 		funcCalledStack.append(p[-2])
 		funcCalled = p[-2]
@@ -844,17 +851,12 @@ def p_verify_func_exist(p):
 	else:
 		print('Semantic Error: Funcion no declarada')
 		exit()
-
-def p_create_era(p):
-	'''
-	create_era	: empty
-	'''
-	global funcCalled
-	global paramCounter
-	global currentParamTable
+	
 	quadruple.generateQuad("ERA", funcCalled, None, None)
 	paramCounter = 1
 	currentParamTable = dirFunc[funcCalled]["paramsTable"]
+
+	inCall = True
 
 def p_verify_param(p):
 	'''
@@ -862,10 +864,8 @@ def p_verify_param(p):
 	'''
 	argument = quadruple.get_pilaO_stack().pop()
 	argument_type = quadruple.get_pilaTypes_stack().pop()
-
-
 	print(argument)
-	
+
 	# Verify types
 	real_param_type = currentParamTable[paramCounter - 1]
 	if(argument_type == real_param_type):
@@ -886,7 +886,7 @@ def p_verify_params_coherency(p):
 	'''
 	verify_params_coherency	: empty
 	'''
-	global funcCalled, funcCalledStack
+	global funcCalled, funcCalledStack, inCall
 	global dirFunc
 	global programName
 	
@@ -913,7 +913,8 @@ def p_verify_params_coherency(p):
 		funcCalled = funcCalledStack[-1]
 	else:
 		funcCalled = None
-
+	
+	inCall = False
 	
 def p_add_to_global_vars(p):
 	'''

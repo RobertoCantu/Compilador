@@ -1,15 +1,15 @@
 program test_;
 
-var int a;
+var int a, b;
 
 functions
 function int lol(int i){
-
+    var int c;
    
     
     return (i);
 }
 
 main {
-    a = 2 + lol(4);
+    a = lol(2*4) + 8;
 };
