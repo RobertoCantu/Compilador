@@ -2,27 +2,46 @@
 intGlobalAddress = 1000
 floatGlobalAddress = 2000
 charGlobalAddress = 3000
+boolGlobalAddress = 4000
 
 # Local address range
-intLocalAddress = 4000
-floatLocalAddress = 5000
-charLocalAddress = 6000
+intLocalAddress = 5000
+floatLocalAddress = 6000
+charLocalAddress = 7000
+boolLocalAddress = 8000
 
 # Global temporal address range
-intTempGlobalAdress = 7000
-floatTempGlobalAdress = 8000
-charTempGlobalAdress = 9000
-intTempLocalAdress = 10000
-floatTempLocalAdress = 11000
-charTempLocalAdress = 12000
+intTempGlobalAddress = 9000
+floatTempGlobalAddress = 10000
+charTempGlobalAddress = 11000
+boolTempGlobalAddress = 12000
+
+# Local temporal address range
+intTempLocalAddress = 13000
+floatTempLocalAddress = 14000
+charTempLocalAddress = 15000
+boolTempLocalAddress = 16000
 
 # Constant address range
-intConstAddress = 13000
-floatConstAddress = 14000
-charConstAddress = 15000
+intConstAddress = 17000
+floatConstAddress = 18000
+charConstAddress = 19000
+boolConstAddress = 20000
 
-def setAdress(type, scope):
-  global intGlobalAddress, floatGlobalAddress, charGlobalAddress, intLocalAddress, floatLocalAddress, charLocalAddress, intTempGlobalAdress, floatTempGlobalAdress, charTempGlobalAdress, intTempLocalAdress, floatTempLocalAdress, charTempLocalAdress, intConstAddress, floatConstAddress, charConstAddress
+# RESET TEMPORALS FOR RE-USE
+def resetLocalTemporals():
+  intLocalAddress = 5000
+  floatLocalAddress = 6000
+  charLocalAddress = 7000
+  boolLocalAddress = 8000
+  intTempLocalAddress = 13000
+  floatTempLocalAddress = 14000
+  charTempLocalAddress = 15000
+  boolTempLocalAddress = 16000
+
+def setAddress(type, scope):
+  global intGlobalAddress, floatGlobalAddress, charGlobalAddress, intLocalAddress, floatLocalAddress, charLocalAddress, intTempGlobalAddress, floatTempGlobalAddress, charTempGlobalAddress, intTempLocalAddress, floatTempLocalAddress, charTempLocalAddress, intConstAddress, floatConstAddress, charConstAddress
+  global boolGlobalAddress, boolLocalAddress, boolTempGlobalAddress, boolTempLocalAddress, boolConstAddress
   if(type == "int" and scope == "global"):
     if(intGlobalAddress >= 1000 and intGlobalAddress <= 1999):
       aux = intGlobalAddress
@@ -49,9 +68,18 @@ def setAdress(type, scope):
     else:
       print("Addresing Overflow")
       exit()
+  
+  if(type == "bool" and scope == "global"):
+    if(boolGlobalAddress >= 4000 and boolGlobalAddress <= 4999):
+      aux = boolGlobalAddress
+      boolGlobalAddress += 1
+      return aux
+    else:
+      print("Addresing Overflow")
+      exit()
 
   if(type == "int" and scope == "local"):
-    if(intLocalAddress >= 4000 and intLocalAddress <= 4999):
+    if(intLocalAddress >= 5000 and intLocalAddress <= 5999):
       aux = intLocalAddress
       intLocalAddress += 1
       return aux
@@ -60,7 +88,7 @@ def setAdress(type, scope):
       exit()
 
   if(type == "float" and scope == "local"):
-    if(floatLocalAddress >= 5000 and floatLocalAddress <= 5999):
+    if(floatLocalAddress >= 6000 and floatLocalAddress <= 6999):
       aux = floatLocalAddress
       floatLocalAddress += 1
       return aux
@@ -69,7 +97,7 @@ def setAdress(type, scope):
       exit()
 
   if(type == "char" and scope == "local"):
-    if(charLocalAddress >= 6000 and charLocalAddress <= 6999):
+    if(charLocalAddress >= 7000 and charLocalAddress <= 7999):
       aux = charLocalAddress
       charLocalAddress += 1
       return aux
@@ -77,62 +105,89 @@ def setAdress(type, scope):
       print("Addresing Overflow")
       exit()
 
+  if(type == "bool" and scope == "local"):
+    if(boolLocalAddress >= 8000 and boolLocalAddress <= 8999):
+      aux = boolLocalAddress
+      boolLocalAddress += 1
+      return aux
+    else:
+      print("Addresing Overflow")
+      exit()
+  
   if(type == "int" and scope == "tempGlobal"):
-    if(intTempGlobalAdress >= 7000 and intTempGlobalAdress <= 7999):
-      aux = intTempGlobalAdress
-      intTempGlobalAdress += 1
+    if(intTempGlobalAddress >= 9000 and intTempGlobalAddress <= 9999):
+      aux = intTempGlobalAddress
+      intTempGlobalAddress += 1
       return aux
     else:
       print("Addresing Overflow")
       exit()
 
   if(type == "float" and scope == "tempGlobal"):
-    if(floatTempGlobalAdress >= 8000 and floatTempGlobalAdress <= 8999):
-      aux = floatTempGlobalAdress
-      floatTempGlobalAdress += 1
+    if(floatTempGlobalAddress >= 10000 and floatTempGlobalAddress <= 10999):
+      aux = floatTempGlobalAddress
+      floatTempGlobalAddress += 1
       return aux
     else:
       print("Addresing Overflow")
       exit()
 
   if(type == "char" and scope == "tempGlobal"):
-    if(charTempGlobalAdress >= 9000 and charTempGlobalAdress <= 9999):
-      aux = charTempGlobalAdress
-      charTempGlobalAdress += 1
+    if(charTempGlobalAddress >= 11000 and charTempGlobalAddress <= 11999):
+      aux = charTempGlobalAddress
+      charTempGlobalAddress += 1
+      return aux
+    else:
+      print("Addresing Overflow")
+      exit()
+
+  if(type == "bool" and scope == "tempGlobal"):
+    if(boolTempGlobalAddress >= 12000 and boolTempGlobalAddress <= 12999):
+      aux = boolTempGlobalAddress
+      boolTempGlobalAddress += 1
       return aux
     else:
       print("Addresing Overflow")
       exit()
 
   if(type == "int" and scope == "tempLocal"):
-    if(intTempLocalAdress >= 10000 and intTempLocalAdress <= 10999):
-      aux = intTempLocalAdress
-      intTempLocalAdress += 1
+    if(intTempLocalAddress >= 13000 and intTempLocalAddress <= 13999):
+      aux = intTempLocalAddress
+      intTempLocalAddress += 1
       return aux
     else:
       print("Addresing Overflow")
       exit()
 
   if(type == "float" and scope == "tempLocal"):
-    if(floatTempLocalAdress >= 11000 and floatTempLocalAdress <= 11999):
-      aux = floatTempLocalAdress
-      floatTempLocalAdress += 1
+    if(floatTempLocalAddress >= 14000 and floatTempLocalAddress <= 14999):
+      aux = floatTempLocalAddress
+      floatTempLocalAddress += 1
       return aux
     else:
       print("Addresing Overflow")
       exit()
 
   if(type == "char" and scope == "tempLocal"):
-    if(charTempLocalAdress >= 12000 and charTempLocalAdress <= 12999):
-      aux = charTempLocalAdress
-      charTempLocalAdress += 1
+    if(charTempLocalAddress >= 15000 and charTempLocalAddress <= 15999):
+      aux = charTempLocalAddress
+      charTempLocalAddress += 1
+      return aux
+    else:
+      print("Addresing Overflow")
+      exit()
+
+  if(type == "bool" and scope == "tempLocal"):
+    if(boolTempLocalAddress >= 16000 and boolTempLocalAddress <= 16999):
+      aux = boolTempLocalAddress
+      boolTempLocalAddress += 1
       return aux
     else:
       print("Addresing Overflow")
       exit()
 
   if(type == "int" and scope == "constant"):
-    if(intConstAddress >= 13000 and intConstAddress <= 13999):
+    if(intConstAddress >= 17000 and intConstAddress <= 17999):
       aux = intConstAddress
       intConstAddress += 1
       return aux
@@ -141,7 +196,7 @@ def setAdress(type, scope):
       exit()
 
   if(type == "float" and scope == "constant"):
-    if(floatConstAddress >= 14000 and floatConstAddress <= 14999):
+    if(floatConstAddress >= 18000 and floatConstAddress <= 18999):
       aux = floatConstAddress
       floatConstAddress += 1
       return aux
@@ -150,9 +205,18 @@ def setAdress(type, scope):
       exit()
 
   if(type == "char" and scope == "constant"):
-    if(charConstAddress >= 15000 and charConstAddress <= 15999):
+    if(charConstAddress >= 19000 and charConstAddress <= 19999):
       aux = charConstAddress
       charConstAddress += 1
+      return aux
+    else:
+      print("Addresing Overflow")
+      exit()
+
+  if(type == "bool" and scope == "constant"):
+    if(boolConstAddress >= 20000 and boolConstAddress <= 20999):
+      aux = boolConstAddress
+      boolConstAddress += 1
       return aux
     else:
       print("Addresing Overflow")

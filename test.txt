@@ -1,6 +1,6 @@
 program test_;
 
-var int a, b;
+var int a, b, d;
 
 functions
 function int lol(int i){
@@ -11,5 +11,12 @@ function int lol(int i){
 }
 
 main {
-    a = lol(2*4) + 8;
+
+    d = a;
+
+    for b = 1 to 10 do {
+        d = d + 1;
+    }; 
+
+    a = 8 + lol(4);
 };

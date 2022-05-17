@@ -30,7 +30,6 @@ funcCalled = None
 funcCalledStack = []
 paramCounter = None
 currentParamTable = None
-inCall = False			# USED TO KNOW IF WE ARE CURRENTLY IN A FUNCTION CALL
 
 def p_program(p):
 	'''
@@ -462,9 +461,9 @@ def p_id_seen(p):
 		exit()
 	else:
 		if(currentFunction == programName):
-			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAdress(currentType, 'global')}
+			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'global')}
 		else:
-			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': "wtfffs", 'address': virtualAddress.setAdress(currentType, 'global')}
+			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': "wtfffs", 'address': virtualAddress.setAddress(currentType, 'global')}
 
 def p_class_seen(p):
 	'''
@@ -488,6 +487,8 @@ def p_end_of_func(p):
 	# dirFunc[currentFunction]['table'] = None # Delete function's var table at the end.
 	quadruple.generateQuad('ENDFUNC', None, None, None)
 	currentFunction = programName
+
+	virtualAddress.resetLocalTemporals()
 
 def p_create_var_table(p):
 	'''
@@ -514,15 +515,17 @@ def p_add_id(p):
 	global globalVars
 	global dirFunc
 
-	if (p[-2] in dirFunc[currentFunction]['table']):
-		address = dirFunc[currentFunction]['table'][p[-2]]["address"]
-		var_type = dirFunc[currentFunction]['table'][p[-2]]["type"]
-		# Add type of id to type stack
-		quadruple.push_pTypes(var_type)
-		# Add address to operands stack
-		quadruple.push_pilaO(address)
+	varID = p[-2]
+
+	if (varID in dirFunc[currentFunction]['table']):
+		address = dirFunc[currentFunction]['table'][varID]["address"]
+		var_type = dirFunc[currentFunction]['table'][varID]["type"]
+		
+		quadruple.push_pTypes(var_type) # Add type of id to type stack
+		quadruple.push_pilaO(address) # Add address to operands stack
+
 	else:
-		print(f"Variable \"{p[-2]}\" no declarada ")
+		print(f"Variable \"{varID}\" no declarada ")
 		exit()
 
 def p_add_param(p):
@@ -532,21 +535,26 @@ def p_add_param(p):
 	global currentFunction
 	global dirFunc
 
-	if ( p[-1] not in dirFunc[currentFunction]['table']):
-		dirFunc[currentFunction]['table'][p[-1]] = {'name': p[-1], 'type': p[-2], 'address': virtualAddress.setAdress(p[-2], 'local')}
-		# Add signature
-		dirFunc[currentFunction]['paramsTable'].append(p[-2])
+	param = p[-1]
+	paramType = p[-2]
 
+	if ( param not in dirFunc[currentFunction]['table']):
+		dirFunc[currentFunction]['table'][param] = {'name': param, 'type': paramType, 'address': virtualAddress.setAddress(paramType, 'local')}
+		# Add signature
+		dirFunc[currentFunction]['paramsTable'].append(paramType)
 	else:
-		print(f"Variable \"{p[-1]}\" ya declarada ")
+		print(f"Variable \"{param}\" ya declarada ")
 		exit()
 
 def p_add_int(p):
 	"""
 	add_int : empty
 	"""
+	cint = p[-1] # INT VALUE
+	# va = virtualAddress.setAddress('int', 'constant')
+
 	quadruple.push_pTypes("int")
-	quadruple.push_pilaO(p[-1])
+	quadruple.push_pilaO(cint)
 
 def p_add_float(p):
 	"""
@@ -573,23 +581,32 @@ def p_check_sum_sub(p):
 	'''
 	check_sum_sub	: empty
 	'''
+	global currentFunction, programName
+	location = 'Global' if programName == currentFunction else 'Local'
+
 	if(quadruple.poper_top() == "+" or quadruple.poper_top() == "-"):
-		quadruple.found_operator(quadruple.poper_top())
+		quadruple.found_operator(quadruple.poper_top(), location)
 
 
 def p_check_mul_div(p):
 	'''
 	check_mul_div	: empty
 	'''
+	global currentFunction, programName
+	location = 'Global' if programName == currentFunction else 'Local'
+
 	if(quadruple.poper_top() == "*" or quadruple.poper_top() == "/"):
-		quadruple.found_operator(quadruple.poper_top())
+		quadruple.found_operator(quadruple.poper_top(), location)
 
 def p_check_comparator(p):
 	'''
 	check_comparator	: empty
 	'''
+	global currentFunction, programName
+	location = 'Global' if programName == currentFunction else 'Local'
+
 	if(quadruple.poper_top() == ">" or quadruple.poper_top() == "<" or quadruple.poper_top() == "!=" or quadruple.poper_top() == "=="):
-		quadruple.found_operator(quadruple.poper_top())
+		quadruple.found_operator(quadruple.poper_top(), location)
 
 def p_add_comparator(p):
 	'''
@@ -701,6 +718,8 @@ def p_for_store_id(p):
 
 		v_type = dirFunc[currentFunction]['table'][v_control]['type']
 
+		v_control_va =  dirFunc[currentFunction]['table'][v_control]['address']
+
 	elif(v_control in dirFunc[programName]['table']):
 		v_type = dirFunc[programName]['table'][v_control]['type']
 
@@ -714,7 +733,7 @@ def p_for_store_id(p):
 		exit()
 
 	# PUSH pilaO & pTypes
-	quadruple.pilaO.append(v_control)
+	quadruple.pilaO.append(v_control_va)
 	quadruple.pTypes.append(v_type)
 	
 
@@ -730,14 +749,18 @@ def p_for_comparison(p):
 	'''
 	for_comparison		: empty
 	'''
-	quadruple.for_comparison()
+	global currentFunction, programName
+	location = 'Global' if programName == currentFunction else 'Local'
+	quadruple.for_comparison(location)
 
 
 def p_for_end(p):
 	'''
 	for_end				: empty
 	'''
-	quadruple.for_end()
+	global currentFunction, programName
+	location = 'Global' if programName == currentFunction else 'Local'
+	quadruple.for_end(location)
 
 # Functions 
 def p_count_parameters(p):
@@ -827,9 +850,10 @@ def p_func_return(p):
 		retType = SEMANTIC[funcVarType][retVarType]['=']
 		# quadruple.get_pilaTypes_stack().append(retType)
 		# GENERATE QUAD, ASIGN RETURN TO FUNCTION'S RETURN VAR
-		temp = quadruple.counter
-		quadruple.counter += 1
-		quadruple.generateQuad('RETURN', None, None, temp)
+		# temp = quadruple.counter
+		# quadruple.counter += 1
+		va = virtualAddress.setAddress(retVarType, 'tempLocal')
+		quadruple.generateQuad('RETURN', None, None, va)
 	except:
 		print(f'Comp. error: in function: {currentFunction}, return value not correct')
 		exit()
@@ -839,7 +863,7 @@ def p_func_exists_create_era(p):
 	'''
 	func_exists_create_era : empty
 	'''
-	global funcCalled, funcCalledStack, inCall
+	global funcCalled, funcCalledStack
 	global dirFunc
 	global paramCounter
 	global currentParamTable
@@ -856,15 +880,13 @@ def p_func_exists_create_era(p):
 	paramCounter = 1
 	currentParamTable = dirFunc[funcCalled]["paramsTable"]
 
-	inCall = True
-
 def p_verify_param(p):
 	'''
 	verify_param	: empty
 	'''
 	argument = quadruple.get_pilaO_stack().pop()
 	argument_type = quadruple.get_pilaTypes_stack().pop()
-	print(argument)
+	# print(argument)
 
 	# Verify types
 	real_param_type = currentParamTable[paramCounter - 1]
@@ -886,7 +908,7 @@ def p_verify_params_coherency(p):
 	'''
 	verify_params_coherency	: empty
 	'''
-	global funcCalled, funcCalledStack, inCall
+	global funcCalled, funcCalledStack, currentFunction, programName
 	global dirFunc
 	global programName
 	
@@ -902,8 +924,11 @@ def p_verify_params_coherency(p):
 		if(funcCalledType != 'void'):
 			# Save return value in global vars table
 			dirFunc[programName]["table"][funcCalled] = {'name': funcCalled, 'type': funcCalledType, 'dir': quadruple.counter}
-			quadruple.generateQuad("=", funcCalled, None, quadruple.counter )
-			quadruple.push_pilaO(quadruple.counter)
+
+			va = virtualAddress.setAddress(funcCalledType, 'tempGlobal')
+
+			quadruple.generateQuad("=", funcCalled, None, va)
+			quadruple.push_pilaO(va)
 			quadruple.push_pTypes(funcCalledType)
 			quadruple.counter += 1
 
@@ -913,8 +938,6 @@ def p_verify_params_coherency(p):
 		funcCalled = funcCalledStack[-1]
 	else:
 		funcCalled = None
-	
-	inCall = False
 	
 def p_add_to_global_vars(p):
 	'''
@@ -926,12 +949,6 @@ def p_add_to_global_vars(p):
 
 	globalVars = dirFunc[currentFunction]["table"]
 
-def p_tzt(p):
-	'''
-	tzt	: empty
-	'''
-
-	print('why here')
 
 
 ################ END OF NEURAL POINTS ################

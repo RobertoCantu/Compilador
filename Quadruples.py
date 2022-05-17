@@ -1,5 +1,6 @@
 from collections import deque
 from cube import SEMANTIC
+import virtualAddress
 
 class Quadruple:
 
@@ -71,7 +72,7 @@ class Quadruple:
             return None
 
     # When an operator is found it creates the quadruple
-    def found_operator(self, operator):
+    def found_operator(self, operator, location):
         operator = self.poper.pop()
 
         r_type = self.pTypes.pop()
@@ -80,18 +81,20 @@ class Quadruple:
         try:
             res_type = SEMANTIC[l_type][r_type][operator]
 
-            # print(res_type)
-
             self.pTypes.append(res_type)
 
             r_operand = self.pilaO.pop()
             l_operand = self.pilaO.pop()
 
+            va = virtualAddress.setAddress(res_type, f'temp{location}')
 
             # print(f"{operator}, {l_operand}, {r_operand}, t{self.counter}")
-            self.generateQuad(operator, l_operand, r_operand, self.counter)
-            self.pilaO.append(self.counter)
-            self.increment_counter()
+            # self.generateQuad(operator, l_operand, r_operand, self.counter)
+            # self.pilaO.append(self.counter)
+            # self.increment_counter()
+
+            self.generateQuad(operator, l_operand, r_operand, va)
+            self.pilaO.append(va)
 
         except:
             print('Error')
@@ -172,7 +175,8 @@ class Quadruple:
         # Error if result not found
         self.generateQuad("=", exp_res, None, v_control)
     
-    def for_comparison(self):
+    # < comparison 
+    def for_comparison(self, location):
         exp_type = self.pTypes.pop()
         exp_res = self.pilaO.pop()
 
@@ -183,20 +187,35 @@ class Quadruple:
         self.generateQuad('=', exp_res, None, 'v_final')
         v_control = self.pilaO_top()
 
-        self.generateQuad('<', v_control, 'v_final', self.counter)
-        self.increment_counter()
-        self.pSaltos.append(self.quad_counter-1)
-        self.generateQuad('GOTOF', self.counter - 1, None, None)
-        self.pSaltos.append(self.quad_counter-1)
+        va = virtualAddress.setAddress('bool', f'temp{location}')
 
-    def for_end(self):
+        # self.generateQuad('<', v_control, 'v_final', self.counter)
+        # self.increment_counter()
+        self.generateQuad('<', v_control, 'v_final', va)
+
+        self.pSaltos.append(self.quad_counter-1)
+        # self.generateQuad('GOTOF', self.counter - 1, None, None)
+        self.generateQuad('GOTOF', va , None, None)
+        
+        self.pSaltos.append(self.quad_counter-1)
+    
+    # for loop end
+    def for_end(self, location):
         v_control = self.pilaO.pop()
         v_control_type = self.pTypes.pop()
 
-        self.generateQuad('+', v_control, 1, self.counter) 
-        self.generateQuad('=', self.counter, None, v_control)
-        self.generateQuad('=', self.counter, None, self.pilaO_top())
-        self.increment_counter()
+        # USING COUNTER
+        # self.generateQuad('+', v_control, 1, self.counter) 
+        # self.generateQuad('=', self.counter, None, v_control)
+        # self.generateQuad('=', self.counter, None, self.pilaO_top())
+        # self.increment_counter()
+
+        va = virtualAddress.setAddress('bool', f'temp{location}')
+
+        # USING VIRTUAL ADDRESS
+        self.generateQuad('+', v_control, 1, va) 
+        self.generateQuad('=', va, None, v_control)
+        self.generateQuad('=', va, None, self.pilaO_top())
 
         end = self.pSaltos.pop()
         ret = self.pSaltos.pop()
