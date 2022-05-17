@@ -10,6 +10,8 @@ from lexer import tokens
 import Directory as dc
 from cube import SEMANTIC
 from Quadruples import Quadruple
+from Directory import ConstantsTable
+import pickle
 
 # Dict
 dirFunc = {}
@@ -24,6 +26,9 @@ currentVarsTable = ""
 
 # Quads
 quadruple = Quadruple()
+
+#Constants Table
+constantsTable = ConstantsTable()
 
 # Functions calls and params
 funcCalled = None
@@ -551,17 +556,27 @@ def p_add_int(p):
 	add_int : empty
 	"""
 	cint = p[-1] # INT VALUE
-	# va = virtualAddress.setAddress('int', 'constant')
+	# Check if constant already exist
+	if (constantsTable.getConstantByValue(cint) == None):
+		constantsTable.addConstant(cint, virtualAddress.setAddress('int', 'constant'))
 
+	address_int = constantsTable.getConstantByValue(cint)['address']
 	quadruple.push_pTypes("int")
-	quadruple.push_pilaO(cint)
+	quadruple.push_pilaO(address_int)
 
 def p_add_float(p):
 	"""
 	add_float : empty
 	"""
+	cfloat = p[-1]
+
+	# Check if constant already exist
+	if (constantsTable.getConstantByValue(cfloat) == None):
+		constantsTable.addConstant(cfloat, virtualAddress.setAddress('float', 'constant'))
+
+	address_int = constantsTable.getConstantByValue(cfloat)['address']
 	quadruple.push_pTypes("float")
-	quadruple.push_pilaO(p[-1])
+	quadruple.push_pilaO(address_int)
 
 # Adds equal to poper
 def p_add_equals(p):
@@ -984,3 +999,13 @@ if __name__ == '__main__':
 			print(EOFError)
 	else:
 		print("No file to read")
+
+	# Generate ovejota
+	with open('object.p', 'wb') as handle:
+		pickle.dump(
+			{
+				"quadruples": quadruple.quadruples,
+				"dirFunc": dirFunc,
+				"constantsTable": constantsTable.getConstants()
+			}, handle
+		)

@@ -41,16 +41,18 @@ class Vars:
 		else:
 			return None
 
-	# def addVarsTable(self,name, item):
-	# 	if (name in self.data):
-	# 		self.dirFunc[name]["table"] = item
-	# 		return self.dirFunc[name]["table"]
-	# 	else:
-	# 		return None
-# dic = DirFunc()
+class ConstantsTable:
+	def __init__(self):
+		self.constants = {}
 
-# dic.addFunc({"name": "hola", "type": "void", "table": None})
-# dic.addVarsTable('hola', {"name": "perro", "type": "int"} )
-# dic.addVarsTable('hola', {"name": "gato", "type": "float"} )
+	def addConstant(self, value, address):
+		self.constants[value] = {'name': value, 'address': address}
 
-# print(dic.dirFunc)
+	def getConstants(self):
+		return self.constants
+
+	def getConstantByValue(self,value):
+		if(value in self.constants):
+			return self.constants[value]
+		else:
+			return None

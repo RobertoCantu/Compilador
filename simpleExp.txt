@@ -1,0 +1,11 @@
+program test_;
+
+var int a, b, c;
+
+main {
+
+    a = 3;
+    b = 3 + a;
+    c = b + 4;
+    write(c);
+};

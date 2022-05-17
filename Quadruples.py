@@ -13,6 +13,7 @@ class Quadruple:
         self.counter = 666      # 
         self.quad_counter = 0   # CONT. PARA LISTA DE CUADRUPLOS
 
+    
     def increment_counter(self):
         self.counter = self.counter + 1
 
