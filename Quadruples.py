@@ -98,7 +98,7 @@ class Quadruple:
             self.pilaO.append(va)
 
         except:
-            print('Error')
+            print('Error in operator')
             exit()
     
     # When the call is returned, it creates an quadruple with equal. 
@@ -117,7 +117,7 @@ class Quadruple:
             # print(f"{operator}, t{r_operand}, null, {l_operand}")
             self.generateQuad(operator, r_operand, 'empty', l_operand)
         except:
-            print('Error')
+            print('Error in equal')
             exit()
 
     # QUADRUPLE GENERATION AND FILL FUNCTIONS (GOTOs)

@@ -2,14 +2,8 @@ program test_;
 
 var int y, z, b, c;
 
-class animal {
-    var int m;
-    var int a[5] , b , c;
-    var float x , y , z;
-};
-
 functions
-void function bark(int g){
+function void bark(int g){
     var int o;
     var float z;
     

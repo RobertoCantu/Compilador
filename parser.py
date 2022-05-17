@@ -208,8 +208,11 @@ def p_g_exp(p):
 	'''
 	g_exp			: m_exp check_comparator g_exp_2
 	'''
+	global currentFunction, programName
+	location = 'Global' if programName == currentFunction else 'Local'
+
 	if(quadruple.poper_top() == ">" or quadruple.poper_top() == "<" or quadruple.poper_top() == "!=" or quadruple.poper_top() == "=="):
-		quadruple.found_operator(quadruple.poper_top())
+		quadruple.found_operator(quadruple.poper_top(), location)
 
 def p_g_exp_2(p):
 	'''
@@ -468,7 +471,7 @@ def p_id_seen(p):
 		if(currentFunction == programName):
 			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'global')}
 		else:
-			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': "wtfffs", 'address': virtualAddress.setAddress(currentType, 'global')}
+			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'local')} # Don't know
 
 def p_class_seen(p):
 	'''
@@ -500,7 +503,7 @@ def p_create_var_table(p):
 	create_var_table	: empty
 	'''
 
-	global currentFunction
+	global currentFunction, programName
 	global dirFunc
 
 	if not (dirFunc[currentFunction]["table"]):
