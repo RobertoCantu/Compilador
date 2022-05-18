@@ -1,6 +1,7 @@
 from audioop import add
 from glob import glob
 from locale import currency
+from operator import le
 import pickle
 
 
@@ -82,13 +83,15 @@ def get_val_from_memory(address, index=0):
     return extra_memory.get_value_by_address(address)
 
 ip = 0
-i=0
+i = 0
 
 curr_quad = get_quad(quads,ip)
 
-while(i < len(quads)):
+while(curr_quad[0] != 'END'):
 
-  curr_quad = get_quad(quads,ip)
+  curr_quad = get_quad(quads, ip)
+
+  # print(f'{ip}: {curr_quad}')
 
   # Switch
   if(curr_quad[0] == '='):
@@ -127,16 +130,36 @@ while(i < len(quads)):
     temp_address = curr_quad[3]
     insert_to_memory(temp_address, left_value / right_value)
     ip +=1
-
+  
+  elif(curr_quad[0] == '<'):
+    left_value = get_val_from_memory(curr_quad[1])
+    right_value = get_val_from_memory(curr_quad[2])
+    temp_address = curr_quad[3]
+    insert_to_memory(temp_address, left_value < right_value)
+    ip += 1
+  
+  elif(curr_quad[0] == '>'):
+    left_value = get_val_from_memory(curr_quad[1])
+    right_value = get_val_from_memory(curr_quad[2])
+    temp_address = curr_quad[3]
+    insert_to_memory(temp_address, left_value > right_value)
+    ip += 1
 
   elif(curr_quad[0] == 'WRITE'):
     val = get_val_from_memory(curr_quad[3])
     print(val)
-    ip +=1
-
+    ip += 1
 
   elif(curr_quad[0] == 'GOTO'):
     ip = curr_quad[3]
+  
+  elif(curr_quad[0] == 'GOTOF'):
+    cond = get_val_from_memory(curr_quad[1])
+
+    if cond == False:
+      ip = curr_quad[3]
+    elif cond == True:
+      ip += 1
 
   i += 1
 

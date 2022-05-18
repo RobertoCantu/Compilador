@@ -16,7 +16,11 @@ main {
 
     for b = 1 to 10 do {
         d = d + 1;
-    }; 
+    };
+
+    if (a < 10 && a > 5) {
+        write(6);
+    };
 
     a = 8 + lol(4);
 };

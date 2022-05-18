@@ -2,10 +2,24 @@ program test_;
 
 var int a, b, c;
 
+functions
+function void bark(int g){
+    var int o;
+    
+    o = 2 + 2;
+}
+
 main {
 
     a = 3;
     b = 3 + a;
     c = b + 4;
+
+    if (c > b) {
+        write(1);
+    } else {
+        write(2);
+    };
+
     write(c);
 };

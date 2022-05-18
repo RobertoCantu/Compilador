@@ -12,6 +12,7 @@ from cube import SEMANTIC
 from Quadruples import Quadruple
 from Directory import ConstantsTable
 import pickle
+import subprocess
 
 # Dict
 dirFunc = {}
@@ -44,6 +45,8 @@ def p_program(p):
 	
 	keys = dirFunc.keys()
 
+	quadruple.generateQuad('END', None, None, None) # END OF FILE
+
 	print("Diccionario de funciones", dirFunc)
 	print("Pila de operandos", quadruple.pilaO)
 	print("Pila de tipos", quadruple.pTypes)
@@ -55,6 +58,9 @@ def p_program(p):
 	for quad in quadruple.get_quads_list():
 		print(f"{i}", quad)
 		i = i + 1
+	
+	# print('RESULT')
+	# subprocess.call(['python3', 'VirtualMachine.py'])
 		
 def p_program2(p):
 	'''
@@ -182,24 +188,24 @@ def p_funciones2(p):
 # <EXP>
 def p_exp(p):
 	'''
-	exp				: t_exp exp_2
+	exp				: t_exp check_and_or exp_2
 	'''
 
 def p_exp_2(p):
 	'''
-	exp_2			: OR exp
+	exp_2			: OR add_poper exp
 					| empty
 	'''
 
 # <T_EXP>
 def p_t_exp(p):
 	'''
-	t_exp			: g_exp t_exp_2
+	t_exp			: g_exp check_and_or t_exp_2
 	'''
 
 def p_t_exp_2(p):
 	'''
-	t_exp_2			: AND t_exp
+	t_exp_2			: AND add_poper t_exp
 					| empty
 	'''
   
@@ -594,6 +600,16 @@ def p_add_poper(p):
 	add_poper	: empty
 	'''
 	quadruple.push_poper(p[-1])
+
+def p_check_and_or(p):
+	'''
+	check_and_or	: empty
+	'''
+	global currentFunction, programName
+	location = 'Global' if programName == currentFunction else 'Local'
+
+	if(quadruple.poper_top() == "&&" or quadruple.poper_top() == "||"):
+		quadruple.found_operator(quadruple.poper_top(), location)
 
 def p_check_sum_sub(p):
 	'''
