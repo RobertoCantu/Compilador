@@ -1,6 +1,7 @@
 from collections import deque
 from cube import SEMANTIC
 import virtualAddress
+from Directory import ConstantsTable
 
 class Quadruple:
 
@@ -160,6 +161,7 @@ class Quadruple:
     def for_equal_exp(self):
         exp_type = self.pTypes.pop()
         exp_res = self.pilaO.pop()
+
         # Debe ser solo entera
         if not ( numerical(exp_type) ):
             print(f"Variable \"{exp_type}\" no numerica ")
@@ -172,8 +174,8 @@ class Quadruple:
         self.pilaO.append(v_control) # Para poder luego incrementarla
         self.pTypes.append(v_control_type) # Para poder luego incrementarla
 
-        res_type = SEMANTIC[v_control_type][exp_type]["="]
-        # Error if result not found
+        res_type = SEMANTIC[v_control_type][exp_type]["="] # Error if result not found
+
         self.generateQuad("=", exp_res, None, v_control)
     
     # < comparison 
@@ -185,14 +187,17 @@ class Quadruple:
             print(f"Variable \"{exp_type}\" no numerica ")
             exit()
         
-        self.generateQuad('=', exp_res, None, 'v_final')
-        v_control = self.pilaO_top()
+        # CREATE v_final
+        v_final_va = virtualAddress.setAddress(exp_type, f'temp{location}')
+        self.generateQuad('=', exp_res, None, v_final_va)
 
+        # COMPARE v_control with v_final
+        v_control = self.pilaO_top()
         va = virtualAddress.setAddress('bool', f'temp{location}')
 
         # self.generateQuad('<', v_control, 'v_final', self.counter)
         # self.increment_counter()
-        self.generateQuad('<', v_control, 'v_final', va)
+        self.generateQuad('<', v_control, v_final_va, va)
 
         self.pSaltos.append(self.quad_counter-1)
         # self.generateQuad('GOTOF', self.counter - 1, None, None)
@@ -201,7 +206,7 @@ class Quadruple:
         self.pSaltos.append(self.quad_counter-1)
     
     # for loop end
-    def for_end(self, location):
+    def for_end(self, location, address_one):
         v_control = self.pilaO.pop()
         v_control_type = self.pTypes.pop()
 
@@ -214,7 +219,7 @@ class Quadruple:
         va = virtualAddress.setAddress('bool', f'temp{location}')
 
         # USING VIRTUAL ADDRESS
-        self.generateQuad('+', v_control, 1, va) 
+        self.generateQuad('+', v_control, address_one, va) 
         self.generateQuad('=', va, None, v_control)
         self.generateQuad('=', va, None, self.pilaO_top())
 

@@ -41,12 +41,10 @@ def p_program(p):
 	'''
 	program 		: PROGRAM ID create_main_func SEMICOLON program2 program3 program4 MAIN start_main LBRACKET bloque RBRACKET SEMICOLON
 	'''
-	p[0] = 'Code compiled successfully'
-	
-	keys = dirFunc.keys()
-
 	quadruple.generateQuad('END', None, None, None) # END OF FILE
+	p[0] = 'Code compiled successfully'
 
+	keys = dirFunc.keys()
 	print("Diccionario de funciones", dirFunc)
 	print("Pila de operandos", quadruple.pilaO)
 	print("Pila de tipos", quadruple.pTypes)
@@ -59,8 +57,8 @@ def p_program(p):
 		print(f"{i}", quad)
 		i = i + 1
 	
-	# print('RESULT')
-	# subprocess.call(['python3', 'VirtualMachine.py'])
+	print('RESULT')
+	subprocess.call(['python3', 'VirtualMachine.py'])
 		
 def p_program2(p):
 	'''
@@ -753,11 +751,12 @@ def p_for_store_id(p):
 	if ( v_control in dirFunc[currentFunction]['table']):
 
 		v_type = dirFunc[currentFunction]['table'][v_control]['type']
-
 		v_control_va =  dirFunc[currentFunction]['table'][v_control]['address']
 
 	elif(v_control in dirFunc[programName]['table']):
+
 		v_type = dirFunc[programName]['table'][v_control]['type']
+		v_control_va =  dirFunc[currentFunction]['table'][v_control]['address']
 
 	else:
 		print(f"Semantic Error: Type mismatch, Variable \"{v_control}\" no existe")
@@ -796,7 +795,9 @@ def p_for_end(p):
 	'''
 	global currentFunction, programName
 	location = 'Global' if programName == currentFunction else 'Local'
-	quadruple.for_end(location)
+
+	address_one = constantsTable.getConstantByValue(1)['address']
+	quadruple.for_end(location, address_one)
 
 # Functions 
 def p_count_parameters(p):
