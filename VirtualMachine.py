@@ -3,7 +3,6 @@ from glob import glob
 from locale import currency
 import pickle
 
-
 class Memory():
   def __init__(self):
     self.data = {}
@@ -26,7 +25,7 @@ class Memory():
     print(self.data)
 
     
-
+# Loads code
 objectCodeData = None
 with open('object.p', 'rb') as handle:
   objectCodeData = pickle.load(handle)
@@ -64,10 +63,10 @@ def insert_to_memory(address,value):
   if(address >= 9000 and address <= 12999):
     extra_memory.insert(address, value)
 
-def get_val_from_memory(address, index=0):
+def get_val_from_memory(address, get_just_address= False):
   # Global address range
   # Hay que corregir esto, es un parche bien feo mientras
-  if(index == 3):
+  if(get_just_address):
     return address
 
   if(address >= 1000 and address <=4999):
@@ -93,7 +92,7 @@ while(i < len(quads)):
   # Switch
   if(curr_quad[0] == '='):
     val_to_assign = get_val_from_memory(curr_quad[1])
-    res_dir = get_val_from_memory(curr_quad[3], 3)
+    res_dir = get_val_from_memory(curr_quad[3], get_just_address = True)
     insert_to_memory(res_dir, val_to_assign)
     ip +=1
 
@@ -139,6 +138,6 @@ while(i < len(quads)):
     ip = curr_quad[3]
 
   i += 1
-
+print('Memoria global')
 global_memory.printMemory()
 
