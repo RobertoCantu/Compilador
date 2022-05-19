@@ -93,13 +93,14 @@ while(curr_quad[0] != 'END'):
   # print(f'{ip}: {curr_quad}')
 
   # Switch
+  # Assign
   if(curr_quad[0] == '='):
     val_to_assign = get_val_from_memory(curr_quad[1])
     res_dir = get_val_from_memory(curr_quad[3], get_just_address = True)
     insert_to_memory(res_dir, val_to_assign)
     ip +=1
 
-
+  # Arithmetic operations
   elif(curr_quad[0] == '+'):
     left_value = get_val_from_memory(curr_quad[1])
     right_value = get_val_from_memory(curr_quad[2])
@@ -130,11 +131,40 @@ while(curr_quad[0] != 'END'):
     insert_to_memory(temp_address, left_value / right_value)
     ip +=1
   
+  # Comparison operations
+  elif(curr_quad[0] == '=='):
+    left_value = get_val_from_memory(curr_quad[1])
+    right_value = get_val_from_memory(curr_quad[2])
+    temp_address = curr_quad[3]
+    insert_to_memory(temp_address, left_value == right_value)
+    ip += 1
+
+  elif(curr_quad[0] == '!='):
+    left_value = get_val_from_memory(curr_quad[1])
+    right_value = get_val_from_memory(curr_quad[2])
+    temp_address = curr_quad[3]
+    insert_to_memory(temp_address, left_value != right_value)
+    ip += 1
+
   elif(curr_quad[0] == '<'):
     left_value = get_val_from_memory(curr_quad[1])
     right_value = get_val_from_memory(curr_quad[2])
     temp_address = curr_quad[3]
     insert_to_memory(temp_address, left_value < right_value)
+    ip += 1
+
+  elif(curr_quad[0] == '<='):
+    left_value = get_val_from_memory(curr_quad[1])
+    right_value = get_val_from_memory(curr_quad[2])
+    temp_address = curr_quad[3]
+    insert_to_memory(temp_address, left_value <= right_value)
+    ip += 1
+
+  elif(curr_quad[0] == '>='):
+    left_value = get_val_from_memory(curr_quad[1])
+    right_value = get_val_from_memory(curr_quad[2])
+    temp_address = curr_quad[3]
+    insert_to_memory(temp_address, left_value >= right_value)
     ip += 1
   
   elif(curr_quad[0] == '>'):
@@ -144,11 +174,51 @@ while(curr_quad[0] != 'END'):
     insert_to_memory(temp_address, left_value > right_value)
     ip += 1
 
+  # Logical operator
+  elif(curr_quad[0] == '&&'):
+    left_value = get_val_from_memory(curr_quad[1])
+    right_value = get_val_from_memory(curr_quad[2])
+    temp_address = curr_quad[3]
+    res_bool = None
+    if(left_value == True and right_value == True):
+      res_bool = True
+    else:
+      res_bool = False
+    insert_to_memory(temp_address, res_bool)
+    ip += 1
+
+  elif(curr_quad[0] == '||'):
+    left_value = get_val_from_memory(curr_quad[1])
+    right_value = get_val_from_memory(curr_quad[2])
+    temp_address = curr_quad[3]
+    res_bool = None
+    if(left_value == True or right_value == True):
+      res_bool = True
+    else:
+      res_bool = False
+    insert_to_memory(temp_address, res_bool)
+    ip += 1
+
+  # Console operations
   elif(curr_quad[0] == 'WRITE'):
     val = get_val_from_memory(curr_quad[3])
     print(val)
     ip += 1
 
+  elif(curr_quad[0] == 'READ'):
+    res = input()
+    address = get_val_from_memory(curr_quad[3], get_just_address = True)
+    # Check flavor of memory
+    if(address >= 1000 and address <=1999 or address >= 5000 and address <=5999):
+      res = int(res)
+    elif(address >= 2000 and address <=2999 or address >= 6000 and address <=6999):
+      res = float(res)
+    elif(address >= 3000 and address <=3999 or address >= 7000 and address <=7999):
+      res = str(res)
+    insert_to_memory(address, res)
+    ip += 1
+
+  # Goto's
   elif(curr_quad[0] == 'GOTO'):
     ip = curr_quad[3]
   

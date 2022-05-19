@@ -217,13 +217,15 @@ def p_g_exp(p):
 	global currentFunction, programName
 	location = 'Global' if programName == currentFunction else 'Local'
 
-	if(quadruple.poper_top() == ">" or quadruple.poper_top() == "<" or quadruple.poper_top() == "!=" or quadruple.poper_top() == "=="):
+	if(quadruple.poper_top() == ">" or quadruple.poper_top() == ">=" or quadruple.poper_top() == "<" or quadruple.poper_top() == "<=" or quadruple.poper_top() == "!=" or quadruple.poper_top() == "=="):
 		quadruple.found_operator(quadruple.poper_top(), location)
 
 def p_g_exp_2(p):
 	'''
 	g_exp_2			: GREATER add_comparator m_exp
+					| GREATEROREQUAL add_comparator m_exp
 					| LESS add_comparator m_exp
+					| LESSOREQUAL add_comparator m_exp
 					| NOTEQUAL add_comparator m_exp
 					| EQUAL add_comparator m_exp
 					| empty

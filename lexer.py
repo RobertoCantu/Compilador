@@ -36,6 +36,8 @@ tokens = [
     'TIMES',
     'DIVIDE',
     'GREATER',
+    'GREATEROREQUAL',
+    'LESSOREQUAL',
     'LESS',
     'NOTEQUAL',
     'LBRACKET',
@@ -65,7 +67,9 @@ t_DIVIDE  = r'/'
 t_LPAREN  = r'\('
 t_RPAREN  = r'\)'
 t_GREATER = r'>'
+t_GREATEROREQUAL = r'>='
 t_LESS = r'<'
+t_LESSOREQUAL = r'<='
 t_LBRACKET = r'\{'
 t_RBRACKET = r'\}'
 t_LSQRBRACKET = r'\['

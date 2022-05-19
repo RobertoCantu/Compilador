@@ -14,11 +14,11 @@ main {
     b = 3 + a;
     c = b + 4;
 
-    if (c > b) {
+    if (7 <= 3) {
         write(1);
     } else {
         write(2);
     };
 
-    write(c);
+    write(10);
 };
