@@ -58,7 +58,7 @@ def p_program(p):
 		i = i + 1
 	
 	print('RESULT')
-	subprocess.call(['python3', 'VirtualMachine.py'])
+	subprocess.call(['python', 'VirtualMachine.py'])
 		
 def p_program2(p):
 	'''
@@ -865,7 +865,7 @@ def p_func_add_return(p):
 		exit()
 	else:
 		# ADD VALUE AND TYPE TO GLOBAL VARS
-		globalVars[varName] = {'name': varName, 'type': varType}
+		globalVars[varName] = {'name': varName, 'type': varType, 'address': virtualAddress.setAddress(varType, 'global')}
 
 def p_func_return(p):
 	'''
