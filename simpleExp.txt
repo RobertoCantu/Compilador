@@ -6,11 +6,11 @@ functions
 function int bark(int g){
     var int o;
     
-    o = 2 + 2;
-    return(2);
+    o = z + 2;
+    return(4);
 }
 
 main {
     a = 2 + 2;
-   a = bark(2);
+   a = 3 + bark(2);
 };

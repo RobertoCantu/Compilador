@@ -4,6 +4,7 @@ from locale import currency
 from operator import le
 import pickle
 from collections import deque
+from threading import local
 
 # Define same memory bases as the compiler
 int_local_base = 5000
@@ -51,6 +52,8 @@ constantsTable = objectCodeData['constantsTable']
 global_memory = Memory()
 
 # Stack Segment for local scopes
+local_memory = []
+curr_local_memory = None
 
 # Extra Segment for global temp and constants
 extra_memory = Memory()
@@ -68,6 +71,18 @@ def insert_to_memory(address,value):
   if(address >= 1000 and address <=4999):
     global_memory.insert(address,value)
 
+  # Local - Local Memory
+  if(address >= 5000 and address <=8999):
+    # Get top of stack
+    curr_local_memory = local_memory[-1]
+    curr_local_memory.insert(address, value)
+
+  # Local temp - Local Memory
+  if(address >= 13000 and address <=16999):
+    # Get top of stack
+    curr_local_memory = local_memory[-1]
+    curr_local_memory.insert(address, value)
+
   # Constant address range
   if(address >= 17000 and address <= 20999):
     extra_memory.insert(address, value)
@@ -81,15 +96,23 @@ def get_val_from_memory(address, get_just_address= False):
   # Hay que corregir esto, es un parche bien feo mientras
   if(get_just_address):
     return address
-
+  # Global memory
   if(address >= 1000 and address <=4999):
     return global_memory.get_value_by_address(address)
 
-  # Constant address range
+  # Local - Local Memory
+  if(address >= 5000 and address <=8999):
+    return curr_local_memory.get_value_by_address(address)
+
+  # Local temp - Local Memory
+  if(address >= 13000 and address <=16999):
+    return curr_local_memory.get_value_by_address(address)
+
+  # Constant address range - Extra memory
   if(address >= 17000 and address <= 20999):
     return extra_memory.get_value_by_address(address)
 
-  # Global temporal
+  # Global temporal - Extra memory
   if(address >= 9000 and address <= 12999):
     return extra_memory.get_value_by_address(address)
 
@@ -246,6 +269,10 @@ while(curr_quad[0] != 'END'):
   elif(curr_quad[0] == 'ERA'):
     # Create space memory
     new_space = Memory()
+    # Points to new space of memory
+    curr_local_memory = new_space
+    # Add new space to stack
+    local_memory.append(new_space)
     # Obtain name of function
     function_name = curr_quad[1]
     # Obtain required locals
@@ -261,6 +288,7 @@ while(curr_quad[0] != 'END'):
     chars_temp = temp_locals['char']
     bools_temp = temp_locals['bool']
 
+    # Set space base on size
     for i in range(ints):
       new_space.get_all_memory()[int_local_base + i] = None
       
@@ -285,13 +313,22 @@ while(curr_quad[0] != 'END'):
 
     for i in range(bools_temp):
       new_space.get_all_memory()[bool_local_temp_base + i] = None
-      
-    print("Memoria Local")
+    
+    print("Memoria Local Inicial")
     new_space.printMemory()
-
     ip += 1
   
   elif(curr_quad[0] == 'PARAMETER'):
+    # Obtain paramater index
+    paramIndex = curr_quad[3] - 1
+    # Convert dict to list of keys
+    adress_keys = list(curr_local_memory.get_all_memory())
+    # Get  address of formal param
+    address = adress_keys[paramIndex]
+    # Obtain value from extra memory
+    argument_value = extra_memory.get_value_by_address(curr_quad[1])
+    # Insert argument to formal param
+    insert_to_memory(address, argument_value)
     ip += 1
   
   elif(curr_quad[0] == 'GOSUB'): # Need to asign ARGUMENTS  to PARAMETERS
@@ -310,4 +347,7 @@ while(curr_quad[0] != 'END'):
   i += 1
 print('Memoria global')
 global_memory.printMemory()
+
+print("Memoria local antes de destruirse")
+curr_local_memory.printMemory()
 

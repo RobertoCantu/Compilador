@@ -513,18 +513,25 @@ def p_add_id(p):
 	global currentFunction
 	global globalVars
 	global dirFunc
+	global programName
 
 	varID = p[-2]
 
+	# Look in locals
 	if (varID in dirFunc[currentFunction]['table']):
 		address = dirFunc[currentFunction]['table'][varID]["address"]
 		var_type = dirFunc[currentFunction]['table'][varID]["type"]
-		
+		quadruple.push_pTypes(var_type) # Add type of id to type stack
+		quadruple.push_pilaO(address) # Add address to operands stack
+	# If not look in global
+	elif (varID in dirFunc[programName]['table']):
+		address = dirFunc[programName]['table'][varID]["address"]
+		var_type = dirFunc[programName]['table'][varID]["type"]
 		quadruple.push_pTypes(var_type) # Add type of id to type stack
 		quadruple.push_pilaO(address) # Add address to operands stack
 
 	else:
-		print(f"Variable \"{varID}\" no declarada ")
+		print(f"Semantic Error: Variable \"{varID}\" no declarada ")
 		exit()
 
 def p_add_param(p):
@@ -826,7 +833,6 @@ def p_count_function_elements(p):
 	dirFunc[currentFunction]["totalLocals"] = totalLocals - dirFunc[currentFunction]["totalParams"]
 
 	# Count locals vars
-	print("que pasa",currentFunction)
 	locals = virtualAddress.getLocalUsed()
 	dirFunc[currentFunction]["localsUsed"] = {}
 	dirFunc[currentFunction]["localsUsed"]["int"] = locals[0]
