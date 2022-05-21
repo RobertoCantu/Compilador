@@ -179,7 +179,7 @@ def p_funciones(p):
 def p_funciones2(p):
 	'''
 	funciones2		:  FUNCTION tipo_simple ID add_func func_add_return LPAREN create_var_table param RPAREN LBRACKET vars_ count_function_elements bloque RETURN LPAREN exp RPAREN func_return SEMICOLON RBRACKET end_of_func funciones2
-					|  FUNCTION VOID ID add_func LPAREN create_var_table param RPAREN LBRACKET vars_ count_parameters count_locals count_quads bloque RBRACKET end_of_func funciones2
+					|  FUNCTION VOID ID add_func LPAREN create_var_table param RPAREN LBRACKET vars_ count_parameters count_locals count_quads count_function_elements bloque RBRACKET end_of_func funciones2
 					| empty
 	'''
 
@@ -825,6 +825,15 @@ def p_count_function_elements(p):
 	totalLocals = len(dirFunc[currentFunction]["table"])
 	dirFunc[currentFunction]["totalLocals"] = totalLocals - dirFunc[currentFunction]["totalParams"]
 
+	# Count locals vars
+	print("que pasa",currentFunction)
+	locals = virtualAddress.getLocalUsed()
+	dirFunc[currentFunction]["localsUsed"] = {}
+	dirFunc[currentFunction]["localsUsed"]["int"] = locals[0]
+	dirFunc[currentFunction]["localsUsed"]["float"] = locals[1]
+	dirFunc[currentFunction]["localsUsed"]["char"] = locals[2]
+	dirFunc[currentFunction]["localsUsed"]["bool"] = locals[3]
+
 	dirFunc[currentFunction]["startAtQuad"] = quadruple.quad_counter
 
 
@@ -895,9 +904,19 @@ def p_end_of_func(p):
 
 	# dirFunc[currentFunction]['table'] = None # Delete function's var table at the end.
 	quadruple.generateQuad('ENDFUNC', None, None, None)
-	currentFunction = programName
+
+	# Count local temporals and add it to dirFunc (int,float, char, bool)
+	locals_temp_used = virtualAddress.getLocalTempUsed()
+	dirFunc[currentFunction]['usedTemp'] = {}
+	dirFunc[currentFunction]['usedTemp']['int'] = locals_temp_used[0]
+	dirFunc[currentFunction]['usedTemp']['float'] = locals_temp_used[1]
+	dirFunc[currentFunction]['usedTemp']['char'] = locals_temp_used[2]
+	dirFunc[currentFunction]['usedTemp']['bool'] = locals_temp_used[3]
 
 	virtualAddress.resetLocalTemporals() # RESETS LOCAL TEMPORALS FOR FUNCTIONS
+	# Set currFunc to main
+	currentFunction = programName
+
 
 # Functions call
 def p_func_exists_create_era(p):

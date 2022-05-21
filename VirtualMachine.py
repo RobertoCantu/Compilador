@@ -92,7 +92,7 @@ while(curr_quad[0] != 'END'):
 
   curr_quad = get_quad(quads, ip)
 
-  print(f'{ip}: {curr_quad}')
+  # print(f'{ip}: {curr_quad}')
 
   # Switch
   # Assign

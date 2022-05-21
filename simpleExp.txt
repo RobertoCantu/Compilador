@@ -10,15 +10,5 @@ function void bark(int g){
 }
 
 main {
-    a = 3;
-    b = 3 + a;
-    c = b + 4;
-
-    if (7 <= 3) {
-        write(1);
-    } else {
-        write(2);
-    };
-
-    write(10);
+   
 };
