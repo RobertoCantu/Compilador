@@ -4,6 +4,7 @@ from locale import currency
 from operator import le
 import pickle
 from collections import deque
+from tabnanny import check
 from threading import local
 
 # Define same memory bases as the compiler
@@ -118,6 +119,7 @@ def get_val_from_memory(address, get_just_address= False):
 
 ip = 0
 i = 0
+checkpoint = None
 
 curr_quad = get_quad(quads,ip)
 saltos = deque() # STACK FOR JUMPS WITH FUNCTIONS
@@ -332,22 +334,30 @@ while(curr_quad[0] != 'END'):
     ip += 1
   
   elif(curr_quad[0] == 'GOSUB'): # Need to asign ARGUMENTS  to PARAMETERS
-    saltos.append(ip+1)
+    # Save the current IP
+    checkpoint = ip
+    # saltos.append(ip+1)
     ip = curr_quad[3]
 
   elif(curr_quad[0] == 'ENDFUNC'):
-    ip = saltos.pop()
+    # Print before erasing local memory
+    print("Memoria local antes de destruirse")
+    curr_local_memory.printMemory()
+    # Erase local memory
+    local_memory.pop()
+    # Update current memory
+    if(len(local_memory) > 0):
+      curr_local_memory = local_memory[-1]
+    else:
+      curr_local_memory = None
+    ip = checkpoint + 1
+    # ip = saltos.pop()
   
   elif(curr_quad[0] == 'RETURN'):
     ip += 1
   
-  # print(global_memory.data)
-  # print(extra_memory.data) 
-
   i += 1
 print('Memoria global')
 global_memory.printMemory()
 
-print("Memoria local antes de destruirse")
-curr_local_memory.printMemory()
 

@@ -6,7 +6,7 @@ functions
 function int bark(int g){
     var int o;
     
-    o = z + 2;
+    o = a + 2;
     return(4);
 }
 
