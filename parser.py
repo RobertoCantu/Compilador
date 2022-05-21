@@ -489,21 +489,6 @@ def p_class_seen(p):
 	currentFunction = p[-1]
 	dirFunc[p[-1]] = {"name": p[-1], "type": "class", "table": None }
 
-
-def p_end_of_func(p):
-	'''
-	end_of_func		: empty
-	'''
-	global currentFunction
-	global programName
-	global dirFunc
-
-	# dirFunc[currentFunction]['table'] = None # Delete function's var table at the end.
-	quadruple.generateQuad('ENDFUNC', None, None, None)
-	currentFunction = programName
-
-	virtualAddress.resetLocalTemporals()
-
 def p_create_var_table(p):
 	'''
 	create_var_table	: empty
@@ -842,11 +827,6 @@ def p_count_function_elements(p):
 
 	dirFunc[currentFunction]["startAtQuad"] = quadruple.quad_counter
 
-# def p_end_func(p):
-# 	'''
-# 	end_func	: empty
-# 	'''
-# 	quadruple.generateQuad('ENDFUNC', None, None, None)
 
 def p_func_add_return(p):
 	'''
@@ -871,7 +851,7 @@ def p_func_return(p):
 	'''
 	func_return			: empty
 	'''
-	global currentFunction
+	global currentFunction, programName
 	global dirFunc
 	global globalVars
 
@@ -890,10 +870,34 @@ def p_func_return(p):
 		# temp = quadruple.counter
 		# quadruple.counter += 1
 		va = virtualAddress.setAddress(retVarType, 'tempLocal')
-		quadruple.generateQuad('RETURN', None, None, va)
+
+		# ASIGN EXP TO FUNCTION'S VAR 
+		func_return_va = globalVars[currentFunction]['address']
+		quadruple.generateQuad('=', retVar, None, func_return_va)
+
+		quadruple.generateQuad('RETURN', None, None, va) # NOT SURE IF NEEDED!!!
+
+		print('temporals')
+		print(virtualAddress.getLocalTempUsed()) # TEMPORALS USED IN FUNCTION
+
+
 	except:
 		print(f'Comp. error: in function: {currentFunction}, return value not correct')
 		exit()
+
+def p_end_of_func(p):
+	'''
+	end_of_func		: empty
+	'''
+	global currentFunction
+	global programName
+	global dirFunc
+
+	# dirFunc[currentFunction]['table'] = None # Delete function's var table at the end.
+	quadruple.generateQuad('ENDFUNC', None, None, None)
+	currentFunction = programName
+
+	virtualAddress.resetLocalTemporals() # RESETS LOCAL TEMPORALS FOR FUNCTIONS
 
 # Functions call
 def p_func_exists_create_era(p):
@@ -945,11 +949,11 @@ def p_verify_params_coherency(p):
 	'''
 	verify_params_coherency	: empty
 	'''
-	global funcCalled, funcCalledStack, currentFunction, programName
+	global funcCalled, funcCalledStack, currentFunction, programName, globalVars
 	global dirFunc
 	global programName
 	
-	#Check if table of params is empty
+	# Check if table of params is empty
 	paramsTable = dirFunc[funcCalled]['paramsTable']
 	if(len(paramsTable) != paramCounter):
 		print("Semantic Error: Numero de parametros incorrecto")
@@ -960,11 +964,13 @@ def p_verify_params_coherency(p):
 		funcCalledType = dirFunc[funcCalled]["type"]
 		if(funcCalledType != 'void'):
 			# Save return value in global vars table
-			dirFunc[programName]["table"][funcCalled] = {'name': funcCalled, 'type': funcCalledType, 'dir': quadruple.counter}
+			# dirFunc[programName]["table"][funcCalled] = {'name': funcCalled, 'type': funcCalledType, 'dir': quadruple.counter}
 
 			va = virtualAddress.setAddress(funcCalledType, 'tempGlobal')
 
-			quadruple.generateQuad("=", funcCalled, None, va)
+			func_return_va = globalVars[funcCalled]['address']
+
+			quadruple.generateQuad("=", func_return_va, None, va)
 			quadruple.push_pilaO(va)
 			quadruple.push_pTypes(funcCalledType)
 			quadruple.counter += 1

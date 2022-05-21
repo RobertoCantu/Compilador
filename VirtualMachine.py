@@ -3,6 +3,7 @@ from glob import glob
 from locale import currency
 from operator import le
 import pickle
+from collections import deque
 
 class Memory():
   def __init__(self):
@@ -85,12 +86,13 @@ ip = 0
 i = 0
 
 curr_quad = get_quad(quads,ip)
+saltos = deque() # STACK FOR JUMPS WITH FUNCTIONS
 
 while(curr_quad[0] != 'END'):
 
   curr_quad = get_quad(quads, ip)
 
-  # print(f'{ip}: {curr_quad}')
+  print(f'{ip}: {curr_quad}')
 
   # Switch
   # Assign
@@ -229,6 +231,25 @@ while(curr_quad[0] != 'END'):
       ip = curr_quad[3]
     elif cond == True:
       ip += 1
+  
+  elif(curr_quad[0] == 'ERA'):
+    ip += 1
+  
+  elif(curr_quad[0] == 'PARAMETER'):
+    ip += 1
+  
+  elif(curr_quad[0] == 'GOSUB'): # Need to asign ARGUMENTS  to PARAMETERS
+    saltos.append(ip+1)
+    ip = curr_quad[3]
+
+  elif(curr_quad[0] == 'ENDFUNC'):
+    ip = saltos.pop()
+  
+  elif(curr_quad[0] == 'RETURN'):
+    ip += 1
+  
+  # print(global_memory.data)
+  # print(extra_memory.data) 
 
   i += 1
 print('Memoria global')

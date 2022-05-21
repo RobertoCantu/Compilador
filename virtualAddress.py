@@ -39,6 +39,15 @@ def resetLocalTemporals():
   charTempLocalAddress = 15000
   boolTempLocalAddress = 16000
 
+def getLocalTempUsed():
+  ints = intTempLocalAddress - 13000
+  floats = floatTempLocalAddress - 14000
+  chars  = charTempLocalAddress - 15000
+  bools = boolTempLocalAddress - 16000
+
+  return (ints, floats, chars, bools)
+
+
 def setAddress(type, scope):
   global intGlobalAddress, floatGlobalAddress, charGlobalAddress, intLocalAddress, floatLocalAddress, charLocalAddress, intTempGlobalAddress, floatTempGlobalAddress, charTempGlobalAddress, intTempLocalAddress, floatTempLocalAddress, charTempLocalAddress, intConstAddress, floatConstAddress, charConstAddress
   global boolGlobalAddress, boolLocalAddress, boolTempGlobalAddress, boolTempLocalAddress, boolConstAddress

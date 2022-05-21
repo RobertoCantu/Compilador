@@ -6,19 +6,21 @@ functions
 function int lol(int i){
     var int c;
    
+   c = 1 + i;
     
-    return (i);
+    return (c);
 }
 
 main {
 
-    d = a;
+    d = 0;
+    a = 0;
 
-    for b = 1 to 10 do {
+    for b = 1 to 5 do {
         d = d + 1;
     };
 
-    if (a < 10 && a > 5) {
+    if (a < 10 && a < 5) {
         write(6);
     };
 
