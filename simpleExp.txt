@@ -5,8 +5,8 @@ var int a, b, c;
 functions
 function int bark(int g){
     var int o;
-    
     o = a + 2;
+    write(o);
     return(4);
 }
 
