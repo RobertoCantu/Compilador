@@ -3,12 +3,14 @@ program test_;
 var int a, b, c;
 
 functions
-function void bark(int g){
+function int bark(int g){
     var int o;
     
     o = 2 + 2;
+    return(2);
 }
 
 main {
-   
+    a = 2 + 2;
+   a = bark(2);
 };

@@ -5,6 +5,17 @@ from operator import le
 import pickle
 from collections import deque
 
+# Define same memory bases as the compiler
+int_local_base = 5000
+float_local_base = 6000
+char_local_base = 7000
+bool_local_base = 8000
+
+int_local_temp_base = 13000
+float_local_temp_base = 14000
+char_local_temp_base = 15000
+bool_local_temp_base = 16000
+
 class Memory():
   def __init__(self):
     self.data = {}
@@ -233,6 +244,51 @@ while(curr_quad[0] != 'END'):
       ip += 1
   
   elif(curr_quad[0] == 'ERA'):
+    # Create space memory
+    new_space = Memory()
+    # Obtain name of function
+    function_name = curr_quad[1]
+    # Obtain required locals
+    locals = dirFunc[function_name]['localsUsed']
+    ints = locals['int']
+    floats = locals['float']
+    chars = locals['char']
+    bools = locals['bool']
+    # Obtain required temp locals
+    temp_locals = dirFunc[function_name]['usedTemp']
+    ints_temp = temp_locals['int']
+    floats_temp = temp_locals['float']
+    chars_temp = temp_locals['char']
+    bools_temp = temp_locals['bool']
+
+    for i in range(ints):
+      new_space.get_all_memory()[int_local_base + i] = None
+      
+    for i in range(floats):
+      new_space.get_all_memory()[float_local_base + i] = None
+      
+
+    for i in range(chars):
+      new_space.get_all_memory()[char_local_base + i] = None
+
+    for i in range(bools):
+      new_space.get_all_memory()[bool_local_base + i] = None
+
+    for i in range(ints_temp):
+     new_space.get_all_memory()[int_local_temp_base + i] = None
+
+    for i in range(floats_temp):
+      new_space.get_all_memory()[float_local_temp_base + i] = None
+
+    for i in range(chars_temp):
+      new_space.get_all_memory()[char_local_temp_base + i] = None
+
+    for i in range(bools_temp):
+      new_space.get_all_memory()[bool_local_temp_base + i] = None
+      
+    print("Memoria Local")
+    new_space.printMemory()
+
     ip += 1
   
   elif(curr_quad[0] == 'PARAMETER'):
