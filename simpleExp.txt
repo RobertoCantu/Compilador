@@ -12,9 +12,9 @@ function int bark(int g){
 
 function int lol(int g){
     var int o;
-    o = 4 + 2;
+    o = 4;
     write(g);
-    return (g);
+    return (2+ bark(4));
 }
 
 main {

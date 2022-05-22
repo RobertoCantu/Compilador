@@ -75,13 +75,11 @@ def insert_to_memory(address,value):
   # Local - Local Memory
   if(address >= 5000 and address <=8999):
     # Get top of stack
-    curr_local_memory = local_memory[-1]
     curr_local_memory.insert(address, value)
 
   # Local temp - Local Memory
   if(address >= 13000 and address <=16999):
     # Get top of stack
-    curr_local_memory = local_memory[-1]
     curr_local_memory.insert(address, value)
 
   # Constant address range
@@ -119,13 +117,13 @@ def get_val_from_memory(address, get_just_address= False):
 
 ip = 0
 i = 0
-checkpoint = None
+checkpoint = []
 
 curr_quad = get_quad(quads,ip)
 saltos = deque() # STACK FOR JUMPS WITH FUNCTIONS
 
 while(curr_quad[0] != 'END'):
-
+  # print("Memoria local array: ", local_memory)
   curr_quad = get_quad(quads, ip)
 
   # print(f'{ip}: {curr_quad}')
@@ -279,7 +277,6 @@ while(curr_quad[0] != 'END'):
     function_name = curr_quad[1]
     # Obtain required locals
     locals = dirFunc[function_name]['localsUsed']
-    print(locals)
     ints = locals['int']
     floats = locals['float']
     chars = locals['char']
@@ -298,7 +295,6 @@ while(curr_quad[0] != 'END'):
     for i in range(floats):
       new_space.get_all_memory()[float_local_base + i] = None
       
-
     for i in range(chars):
       new_space.get_all_memory()[char_local_base + i] = None
 
@@ -336,7 +332,7 @@ while(curr_quad[0] != 'END'):
   
   elif(curr_quad[0] == 'GOSUB'): # Need to asign ARGUMENTS  to PARAMETERS
     # Save the current IP
-    checkpoint = ip
+    checkpoint.append(ip)
     # saltos.append(ip+1)
     ip = curr_quad[3]
 
@@ -351,7 +347,8 @@ while(curr_quad[0] != 'END'):
       curr_local_memory = local_memory[-1]
     else:
       curr_local_memory = None
-    ip = checkpoint + 1
+
+    ip =  checkpoint.pop() + 1
     # ip = saltos.pop()
   
   elif(curr_quad[0] == 'RETURN'):
