@@ -12,7 +12,7 @@ function int factorial(int n){
   } else {
     t = n - 1;
     write(t);
-    returnValue = n * factorial(t);
+    returnValue = n * factorial(n-1);
   };
 
   return (returnValue);

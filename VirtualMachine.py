@@ -101,7 +101,12 @@ def get_val_from_memory(address, get_just_address= False):
 
   # Local - Local Memory
   if(address >= 5000 and address <=8999):
-    return curr_local_memory.get_value_by_address(address)
+    value = curr_local_memory.get_value_by_address(address)
+    if(value == None):
+      last_call_memory = local_memory[len(local_memory) - 2]
+      value = last_call_memory.get_value_by_address(address)
+      return value
+    return value
 
   # Local temp - Local Memory
   if(address >= 13000 and address <=16999):
@@ -146,7 +151,9 @@ while(curr_quad[0] != 'END'):
 
 
   elif(curr_quad[0] == '-'):
+    # print(curr_quad)
     left_value = get_val_from_memory(curr_quad[1])
+
     right_value = get_val_from_memory(curr_quad[2])
     temp_address = curr_quad[3]
     insert_to_memory(temp_address, left_value - right_value)
@@ -322,19 +329,21 @@ while(curr_quad[0] != 'END'):
     paramIndex = curr_quad[3] - 1
     # Convert dict to list of keys
     address_keys = list(curr_local_memory.get_all_memory())
+    print(address_keys)
     # Get  address of formal param
     address = address_keys[paramIndex]
-    # Obtain value from extra memory
+    # Obtain value from memory
     argument_value = get_val_from_memory(curr_quad[1])
     # argument_value = extra_memory.get_value_by_address(curr_quad[1])
     # Insert argument to formal param
     insert_to_memory(address, argument_value)
+    print("PARAMETERRR  ")
+    new_space.printMemory()
     ip += 1
   
   elif(curr_quad[0] == 'GOSUB'): # Need to asign ARGUMENTS  to PARAMETERS
     # Save the current IP
     checkpoint.append(ip)
-    # saltos.append(ip+1)
     ip = curr_quad[3]
 
   elif(curr_quad[0] == 'ENDFUNC'):
@@ -350,10 +359,10 @@ while(curr_quad[0] != 'END'):
       curr_local_memory = None
 
     ip =  checkpoint.pop() + 1
-    # ip = saltos.pop()
   
   elif(curr_quad[0] == 'RETURN'):
     ip += 1
+
   
   i += 1
 print('Memoria global')
