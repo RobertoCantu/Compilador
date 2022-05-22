@@ -1,0 +1,23 @@
+program test_;
+
+var int a;
+
+functions
+function int factorial(int n){
+  var int returnValue;
+
+  if(n == 0)
+  {
+    returnValue = 1;
+  } else {
+    returnValue = n * factorial(n - 1);
+  };
+
+  return (returnValue);
+
+}
+
+main {
+  a = factorial(4);
+  write(a);
+};
