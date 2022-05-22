@@ -146,7 +146,6 @@ while(curr_quad[0] != 'END'):
 
 
   elif(curr_quad[0] == '-'):
-    print(curr_quad)
     left_value = get_val_from_memory(curr_quad[1])
     right_value = get_val_from_memory(curr_quad[2])
     temp_address = curr_quad[3]
@@ -324,7 +323,6 @@ while(curr_quad[0] != 'END'):
     # Convert dict to list of keys
     address_keys = list(curr_local_memory.get_all_memory())
     # Get  address of formal param
-    print("Keys", address_keys)
     address = address_keys[paramIndex]
     # Obtain value from extra memory
     argument_value = get_val_from_memory(curr_quad[1])

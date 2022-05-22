@@ -20,6 +20,6 @@ function int factorial(int n){
 }
 
 main {
-  a = factorial(4);
+  a = factorial(10);
   write(a);
 };
