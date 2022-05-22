@@ -1,16 +1,18 @@
 program test_;
 
-var int a;
+var int a, t;
 
 functions
 function int factorial(int n){
-  var int returnValue;
-
+  var int returnValue, x;
+  write(n);
   if(n == 0)
   {
     returnValue = 1;
   } else {
-    returnValue = n * factorial(n - 1);
+    t = n - 1;
+    write(t);
+    returnValue = n * factorial(t);
   };
 
   return (returnValue);
