@@ -30,6 +30,8 @@ boolConstAddress = 20000
 
 # RESET TEMPORALS FOR RE-USE
 def resetLocalTemporals():
+  global intGlobalAddress, floatGlobalAddress, charGlobalAddress, intLocalAddress, floatLocalAddress, charLocalAddress, intTempGlobalAddress, floatTempGlobalAddress, charTempGlobalAddress, intTempLocalAddress, floatTempLocalAddress, charTempLocalAddress, intConstAddress, floatConstAddress, charConstAddress
+  global boolGlobalAddress, boolLocalAddress, boolTempGlobalAddress, boolTempLocalAddress, boolConstAddress
   intLocalAddress = 5000
   floatLocalAddress = 6000
   charLocalAddress = 7000

@@ -279,6 +279,7 @@ while(curr_quad[0] != 'END'):
     function_name = curr_quad[1]
     # Obtain required locals
     locals = dirFunc[function_name]['localsUsed']
+    print(locals)
     ints = locals['int']
     floats = locals['float']
     chars = locals['char']
