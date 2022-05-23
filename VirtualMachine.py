@@ -320,8 +320,8 @@ while(curr_quad[0] != 'END'):
     for i in range(bools_temp):
       new_space.get_all_memory()[bool_local_temp_base + i] = None
     
-    print("Memoria Local Inicial")
-    new_space.printMemory()
+    # print("Memoria Local Inicial")
+    # new_space.printMemory()
     ip += 1
   
   elif(curr_quad[0] == 'PARAMETER'):
@@ -329,7 +329,6 @@ while(curr_quad[0] != 'END'):
     paramIndex = curr_quad[3] - 1
     # Convert dict to list of keys
     address_keys = list(curr_local_memory.get_all_memory())
-    print(address_keys)
     # Get  address of formal param
     address = address_keys[paramIndex]
     # Obtain value from memory
@@ -337,8 +336,6 @@ while(curr_quad[0] != 'END'):
     # argument_value = extra_memory.get_value_by_address(curr_quad[1])
     # Insert argument to formal param
     insert_to_memory(address, argument_value)
-    print("PARAMETERRR  ")
-    new_space.printMemory()
     ip += 1
   
   elif(curr_quad[0] == 'GOSUB'): # Need to asign ARGUMENTS  to PARAMETERS
@@ -348,8 +345,9 @@ while(curr_quad[0] != 'END'):
 
   elif(curr_quad[0] == 'ENDFUNC'):
     # Print before erasing local memory
-    print("Memoria local antes de destruirse")
-    curr_local_memory.printMemory()
+    # print("Memoria local antes de destruirse")
+    # curr_local_memory.printMemory()
+    
     # Erase local memory
     local_memory.pop()
     # Update current memory

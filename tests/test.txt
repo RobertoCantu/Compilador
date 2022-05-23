@@ -1,0 +1,54 @@
+program test_;
+
+var int a, b, d;
+
+functions
+function int lol(int i){
+    var int c;
+   
+   c = 1 + i;
+    
+    return (c);
+}
+
+function int fib(int n) {
+
+    var int v1, v2, ret;
+
+    if(n <= 1) {
+        ret = n;
+    } else {
+        ret = fib(n-1) + fib(n-2);
+    };
+
+    return (ret);
+}
+
+function void hello(int x, int y, int z) {
+    var int res;
+
+    res = x + y + z;
+
+    write(res);
+}
+
+main {
+
+    d = 0;
+    a = 0;
+
+    for b = 1 to 5 do {
+        d = d + 1;
+    };
+
+    if (a < 10 && a < 5) {
+        write(6);
+    };
+
+    a = 8 + lol(4);
+
+    hello(5, 5, 5);
+
+    a = fib(9);
+    write(a);
+};

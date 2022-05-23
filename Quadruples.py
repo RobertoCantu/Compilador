@@ -132,7 +132,6 @@ class Quadruple:
     
     # FUNCTIONS FOR IF, ELSE 
     def createIf(self, tag):
-        print(self.pTypes)
         if(self.pTypes.pop() != "bool"): 
             print('Expected boolean exp')
             exit()

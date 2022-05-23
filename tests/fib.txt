@@ -1,0 +1,39 @@
+program fib_;
+
+var int a, b;
+
+functions
+function int fib(int n) {
+
+    var int v1, v2, ret;
+
+    if(n <= 1) {
+        ret = n;
+    } else {
+        v1 = fib(n-1);
+        v2 = fib(n-2);
+        ret = v1 + v2;
+    };
+
+    return (ret);
+}
+
+function int fib2(int n) {
+
+    var int ret;
+
+    if(n <= 1) {
+        ret = n;
+    } else {
+        ret = fib2(n-1) + fib2(n-2);
+    };
+
+    return (ret);
+}
+
+main {
+
+    b = fib(9);
+    write(b);
+    
+};

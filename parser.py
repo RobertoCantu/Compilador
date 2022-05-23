@@ -57,7 +57,7 @@ def p_program(p):
 		print(f"{i}", quad)
 		i = i + 1
 	
-	print('RESULT')
+	print('**** RESULT ****')
 	subprocess.call(['python', 'VirtualMachine.py'])
 		
 def p_program2(p):
@@ -307,13 +307,14 @@ def p_llamada2(p):
 
 def p_llamada_void(p):
 	'''
-	llamada_void	: ID LPAREN var_cte llamada_void2 RPAREN SEMICOLON
+	llamada_void	: ID LPAREN func_exists_create_era llamada_void2 RPAREN verify_params_coherency SEMICOLON
+					| ID LPAREN func_exists_create_era RPAREN verify_params_coherency SEMICOLON
 	'''
 
 def p_llamada_void2(p):
 	'''
-	llamada_void2	: COMMA var_cte llamada_void2
-					| empty
+	llamada_void2	: add_fake_bottom exp pop_fake_bottom verify_param
+					| add_fake_bottom exp pop_fake_bottom verify_param COMMA next_param llamada_void2
 	'''
 
 def p_asignacion(p):
@@ -355,19 +356,19 @@ def p_read(p):
 # <WRITE>
 def p_write(p):
 	'''
-	write		:	WRITE LPAREN write_2
+	write		:	WRITE LPAREN write_2 RPAREN SEMICOLON
 	'''
 
 def p_write_2(p):
 	'''
-	write_2		: exp add_write write_3
-						| CTESTRING write_3 
+	write_2		: exp add_write write_3 
+				| CTESTRING add_write
 	'''
 
 def p_write_3(p):
 	'''
 	write_3		: COMMA write_2
-						| RPAREN SEMICOLON
+				| empty
 	'''
 
 def p_var_cte(p):
@@ -892,10 +893,6 @@ def p_func_return(p):
 
 		quadruple.generateQuad('RETURN', None, None, va) # NOT SURE IF NEEDED!!!
 
-		print('temporals')
-		print(virtualAddress.getLocalTempUsed()) # TEMPORALS USED IN FUNCTION
-
-
 	except:
 		print(f'Comp. error: in function: {currentFunction}, return value not correct')
 		exit()
@@ -934,12 +931,14 @@ def p_func_exists_create_era(p):
 	global paramCounter
 	global currentParamTable
 
-	if(p[-2] in dirFunc):
-		funcCalledStack.append(p[-2])
-		funcCalled = p[-2]
+	funcName = p[-2]
+
+	if(funcName in dirFunc):
+		funcCalledStack.append(funcName)
+		funcCalled = funcName
 	
 	else:
-		print('Semantic Error: Funcion no declarada')
+		print(f'Semantic Error: Funcion {funcName}, no declarada')
 		exit()
 	
 	quadruple.generateQuad("ERA", funcCalled, None, None)
