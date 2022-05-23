@@ -57,8 +57,9 @@ def p_program(p):
 		print(f"{i}", quad)
 		i = i + 1
 	
-	print('**** RESULT ****')
-	subprocess.call(['python', 'VirtualMachine.py'])
+	print('========================================')
+	subprocess.call(['python3', 'VirtualMachine.py'])
+	print('========================================')
 		
 def p_program2(p):
 	'''
@@ -295,8 +296,8 @@ def p_estatutos(p):
 
 def p_llamada(p):
 	'''
-	llamada			: ID LPAREN func_exists_create_era llamada2 RPAREN verify_params_coherency
-					| ID LPAREN func_exists_create_era RPAREN verify_params_coherency
+	llamada			: ID LPAREN func_exists_create_era add_fake_bottom llamada2 RPAREN verify_params_coherency pop_fake_bottom
+					| ID LPAREN func_exists_create_era add_fake_bottom RPAREN verify_params_coherency pop_fake_bottom
 	'''
 
 def p_llamada2(p):
@@ -645,7 +646,7 @@ def p_add_fake_bottom(p):
 	'''
 	add_fake_bottom 	: empty
 	'''
-	quadruple.push_poper(p[-1])
+	quadruple.push_poper("(")
 
 def p_pop_fake_bottom(p):
 	'''
@@ -973,9 +974,9 @@ def p_verify_params_coherency(p):
 	'''
 	verify_params_coherency	: empty
 	'''
-	global funcCalled, funcCalledStack, currentFunction, programName, globalVars
+	global funcCalled, funcCalledStack, programName, globalVars
 	global dirFunc
-	global programName
+	global programName, currentFunction
 	
 	# Check if table of params is empty
 	paramsTable = dirFunc[funcCalled]['paramsTable']
@@ -987,10 +988,14 @@ def p_verify_params_coherency(p):
 		quadruple.generateQuad("GOSUB", funcCalled, None, dirFunc[funcCalled]['startAtQuad'])
 		funcCalledType = dirFunc[funcCalled]["type"]
 		if(funcCalledType != 'void'):
+
 			# Save return value in global vars table
 			# dirFunc[programName]["table"][funcCalled] = {'name': funcCalled, 'type': funcCalledType, 'dir': quadruple.counter}
 
-			va = virtualAddress.setAddress(funcCalledType, 'tempGlobal')
+			if (programName == currentFunction):
+				va = virtualAddress.setAddress(funcCalledType, 'tempGlobal')
+			else:
+				va = virtualAddress.setAddress(funcCalledType, 'tempLocal') # FUNCTION CALLS INSIDE FUNCTIONS
 
 			func_return_va = globalVars[funcCalled]['address']
 

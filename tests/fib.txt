@@ -1,6 +1,6 @@
 program fib_;
 
-var int a, b;
+var int a, b, c;
 
 functions
 function int fib(int n) {
@@ -33,7 +33,10 @@ function int fib2(int n) {
 
 main {
 
-    b = fib(9);
+    b = fib(5);
+    write(b);
+
+    b = fib2(5);
     write(b);
     
 };
