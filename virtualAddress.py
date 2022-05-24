@@ -57,7 +57,21 @@ def getLocalUsed():
   
   return (ints, floats, chars, bools)
 
+def getGlobalUsed():
+  ints = intGlobalAddress - 1000
+  floats = floatGlobalAddress - 2000
+  chars  = charGlobalAddress - 3000
+  bools = boolGlobalAddress - 4000
+    
+  return (ints, floats, chars, bools)
 
+def getGlobalTempUsed():
+  ints = intTempGlobalAddress - 9000
+  floats = floatTempGlobalAddress - 10000
+  chars  = charTempGlobalAddress - 11000
+  bools = boolTempGlobalAddress - 12000
+    
+  return (ints, floats, chars, bools)
 
 def setAddress(type, scope):
   global intGlobalAddress, floatGlobalAddress, charGlobalAddress, intLocalAddress, floatLocalAddress, charLocalAddress, intTempGlobalAddress, floatTempGlobalAddress, charTempGlobalAddress, intTempLocalAddress, floatTempLocalAddress, charTempLocalAddress, intConstAddress, floatConstAddress, charConstAddress
