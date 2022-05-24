@@ -70,33 +70,25 @@ dirFunc = objectCodeData['dirFunc']
 constantsTable = objectCodeData['constantsTable']
 
 # Global memory definition, Data segment
+
+# Count total of globals vars
 int_global_size = dirFunc['globalsUsed']['int']
-
 float_global_size = dirFunc['globalsUsed']['float']
-
 char_global_size = dirFunc['globalsUsed']['char']
-
 bool_global_size = dirFunc['globalsUsed']['bool']
 
-
+# Create global memory
 global_memory = Memory(int_global_size, float_global_size, char_global_size, bool_global_size)
+
 # Stack Segment for local scopes
 local_memory = []
 curr_local_memory = None
 
-# Extra Segment for global temp and constants Position 0 equals to constants and Position 1 equals to temp globals
+# Extra Segment Definition for global temp and constants Position 0 equals to constants and Position 1 equals to temp globals
 extra_memory = []
 const_mem = Memory()
 
-int_global_temp_size = dirFunc['globalsTempUsed']['int']
-float_global_temp_size = dirFunc['globalsTempUsed']['float']
-char_global_temp_size = dirFunc['globalsTempUsed']['char']
-bool_global_temp_size = dirFunc['globalsTempUsed']['bool']
-
-
-temp_global_mem = Memory(int_global_temp_size, float_global_temp_size, char_global_temp_size, bool_global_temp_size)
-
-temp_global_mem.printMemory()
+# Create constant Memory
 for key, value in constantsTable.items():
   #Add it to list of constants ints
   if(value['address'] >= 17000 and value['address'] <= 17999):
@@ -114,12 +106,20 @@ for key, value in constantsTable.items():
   elif(value['address'] >= 20000 and value['address'] <= 20999):
     const_mem.return_memory_space("bool").append(value['name'])
 
+# Count temp globals
+int_global_temp_size = dirFunc['globalsTempUsed']['int']
+float_global_temp_size = dirFunc['globalsTempUsed']['float']
+char_global_temp_size = dirFunc['globalsTempUsed']['char']
+bool_global_temp_size = dirFunc['globalsTempUsed']['bool']
 
+# Create global temp Memory
+temp_global_mem = Memory(int_global_temp_size, float_global_temp_size, char_global_temp_size, bool_global_temp_size)
+
+# Create extra Memory 
 extra_memory.append(const_mem)
 extra_memory.append(temp_global_mem)
 
-
-  
+##################################################################
 def get_quad(quads, index):
   return quads[index]
 
