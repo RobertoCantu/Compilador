@@ -121,11 +121,8 @@ extra_memory.append(temp_global_mem)
 def get_quad(quads, index):
   return quads[index]
 
+##################################################################
 def insert_to_memory(address,value):
-  # Global address range
-  # if(address >= 1000 and address <=4999):
-  #   global_memory.insert(address,value)
-
   # Globals logic
   # Insert global int
   if(address >= 1000 and address <= 1999):
@@ -153,14 +150,7 @@ def insert_to_memory(address,value):
     # Get top of stack
     curr_local_memory.insert(address, value)
 
-  # # Constant address range
-  # if(address >= 17000 and address <= 20999):
-  #   extra_memory.insert(address, value)
-
-  # Global temporal
-  # if(address >= 9000 and address <= 12999):
-  #   extra_memory.insert(address, value)
-
+ 
   # Insert global temp int
   if(address >= 9000 and address <= 9999):
     extra_memory[1].insert(address - 9000, value, "int")
@@ -177,6 +167,7 @@ def insert_to_memory(address,value):
   elif(address >= 12000 and address <= 12999):
     extra_memory[1].insert(address - 12000, value, "bool")
 
+################################################################
 def get_val_from_memory(address, get_just_address= False):
   # Global address range
   # Hay que corregir esto, es un parche bien feo mientras
@@ -392,7 +383,7 @@ while(curr_quad[0] != 'END'):
 
   elif(curr_quad[0] == 'READ'):
     res = input()
-    address = get_val_from_memory(curr_quad[3], get_just_address = True)
+    address = curr_quad[3]
     # Check flavor of memory
     if(address >= 1000 and address <=1999 or address >= 5000 and address <=5999):
       res = int(res)
