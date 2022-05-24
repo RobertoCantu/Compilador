@@ -1,4 +1,4 @@
-# Compilador
+# Compilador OVEJOTA
 Proyecto final para la clase de compiladores
 
 # Avance #1
@@ -38,4 +38,13 @@ Se crearon los puntos necesarios para:
 -	Se creo caso especial para cuando la función no es de tipo void
 -	Los puntos necesarios para la llamada de funciones tanto void como de algún otro tipo.
 -	Checar la existencia de una función cuando es llamada.
+
+# Avance 6
+
+En este sexto avance: se ceo la maquina virtual con la ejecución de expresiones aritméticas, estatutos secuenciales y llamadas a funciones. 
+
+- Se creó el archivo object.p con los cuádruplos, directorio de funciones y tabla de constantes. 
+- Se creó el archivo VirtualMachine.py en donde se recorren los cuádruplos, respetando sus saltos adecuados.
+- En el mismo archivo se crearon varios objetos Memory los cuales van guardando los valores de las variables y los resultados de los cuádruplos para implementar el Data segment, Stack segment y Extra segment. 
+- Se recorren todos los cuádruplos en un ciclo utilizando un instruction pointer y con varios casos condicionales dependiendo del cuádruplo. 
 
