@@ -3,12 +3,11 @@ program test_;
 var int a, t, y;
 
 main {
-  a = 7 + 2;
+  a = 7 * 2;
 
-  a = 4;
   
   if(a > 1){
     write(a);
   };
-  
+
 };

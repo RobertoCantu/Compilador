@@ -222,7 +222,6 @@ def get_val_from_memory(address, get_just_address= False):
   # Return constant float
   elif(address >= 18000 and address <= 18999):
     return extra_memory[0].return_memory_space("float")[address - 18000]
-    return extra_memory[0][1][address - 18000]
 
   # Return constant char
   elif(address >= 19000 and address <= 19999):
@@ -231,10 +230,6 @@ def get_val_from_memory(address, get_just_address= False):
   # Return constant bool
   elif(address >= 20000 and address <= 20999):
     return extra_memory[0].return_memory_space("bool")[address - 20000]
-
-  # # Global temporal - Extra memory
-  # if(address >= 9000 and address <= 12999):
-  #   return extra_memory.get_value_by_address(address)
 
   # Globals temporal logic -- Extra memory
   # Return global temp  int
