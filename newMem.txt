@@ -6,6 +6,9 @@ main {
   a = 7 + 2;
 
   a = 4;
-  read(a);
-  write(a);
+  
+  if(a > 1){
+    write(a);
+  };
+  
 };

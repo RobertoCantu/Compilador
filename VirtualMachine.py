@@ -20,7 +20,7 @@ bool_local_temp_base = 16000
 
 class Memory():
   def __init__(self, intSize = 0, floatSize = 0, charSize = 0, boolSize = 0):
-    self.data = [[None] * intSize,[] * floatSize,[] * charSize,[] * boolSize]
+    self.data = [[None] * intSize,[None] * floatSize,[None] * charSize,[None] * boolSize]
 
   def insert(self, address, value, type):
     if(type == 'int'):
@@ -93,8 +93,10 @@ float_global_temp_size = dirFunc['globalsTempUsed']['float']
 char_global_temp_size = dirFunc['globalsTempUsed']['char']
 bool_global_temp_size = dirFunc['globalsTempUsed']['bool']
 
+
 temp_global_mem = Memory(int_global_temp_size, float_global_temp_size, char_global_temp_size, bool_global_temp_size)
 
+temp_global_mem.printMemory()
 for key, value in constantsTable.items():
   #Add it to list of constants ints
   if(value['address'] >= 17000 and value['address'] <= 17999):
