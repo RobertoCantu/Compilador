@@ -19,5 +19,5 @@ function int fib (int n){
 }
 
 main {
-  write(fib(4));
+  write(fib(10));
 };
