@@ -1,7 +1,7 @@
 from audioop import add
 from glob import glob
 from locale import currency
-from msilib.schema import Error
+# from msilib.schema import Error
 from operator import le
 import pickle
 from collections import deque

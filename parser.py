@@ -24,6 +24,10 @@ programName = ""		#
 currentFunction = ""	# current function
 currentVarsTable = ""
 
+# Array utils
+arr_dim = 1
+arr_r = 1
+curr_id = "" # Current ID of array variable
 
 # Quads
 quadruple = Quadruple()
@@ -168,17 +172,15 @@ def p_vars_c(p):
 
 def p_vars_s(p):
 	'''
-	vars_s			: ID id_seen SEMICOLON vars_end
-					| ID id_seen LSQRBRACKET CTEI RSQRBRACKET vars_array
-					| ID id_seen COMMA vars_s
+	vars_s			: ID id_seen vars_options
+					| ID id_seen LSQRBRACKET is_array exp RSQRBRACKET array_calcs vars_matrix vars_options
 	'''
 
-def p_vars_array(p):
+def p_vars_options(p):
 	'''
-	vars_array		: SEMICOLON vars_end
+	vars_options	: SEMICOLON vars_end
 					| COMMA vars_s
 	'''
-
 
 def p_vars_end(p):
 	'''
@@ -186,6 +188,11 @@ def p_vars_end(p):
 					| empty
 	'''
 
+def p_vars_matrix(p):
+	'''
+	vars_matrix		: LSQRBRACKET exp RSQRBRACKET array_calcs array_end
+					| array_end empty
+	'''
 
 # <FUNCIONES>
 def p_funciones(p):
@@ -438,8 +445,6 @@ def p_create_main_func(p):
 		
 	dirFunc[p[-1]] = {"name": p[-1], "type": "global", "table": None, "paramsTable": None}
 	
-	# = dc.DirFunc()
-	# dirFunc.addFunc({"name": p[-1], "type": "global", "table": None })
 	programName = p[-1]
 	currentFunction = p[-1]
 
@@ -1035,7 +1040,109 @@ def p_add_to_global_vars(p):
 	global dirFunc
 	global globalVars
 
-	globalVars = dirFunc[currentFunction]["table"]
+	globalVars = dirFunc[currentFunction]['table']
+
+def p_is_array(p):
+	'''
+	is_array		: empty
+	'''
+	global currentFunction
+	global dirFunc, globalVars
+	global arr_dim, arr_r, curr_id
+
+	location = 'Global' if programName == currentFunction else 'Local'
+	varName = p[-3]
+	curr_id = varName
+	dirFunc[currentFunction]['table'][varName]['dim'] = []
+
+	arr_r = virtualAddress.setAddress('int', f'temp{location}') # CREATE R for current array
+	quadruple.generateQuad("=", getConstant(1, 'int'), None, arr_r)
+
+def p_array_calcs(p):
+	'''
+	array_calcs			: empty
+	'''
+	global currentFunction, programName
+	global dirFunc, globalVars
+	global arr_dim, arr_r, curr_id
+
+	location = 'Global' if programName == currentFunction else 'Local'
+	varName = curr_id
+
+	l_inf = getConstant(0, 'int') # from 0 --> l_sup
+	l_sup = quadruple.pilaO.pop()
+	l_sup_type = quadruple.pTypes.pop()
+
+	# Check exp result is INT
+	if(l_sup_type != 'int'):
+		print(f"Semantic Error: Tamaño de Arreglo: {varName} no es numerico")
+		exit()
+	
+	# GENERATE QUADS FOR ARRAY CALCS
+	# R = (L_sup - L_inf + 1) * R
+	va = virtualAddress.setAddress(l_sup_type, f'temp{location}')
+	quadruple.generateQuad("-", l_sup, l_inf, va)
+
+	past_va = va
+	va = virtualAddress.setAddress(l_sup_type, f'temp{location}')
+	quadruple.generateQuad("+", past_va, getConstant(1, 'int'), va)
+
+	past_va = va
+	va = virtualAddress.setAddress(l_sup_type, f'temp{location}')
+	quadruple.generateQuad("*", past_va, arr_r, va)
+
+	past_va = va
+	va = virtualAddress.setAddress(l_sup_type, f'temp{location}')
+	quadruple.generateQuad("=", past_va, None, arr_r)
+
+	dirFunc[currentFunction]['table'][varName]['dim'].append({'l_inf': l_inf, 'l_sup': l_sup, 'm': 0})
+
+	arr_dim += 1
+
+def p_array_end(p):
+	'''
+	array_end			: empty
+	'''
+	global currentFunction, programName
+	global dirFunc, globalVars
+	global arr_dim, arr_r, curr_id
+
+	location = 'Global' if programName == currentFunction else 'Local'
+	varName = curr_id
+	
+	arr_list = dirFunc[currentFunction]['table'][varName]['dim']
+
+	indx = 0
+
+	for elem in arr_list:
+		# R = R / (L_sup_dim - L_inf_dim + 1)
+		l_inf = elem["l_inf"]
+		l_sup = elem["l_sup"]
+
+		va = virtualAddress.setAddress('int', f'temp{location}')
+		quadruple.generateQuad("-", l_sup, l_inf, va)
+
+		past_va = va
+		va = virtualAddress.setAddress('int', f'temp{location}')
+		quadruple.generateQuad("+", past_va, getConstant(1, 'int'), va)
+
+		past_va = va
+		va = virtualAddress.setAddress('int', f'temp{location}')
+		quadruple.generateQuad("/", arr_r, past_va, va)
+
+		quadruple.generateQuad("=", va, None, arr_r)
+
+		# Stores m in DIM table
+		dirFunc[currentFunction]['table'][varName]['dim'][indx]['m'] = va
+		indx += 1
+
+		# NO offset since its based in 0
+
+	print(dirFunc[currentFunction]['table'][varName])
+	print()
+
+
+	curr_id = ""
 
 
 
@@ -1048,6 +1155,14 @@ def numerical(val):
 			return False
 	else:
 		return True
+
+def getConstant(val, val_type):
+	ret = 0
+	if (constantsTable.getConstantByValue(val) == None):
+		constantsTable.addConstant(val, virtualAddress.setAddress(val_type, 'constant'))
+	ret = constantsTable.getConstantByValue(val)['address']
+
+	return ret
 
 ################ END OF AUX FUNCTIONS ################
 
