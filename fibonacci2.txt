@@ -9,8 +9,6 @@ function int fib (int n){
   {
     returnValue = n ;
   } else {
-    write(1000000000000);
-    write(n);
     returnValue = (fib(n - 1) + (fib(n - 2)));
   };
 

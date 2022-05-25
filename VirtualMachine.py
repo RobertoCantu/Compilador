@@ -231,9 +231,7 @@ def get_val_from_memory(address, get_just_address= False):
   # Return Local int
   if(address >= 5000 and address <= 5999):
     value = curr_local_memory[0].return_memory_space("int")[address - 5000]
-    print("Valooor", value)
     if(value == None):
-      print("wapoooooo")
       # Look one space of memory behind
       last_call_memory = local_memory[len(local_memory) - 2]
       value = last_call_memory[0].return_memory_space("int")[address - 5000]
@@ -348,8 +346,6 @@ while(curr_quad[0] != 'END'):
   elif(curr_quad[0] == '+'):
     left_value = get_val_from_memory(curr_quad[1])
     right_value = get_val_from_memory(curr_quad[2])
-    print(left_value)
-    print(right_value)
     temp_address = curr_quad[3]
     insert_to_memory(temp_address, left_value + right_value)
     ip +=1
@@ -358,7 +354,6 @@ while(curr_quad[0] != 'END'):
   elif(curr_quad[0] == '-'):
     # print(curr_quad)
     left_value = get_val_from_memory(curr_quad[1])
-
     right_value = get_val_from_memory(curr_quad[2])
     temp_address = curr_quad[3]
     insert_to_memory(temp_address, left_value - right_value)
@@ -501,7 +496,6 @@ while(curr_quad[0] != 'END'):
     # Points to new space of memory
     curr_local_memory.append(new_local_memory)
     curr_local_memory.append(new_local_temp_memory)
-    print(curr_local_memory)
     # Add new space to stack
     local_memory.append(curr_local_memory)
    
@@ -556,7 +550,6 @@ while(curr_quad[0] != 'END'):
 
     # Obtain value from memory
     argument_value = get_val_from_memory(curr_quad[1])
-    print(argument_value)
     # argument_value = extra_memory.get_value_by_address(curr_quad[1])
     # Insert argument to formal param
     insert_to_memory(address, argument_value)

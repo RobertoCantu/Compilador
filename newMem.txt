@@ -2,12 +2,13 @@ program test_;
 
 var int a, t, y;
 
-main {
-  a = 7 * 2;
+functions
+function void hola(int a, int b, float w){
+  write(a + b + w);
+}
 
-  
-  if(a > 1){
-    write(a);
-  };
+main {
+
+write(2.7 + 2.3);
 
 };
