@@ -13,7 +13,6 @@ function void hola2(int a, int b, float w){
 
 main {
 
-hola(2,3,4.5);
-hola2(2,3,4.5);
+a = a / 3;
 
 };

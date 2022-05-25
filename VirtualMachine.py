@@ -1,11 +1,13 @@
 from audioop import add
 from glob import glob
 from locale import currency
+from msilib.schema import Error
 from operator import le
 import pickle
 from collections import deque
 from tabnanny import check
 from threading import local
+from error import SemanticError
 
 # Define same memory bases as the compiler
 int_local_base = 5000
@@ -334,7 +336,10 @@ while(curr_quad[0] != 'END'):
     left_value = get_val_from_memory(curr_quad[1])
     right_value = get_val_from_memory(curr_quad[2])
     temp_address = curr_quad[3]
-    insert_to_memory(temp_address, left_value + right_value)
+    try:
+      insert_to_memory(temp_address, left_value + right_value)
+    except:
+      raise SemanticError("Variable sin valor asignado")
     ip +=1
 
 
@@ -343,7 +348,10 @@ while(curr_quad[0] != 'END'):
     left_value = get_val_from_memory(curr_quad[1])
     right_value = get_val_from_memory(curr_quad[2])
     temp_address = curr_quad[3]
-    insert_to_memory(temp_address, left_value - right_value)
+    try:
+      insert_to_memory(temp_address, left_value - right_value)
+    except:
+      raise SemanticError("Variable sin valor asignado")
     ip +=1
 
 
@@ -351,14 +359,22 @@ while(curr_quad[0] != 'END'):
     left_value = get_val_from_memory(curr_quad[1])
     right_value = get_val_from_memory(curr_quad[2])
     temp_address = curr_quad[3]
-    insert_to_memory(temp_address, left_value * right_value)
+    try:
+      insert_to_memory(temp_address, left_value * right_value)
+    except:
+      raise SemanticError("Variable sin valor asignado")
     ip +=1
 
   elif(curr_quad[0] == '/'):
     left_value = get_val_from_memory(curr_quad[1])
     right_value = get_val_from_memory(curr_quad[2])
     temp_address = curr_quad[3]
-    insert_to_memory(temp_address, left_value / right_value)
+    try:
+      insert_to_memory(temp_address, left_value / right_value)
+    except ZeroDivisionError:
+      raise ZeroDivisionError("Semantic Error: Division entre 0")
+    except:
+      raise SemanticError("Variable sin valor asignado")
     ip +=1
   
   # Comparison operations
