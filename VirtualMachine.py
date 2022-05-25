@@ -1,11 +1,13 @@
 from audioop import add
 from glob import glob
 from locale import currency
+from msilib.schema import Error
 from operator import le
 import pickle
 from collections import deque
 from tabnanny import check
 from threading import local
+from error import SemanticError
 
 # Define same memory bases as the compiler
 int_local_base = 5000
@@ -19,11 +21,21 @@ char_local_temp_base = 15000
 bool_local_temp_base = 16000
 
 class Memory():
-  def __init__(self):
-    self.data = {}
+  def __init__(self, intSize = 0, floatSize = 0, charSize = 0, boolSize = 0):
+    self.data = [[None] * intSize,[None] * floatSize,[None] * charSize,[None] * boolSize]
 
-  def insert(self, address, value):
-    self.data[address] = value
+  def insert(self, address, value, type):
+    if(type == 'int'):
+      self.data[0][address] = value
+
+    elif(type == 'float'):
+      self.data[1][address] = value
+
+    elif(type == 'char'):
+      self.data[2][address] = value
+
+    elif(type == 'bool'):
+      self.data[3][address] = value
 
   def get_value_by_address(self, address):
     if (address in self.data):
@@ -33,8 +45,18 @@ class Memory():
       print("Runtime error")
       # exit()
   
-  def get_all_memory(self):
-    return self.data
+  def return_memory_space(self, type):
+    if(type == 'int'):
+      return self.data[0]
+
+    elif(type == 'float'):
+      return self.data[1]
+
+    elif(type == 'char'):
+      return self.data[2]
+
+    elif(type == 'bool'):
+      return self.data[3]
   
   def printMemory(self):
     print(self.data)
@@ -50,75 +72,243 @@ dirFunc = objectCodeData['dirFunc']
 constantsTable = objectCodeData['constantsTable']
 
 # Global memory definition, Data segment
-global_memory = Memory()
+
+# Count total of globals vars
+int_global_size = dirFunc['globalsUsed']['int']
+float_global_size = dirFunc['globalsUsed']['float']
+char_global_size = dirFunc['globalsUsed']['char']
+bool_global_size = dirFunc['globalsUsed']['bool']
+
+# Create global memory
+global_memory = Memory(int_global_size, float_global_size, char_global_size, bool_global_size)
 
 # Stack Segment for local scopes
 local_memory = []
-curr_local_memory = None
 
-# Extra Segment for global temp and constants
-extra_memory = Memory()
+#[   [Mem1,Mem2]]
+curr_local_memory = []
 
-# Load extra segment with constants
+# Extra Segment Definition for global temp and constants Position 0 equals to constants and Position 1 equals to temp globals
+extra_memory = []
+const_mem = Memory()
+
+# Create constant Memory
 for key, value in constantsTable.items():
-  extra_memory.insert(value['address'], value['name'])
+  #Add it to list of constants ints
+  if(value['address'] >= 17000 and value['address'] <= 17999):
+    const_mem.return_memory_space("int").append(value['name'])
 
+  #Add it to list of constants floats
+  elif(value['address'] >= 18000 and value['address'] <= 18999):
+    const_mem.return_memory_space("float").append(value['name'])
 
+  #Add it to list of constants chars
+  elif(value['address'] >= 19000 and value['address'] <= 19999):
+   const_mem.return_memory_space("char").append(value['name'])
+
+  #Add it to list of constants bools
+  elif(value['address'] >= 20000 and value['address'] <= 20999):
+    const_mem.return_memory_space("bool").append(value['name'])
+
+# Count temp globals
+int_global_temp_size = dirFunc['globalsTempUsed']['int']
+float_global_temp_size = dirFunc['globalsTempUsed']['float']
+char_global_temp_size = dirFunc['globalsTempUsed']['char']
+bool_global_temp_size = dirFunc['globalsTempUsed']['bool']
+
+# Create global temp Memory
+temp_global_mem = Memory(int_global_temp_size, float_global_temp_size, char_global_temp_size, bool_global_temp_size)
+
+# Create extra Memory 
+extra_memory.append(const_mem)
+extra_memory.append(temp_global_mem)
+
+##################################################################
 def get_quad(quads, index):
   return quads[index]
 
+##################################################################
 def insert_to_memory(address,value):
-  # Global address range
-  if(address >= 1000 and address <=4999):
-    global_memory.insert(address,value)
+  # Globals logic
+  # Insert global int
+  if(address >= 1000 and address <= 1999):
+    global_memory.insert(address-1000, value, 'int')
+    
+  # Insert global float
+  elif(address >= 2000 and address <= 2999):
+    global_memory.insert(address-2000, value, 'float')
 
+  # Insert global char
+  elif(address >= 3000 and address <= 3999):
+    global_memory.insert(address-3000, value, 'char')
+
+  # Insert global bool
+  elif(address >= 4000 and address <= 4999):
+    global_memory.insert(address-3000, value, 'bool')
+###############################################################
   # Local - Local Memory
-  if(address >= 5000 and address <=8999):
-    # Get top of stack
-    curr_local_memory.insert(address, value)
+  # Insert Local temp int
+  if(address >= 5000 and address <= 5999):
+    curr_local_memory[0].insert(address - 5000, value, "int")
 
+  # Insert Local temp float
+  elif(address >= 6000 and address <= 6999):
+    curr_local_memory[0].insert(address - 6000, value, "float")
+
+  # Insert Local temp char
+  elif(address >= 7000 and address <= 7999):
+    curr_local_memory[0].insert(address - 7000, value, "char")
+
+  # Insert Local temp bool
+  elif(address >= 8000 and address <= 8999):
+    curr_local_memory[0].insert(address - 8000, value, "bool")
+####################################################################
   # Local temp - Local Memory
-  if(address >= 13000 and address <=16999):
-    # Get top of stack
-    curr_local_memory.insert(address, value)
+  # Insert Local temp int
+  if(address >= 13000 and address <= 13999):
+    curr_local_memory[1].insert(address - 13000, value, "int")
 
-  # Constant address range
-  if(address >= 17000 and address <= 20999):
-    extra_memory.insert(address, value)
+  # Insert Local temp float
+  elif(address >= 14000 and address <= 14999):
+    curr_local_memory[1].insert(address - 14000, value, "float")
 
-  # Global temporal
-  if(address >= 9000 and address <= 12999):
-    extra_memory.insert(address, value)
+  # Insert Local temp char
+  elif(address >= 15000 and address <= 15999):
+    curr_local_memory[1].insert(address - 15000, value, "char")
 
+  # Insert Local temp bool
+  elif(address >= 16000 and address <= 16999):
+    curr_local_memory[1].insert(address - 16000, value, "bool")
+######################################################################
+  # Insert global temp int
+  if(address >= 9000 and address <= 9999):
+    extra_memory[1].insert(address - 9000, value, "int")
+
+  # Insert global temp float
+  elif(address >= 10000 and address <= 10999):
+    extra_memory[1].insert(address - 10000, value, "float")
+
+  # Insert global temp char
+  elif(address >= 11000 and address <= 11999):
+    extra_memory[1].insert(address - 11000, value, "char")
+
+  # Insert global temp bool
+  elif(address >= 12000 and address <= 12999):
+    extra_memory[1].insert(address - 12000, value, "bool")
+
+################################################################
 def get_val_from_memory(address, get_just_address= False):
   # Global address range
   # Hay que corregir esto, es un parche bien feo mientras
   if(get_just_address):
     return address
-  # Global memory
-  if(address >= 1000 and address <=4999):
-    return global_memory.get_value_by_address(address)
+
+  # Globals logic
+  # Return global int
+  if(address >= 1000 and address <= 1999):
+    return global_memory.return_memory_space("int")[address - 1000]
+
+  # Return global float
+  elif(address >= 2000 and address <= 2999):
+    return global_memory.return_memory_space("float")[address - 2000]
+
+  # Return global char
+  elif(address >= 3000 and address <= 3999):
+    return global_memory.return_memory_space("char")[address - 3000]
+
+  # Return global bool
+  elif(address >= 4000 and address <= 4999):
+    return global_memory.return_memory_space("bool")[address - 3000]
 
   # Local - Local Memory
-  if(address >= 5000 and address <=8999):
-    value = curr_local_memory.get_value_by_address(address)
+  # Local  logic
+  # Return Local int
+  if(address >= 5000 and address <= 5999):
+    value = curr_local_memory[0].return_memory_space("int")[address - 5000]
     if(value == None):
+      # Look one space of memory behind
       last_call_memory = local_memory[len(local_memory) - 2]
-      value = last_call_memory.get_value_by_address(address)
+      value = last_call_memory[0].return_memory_space("int")[address - 5000]
       return value
     return value
+  # Return Local float
+  elif(address >= 6000 and address <= 6999):
+    value = curr_local_memory[0].return_memory_space("float")[address - 6000]
+    if(value == None):
+      # Look one space of memory behind
+      last_call_memory = local_memory[len(local_memory) - 2]
+      value = last_call_memory[0].return_memory_space("float")[address - 6000]
+      return value
+    return value
+  # Return Local char
+  elif(address >= 7000 and address <= 7999):
+    value = curr_local_memory[0].return_memory_space("char")[address - 7000]
+    if(value == None):
+      # Look one space of memory behind
+      last_call_memory = local_memory[len(local_memory) - 2]
+      value = last_call_memory[0].return_memory_space("char")[address - 7000]
+      return value
+    return value
+  # Return Local bool
+  elif(address >= 8000 and address <= 8999):
+    value = curr_local_memory[0].return_memory_space("bool")[address - 8000]
+    if(value == None):
+      # Look one space of memory behind
+      last_call_memory = local_memory[len(local_memory) - 2]
+      value = last_call_memory[0].return_memory_space("bool")[address - 8000]
+      return value
+    return value
+  
+  # Local temp logic - Local Memory
+  # Return Local temp  int
+  if(address >= 13000 and address <= 13999):
+    return curr_local_memory[1].return_memory_space("int")[address - 13000]
 
-  # Local temp - Local Memory
-  if(address >= 13000 and address <=16999):
-    return curr_local_memory.get_value_by_address(address)
+  # Return Local temp  float
+  elif(address >= 14000 and address <= 14999):
+    return curr_local_memory[1].return_memory_space("float")[address - 14000]
 
-  # Constant address range - Extra memory
-  if(address >= 17000 and address <= 20999):
-    return extra_memory.get_value_by_address(address)
+  # Return Local temp  char
+  elif(address >= 15000 and address <= 15999):
+    return curr_local_memory[1].return_memory_space("char")[address - 15000]
 
-  # Global temporal - Extra memory
-  if(address >= 9000 and address <= 12999):
-    return extra_memory.get_value_by_address(address)
+  # Return Local temp  bool
+  elif(address >= 16000 and address <= 16999):
+    return curr_local_memory[1].return_memory_space("bool")[address - 16000]
+
+  # Constans logic -- Extra memory
+  # Return constant int
+  if(address >= 17000 and address <= 17999):
+    return extra_memory[0].return_memory_space("int")[address - 17000]
+
+  # Return constant float
+  elif(address >= 18000 and address <= 18999):
+    return extra_memory[0].return_memory_space("float")[address - 18000]
+
+  # Return constant char
+  elif(address >= 19000 and address <= 19999):
+    return extra_memory[0].return_memory_space("char")[address - 19000]
+
+  # Return constant bool
+  elif(address >= 20000 and address <= 20999):
+    return extra_memory[0].return_memory_space("bool")[address - 20000]
+
+  # Globals temporal logic -- Extra memory
+  # Return global temp  int
+  if(address >= 9000 and address <= 9999):
+    return extra_memory[1].return_memory_space("int")[address - 9000]
+
+  # Return global temp float
+  elif(address >= 10000 and address <= 10999):
+    return extra_memory[1].return_memory_space("float")[address - 10000]
+
+  # Return global temp  char
+  elif(address >= 11000 and address <= 11999):
+    return extra_memory[1].return_memory_space("char")[address - 11000]
+
+  # Return global temp  bool
+  elif(address >= 12000 and address <= 12999):
+    return extra_memory[1].return_memory_space("bool")[address - 12000]
 
 ip = 0
 i = 0
@@ -137,7 +327,7 @@ while(curr_quad[0] != 'END'):
   # Assign
   if(curr_quad[0] == '='):
     val_to_assign = get_val_from_memory(curr_quad[1])
-    res_dir = get_val_from_memory(curr_quad[3], get_just_address = True)
+    res_dir = curr_quad[3]
     insert_to_memory(res_dir, val_to_assign)
     ip +=1
 
@@ -146,17 +336,22 @@ while(curr_quad[0] != 'END'):
     left_value = get_val_from_memory(curr_quad[1])
     right_value = get_val_from_memory(curr_quad[2])
     temp_address = curr_quad[3]
-    insert_to_memory(temp_address, left_value + right_value)
+    try:
+      insert_to_memory(temp_address, left_value + right_value)
+    except:
+      raise SemanticError("Variable sin valor asignado")
     ip +=1
 
 
   elif(curr_quad[0] == '-'):
     # print(curr_quad)
     left_value = get_val_from_memory(curr_quad[1])
-
     right_value = get_val_from_memory(curr_quad[2])
     temp_address = curr_quad[3]
-    insert_to_memory(temp_address, left_value - right_value)
+    try:
+      insert_to_memory(temp_address, left_value - right_value)
+    except:
+      raise SemanticError("Variable sin valor asignado")
     ip +=1
 
 
@@ -164,14 +359,22 @@ while(curr_quad[0] != 'END'):
     left_value = get_val_from_memory(curr_quad[1])
     right_value = get_val_from_memory(curr_quad[2])
     temp_address = curr_quad[3]
-    insert_to_memory(temp_address, left_value * right_value)
+    try:
+      insert_to_memory(temp_address, left_value * right_value)
+    except:
+      raise SemanticError("Variable sin valor asignado")
     ip +=1
 
   elif(curr_quad[0] == '/'):
     left_value = get_val_from_memory(curr_quad[1])
     right_value = get_val_from_memory(curr_quad[2])
     temp_address = curr_quad[3]
-    insert_to_memory(temp_address, left_value / right_value)
+    try:
+      insert_to_memory(temp_address, left_value / right_value)
+    except ZeroDivisionError:
+      raise ZeroDivisionError("Semantic Error: Division entre 0")
+    except:
+      raise SemanticError("Variable sin valor asignado")
     ip +=1
   
   # Comparison operations
@@ -250,7 +453,7 @@ while(curr_quad[0] != 'END'):
 
   elif(curr_quad[0] == 'READ'):
     res = input()
-    address = get_val_from_memory(curr_quad[3], get_just_address = True)
+    address = curr_quad[3]
     # Check flavor of memory
     if(address >= 1000 and address <=1999 or address >= 5000 and address <=5999):
       res = int(res)
@@ -274,12 +477,7 @@ while(curr_quad[0] != 'END'):
       ip += 1
   
   elif(curr_quad[0] == 'ERA'):
-    # Create space memory
-    new_space = Memory()
-    # Points to new space of memory
-    curr_local_memory = new_space
-    # Add new space to stack
-    local_memory.append(new_space)
+    curr_local_memory = []
     # Obtain name of function
     function_name = curr_quad[1]
     # Obtain required locals
@@ -295,50 +493,57 @@ while(curr_quad[0] != 'END'):
     chars_temp = temp_locals['char']
     bools_temp = temp_locals['bool']
 
-    # Set space base on size
-    for i in range(ints):
-      new_space.get_all_memory()[int_local_base + i] = None
-      
-    for i in range(floats):
-      new_space.get_all_memory()[float_local_base + i] = None
-      
-    for i in range(chars):
-      new_space.get_all_memory()[char_local_base + i] = None
+    # Create space memory
+    new_local_memory = Memory(ints, floats, chars, bools)
+    new_local_temp_memory = Memory(ints_temp, floats_temp, chars_temp, bools_temp)
+    # Points to new space of memory
+    curr_local_memory.append(new_local_memory)
+    curr_local_memory.append(new_local_temp_memory)
+    # Add new space to stack
+    local_memory.append(curr_local_memory)
 
-    for i in range(bools):
-      new_space.get_all_memory()[bool_local_base + i] = None
-
-    for i in range(ints_temp):
-     new_space.get_all_memory()[int_local_temp_base + i] = None
-
-    for i in range(floats_temp):
-      new_space.get_all_memory()[float_local_temp_base + i] = None
-
-    for i in range(chars_temp):
-      new_space.get_all_memory()[char_local_temp_base + i] = None
-
-    for i in range(bools_temp):
-      new_space.get_all_memory()[bool_local_temp_base + i] = None
-    
-    # print("Memoria Local Inicial")
-    # new_space.printMemory()
+    # Create counters useful for managing parameters
+    int_count = 0
+    float_count = 0
+    char_count = 0
+    bool_count = 0
     ip += 1
   
   elif(curr_quad[0] == 'PARAMETER'):
+    # Signature
+    params_table = dirFunc[function_name]["paramsTable"]
     # Obtain paramater index
     paramIndex = curr_quad[3] - 1
-    # Convert dict to list of keys
-    address_keys = list(curr_local_memory.get_all_memory())
-    # Get  address of formal param
-    address = address_keys[paramIndex]
+    argument_type = params_table[paramIndex]
+    # Get address of formal param
+    if(argument_type == 'int'):
+      address = 5000 + int_count
+      int_count += 1
+
+    elif(argument_type == 'float'):
+      address = 6000 + float_count
+      float_count += 1
+
+    elif(argument_type == 'char'):
+      address = 7000 + char_count
+      char_count += 1
+
+    elif(argument_type == 'bool'):
+      address = 8000 + bool_count
+      bool_count += 1
+
     # Obtain value from memory
     argument_value = get_val_from_memory(curr_quad[1])
-    # argument_value = extra_memory.get_value_by_address(curr_quad[1])
     # Insert argument to formal param
     insert_to_memory(address, argument_value)
     ip += 1
   
   elif(curr_quad[0] == 'GOSUB'): # Need to asign ARGUMENTS  to PARAMETERS
+    # Reset counter of params
+    int_count   = 0
+    float_count = 0
+    char_count  = 0
+    bool_count  = 0
     # Save the current IP
     checkpoint.append(ip)
     ip = curr_quad[3]

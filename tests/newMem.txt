@@ -1,0 +1,18 @@
+program test_;
+
+var int a, t, y;
+
+functions
+function void hola(int a, int b, float w){
+  write(a + b + w);
+}
+
+function void hola2(int a, int b, float w){
+  write(a + b + w);
+}
+
+main {
+
+a = a / 3;
+
+};

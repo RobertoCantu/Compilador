@@ -41,6 +41,22 @@ def p_program(p):
 	'''
 	program 		: PROGRAM ID create_main_func SEMICOLON program2 program3 program4 MAIN start_main LBRACKET bloque RBRACKET SEMICOLON
 	'''
+	# Count globals vars
+	globals = virtualAddress.getGlobalUsed()
+	dirFunc["globalsUsed"] = {}
+	dirFunc["globalsUsed"]["int"] = globals[0]
+	dirFunc["globalsUsed"]["float"] = globals[1]
+	dirFunc["globalsUsed"]["char"] = globals[2]
+	dirFunc["globalsUsed"]["bool"] = globals[3]
+
+	# Count globals temp
+	globals = virtualAddress.getGlobalTempUsed()
+	dirFunc["globalsTempUsed"] = {}
+	dirFunc["globalsTempUsed"]["int"] = globals[0]
+	dirFunc["globalsTempUsed"]["float"] = globals[1]
+	dirFunc["globalsTempUsed"]["char"] = globals[2]
+	dirFunc["globalsTempUsed"]["bool"] = globals[3]
+
 	quadruple.generateQuad('END', None, None, None) # END OF FILE
 	p[0] = 'Code compiled successfully'
 
@@ -58,7 +74,7 @@ def p_program(p):
 		i = i + 1
 	
 	print('========================================')
-	subprocess.call(['python3', 'VirtualMachine.py'])
+	subprocess.call(['python', 'VirtualMachine.py'])
 	print('========================================')
 		
 def p_program2(p):
