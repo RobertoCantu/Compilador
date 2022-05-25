@@ -219,14 +219,6 @@ def get_val_from_memory(address, get_just_address= False):
     return global_memory.return_memory_space("bool")[address - 3000]
 
   # Local - Local Memory
-  # if(address >= 5000 and address <=8999):
-  #   value = curr_local_memory.get_value_by_address(address)
-  #   if(value == None):
-  #     last_call_memory = local_memory[len(local_memory) - 2]
-  #     value = last_call_memory.get_value_by_address(address)
-  #     return value
-  #   return value
-
   # Local  logic
   # Return Local int
   if(address >= 5000 and address <= 5999):
@@ -246,7 +238,7 @@ def get_val_from_memory(address, get_just_address= False):
       value = last_call_memory[0].return_memory_space("float")[address - 6000]
       return value
     return value
-  # Return Local   char
+  # Return Local char
   elif(address >= 7000 and address <= 7999):
     value = curr_local_memory[0].return_memory_space("char")[address - 7000]
     if(value == None):
@@ -255,7 +247,7 @@ def get_val_from_memory(address, get_just_address= False):
       value = last_call_memory[0].return_memory_space("char")[address - 7000]
       return value
     return value
-  # Return Local   bool
+  # Return Local bool
   elif(address >= 8000 and address <= 8999):
     value = curr_local_memory[0].return_memory_space("bool")[address - 8000]
     if(value == None):
@@ -265,12 +257,7 @@ def get_val_from_memory(address, get_just_address= False):
       return value
     return value
   
-
-  # # Local temp - Local Memory
-  # if(address >= 13000 and address <=16999):
-  #   return curr_local_memory.get_value_by_address(address)
-
-  # Local temp logic
+  # Local temp logic - Local Memory
   # Return Local temp  int
   if(address >= 13000 and address <= 13999):
     return curr_local_memory[1].return_memory_space("int")[address - 13000]
@@ -498,64 +485,49 @@ while(curr_quad[0] != 'END'):
     curr_local_memory.append(new_local_temp_memory)
     # Add new space to stack
     local_memory.append(curr_local_memory)
-   
-    # # Set space base on size
-    # for i in range(ints):
-    #   new_space.get_all_memory()[int_local_base + i] = None
-      
-    # for i in range(floats):
-    #   new_space.get_all_memory()[float_local_base + i] = None
-      
-    # for i in range(chars):
-    #   new_space.get_all_memory()[char_local_base + i] = None
 
-    # for i in range(bools):
-    #   new_space.get_all_memory()[bool_local_base + i] = None
-
-    # for i in range(ints_temp):
-    #  new_space.get_all_memory()[int_local_temp_base + i] = None
-
-    # for i in range(floats_temp):
-    #   new_space.get_all_memory()[float_local_temp_base + i] = None
-
-    # for i in range(chars_temp):
-    #   new_space.get_all_memory()[char_local_temp_base + i] = None
-
-    # for i in range(bools_temp):
-    #   new_space.get_all_memory()[bool_local_temp_base + i] = None
-    
-    # print("Memoria Local Inicial")
-    # new_space.printMemory()
+    # Create counters useful for managing parameters
+    int_count = 0
+    float_count = 0
+    char_count = 0
+    bool_count = 0
     ip += 1
   
   elif(curr_quad[0] == 'PARAMETER'):
     # Signature
     params_table = dirFunc[function_name]["paramsTable"]
-    print(params_table)
     # Obtain paramater index
     paramIndex = curr_quad[3] - 1
     argument_type = params_table[paramIndex]
     # Get address of formal param
     if(argument_type == 'int'):
-      address = 5000 + paramIndex
+      address = 5000 + int_count
+      int_count += 1
 
     elif(argument_type == 'float'):
-      address = 6000 + paramIndex
+      address = 6000 + float_count
+      float_count += 1
 
     elif(argument_type == 'char'):
-      address = 7000 + paramIndex
+      address = 7000 + char_count
+      char_count += 1
 
     elif(argument_type == 'bool'):
-      address = 8000 + paramIndex
+      address = 8000 + bool_count
+      bool_count += 1
 
     # Obtain value from memory
     argument_value = get_val_from_memory(curr_quad[1])
-    # argument_value = extra_memory.get_value_by_address(curr_quad[1])
     # Insert argument to formal param
     insert_to_memory(address, argument_value)
     ip += 1
   
   elif(curr_quad[0] == 'GOSUB'): # Need to asign ARGUMENTS  to PARAMETERS
+    # Reset counter of params
+    int_count   = 0
+    float_count = 0
+    char_count  = 0
+    bool_count  = 0
     # Save the current IP
     checkpoint.append(ip)
     ip = curr_quad[3]

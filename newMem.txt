@@ -7,8 +7,13 @@ function void hola(int a, int b, float w){
   write(a + b + w);
 }
 
+function void hola2(int a, int b, float w){
+  write(a + b + w);
+}
+
 main {
 
-write(2.7 + 2.3);
+hola(2,3,4.5);
+hola2(2,3,4.5);
 
 };
