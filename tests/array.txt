@@ -1,0 +1,8 @@
+program test_;
+
+var int a[5];
+
+
+main {
+  
+};

@@ -28,6 +28,10 @@ floatConstAddress = 18000
 charConstAddress = 19000
 boolConstAddress = 20000
 
+# Pointers
+global_pointers = 70000
+local_pointers = 71000
+
 # RESET TEMPORALS FOR RE-USE
 def resetLocalTemporals():
   global intGlobalAddress, floatGlobalAddress, charGlobalAddress, intLocalAddress, floatLocalAddress, charLocalAddress, intTempGlobalAddress, floatTempGlobalAddress, charTempGlobalAddress, intTempLocalAddress, floatTempLocalAddress, charTempLocalAddress, intConstAddress, floatConstAddress, charConstAddress

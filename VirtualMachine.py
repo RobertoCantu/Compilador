@@ -7,7 +7,7 @@ import pickle
 from collections import deque
 from tabnanny import check
 from threading import local
-from error import SemanticError
+from error import RuntimeError
 
 # Define same memory bases as the compiler
 int_local_base = 5000
@@ -339,7 +339,7 @@ while(curr_quad[0] != 'END'):
     try:
       insert_to_memory(temp_address, left_value + right_value)
     except:
-      raise SemanticError("Variable sin valor asignado")
+      raise RuntimeError("Variable sin valor asignado")
     ip +=1
 
 
@@ -351,7 +351,7 @@ while(curr_quad[0] != 'END'):
     try:
       insert_to_memory(temp_address, left_value - right_value)
     except:
-      raise SemanticError("Variable sin valor asignado")
+      raise RuntimeError("Variable sin valor asignado")
     ip +=1
 
 
@@ -362,7 +362,7 @@ while(curr_quad[0] != 'END'):
     try:
       insert_to_memory(temp_address, left_value * right_value)
     except:
-      raise SemanticError("Variable sin valor asignado")
+      raise RuntimeError("Variable sin valor asignado")
     ip +=1
 
   elif(curr_quad[0] == '/'):
@@ -374,7 +374,7 @@ while(curr_quad[0] != 'END'):
     except ZeroDivisionError:
       raise ZeroDivisionError("Semantic Error: Division entre 0")
     except:
-      raise SemanticError("Variable sin valor asignado")
+      raise RuntimeError("Variable sin valor asignado")
     ip +=1
   
   # Comparison operations
