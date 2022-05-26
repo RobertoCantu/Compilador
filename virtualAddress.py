@@ -77,6 +77,70 @@ def getGlobalTempUsed():
     
   return (ints, floats, chars, bools)
 
+def setArrayAddresses(type, scope, size):
+  global intGlobalAddress, floatGlobalAddress, charGlobalAddress, intLocalAddress, floatLocalAddress, charLocalAddress, intTempGlobalAddress, floatTempGlobalAddress, charTempGlobalAddress, intTempLocalAddress, floatTempLocalAddress, charTempLocalAddress, intConstAddress, floatConstAddress, charConstAddress
+  global boolGlobalAddress, boolLocalAddress, boolTempGlobalAddress, boolTempLocalAddress, boolConstAddress
+
+  size -= 1
+  
+  # GLOBALS
+  if(type == "int" and scope == "global"):
+    if(intGlobalAddress >= 1000 and intGlobalAddress <= 1999):
+
+      aux = intGlobalAddress
+      intGlobalAddress += size
+      return aux
+    else:
+      print("Addresing Overflow")
+      exit()
+
+  if(type == "float" and scope == "global"):
+    if(floatGlobalAddress >= 2000 and floatGlobalAddress <= 2999):
+      aux = floatGlobalAddress
+      floatGlobalAddress += size
+      return aux
+    else:
+      print("Addresing Overflow")
+      exit()
+
+  if(type == "char" and scope == "global"):
+    if(charGlobalAddress >= 3000 and charGlobalAddress <= 3999):
+      aux = charGlobalAddress
+      charGlobalAddress += size
+      return aux
+    else:
+      print("Addresing Overflow")
+      exit()
+  
+  # LOCALS
+  if(type == "int" and scope == "local"):
+    if(intLocalAddress >= 5000 and intLocalAddress <= 5999):
+      aux = intLocalAddress
+      intLocalAddress += size
+      return aux
+    else:
+      print("Addresing Overflow")
+      exit()
+
+  if(type == "float" and scope == "local"):
+    if(floatLocalAddress >= 6000 and floatLocalAddress <= 6999):
+      aux = floatLocalAddress
+      floatLocalAddress += size
+      return aux
+    else:
+      print("Addresing Overflow")
+      exit()
+
+  if(type == "char" and scope == "local"):
+    if(charLocalAddress >= 7000 and charLocalAddress <= 7999):
+      aux = charLocalAddress
+      charLocalAddress += size
+      return aux
+    else:
+      print("Addresing Overflow")
+      exit()
+
+# Set Address
 def setAddress(type, scope):
   global intGlobalAddress, floatGlobalAddress, charGlobalAddress, intLocalAddress, floatLocalAddress, charLocalAddress, intTempGlobalAddress, floatTempGlobalAddress, charTempGlobalAddress, intTempLocalAddress, floatTempLocalAddress, charTempLocalAddress, intConstAddress, floatConstAddress, charConstAddress
   global boolGlobalAddress, boolLocalAddress, boolTempGlobalAddress, boolTempLocalAddress, boolConstAddress

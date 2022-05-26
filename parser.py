@@ -356,7 +356,7 @@ def p_variable(p):
 def p_variable2(p):
 	'''
 	variable2	: DOT ID
-				| LSQRBRACKET exp RSQRBRACKET
+				| LSQRBRACKET exp RSQRBRACKET 
 				| empty
 	'''
 
@@ -1069,7 +1069,7 @@ def p_array_calcs(p):
 	l_sup = p[-2]
 
 	# R = (L_sup - L_inf + 1) * R
-	arr_r = (l_sup - 0 + 1) * arr_r
+	arr_r = (l_sup) * arr_r
 
 	dirFunc[currentFunction]['table'][varName]['dim'].append({'l_sup': l_sup, 'm': 0})
 
@@ -1081,30 +1081,27 @@ def p_array_end(p):
 	'''
 	global currentFunction, programName
 	global dirFunc, globalVars
-	global arr_dim, arr_r, curr_id
+	global arr_dim, arr_r, curr_id, currentType
 
-	location = 'Global' if programName == currentFunction else 'Local'
+	location = 'global' if programName == currentFunction else 'local'
 	varName = curr_id
 	
 	arr_list = dirFunc[currentFunction]['table'][varName]['dim']
 
 	indx = 0
+	size = int(arr_r)
+
+	virtualAddress.setArrayAddresses(currentType, location, size)
 
 	for elem in arr_list:
 		# R = R / (L_sup_dim - L_inf_dim + 1)
-		l_sup = elem["l_sup"]
+		l_sup = int(elem["l_sup"])
 
-		arr_r = arr_r / (l_sup - 0 + 1)
+		arr_r = arr_r / (l_sup)
 
 		# Stores m in DIM table
 		dirFunc[currentFunction]['table'][varName]['dim'][indx]['m'] = int(arr_r)
 		indx += 1
-
-		# NO offset since its based in 0
-
-	print(dirFunc[currentFunction]['table'][varName])
-	print()
-
 
 	curr_id = ""
 
