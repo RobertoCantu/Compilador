@@ -78,7 +78,7 @@ def p_program(p):
 		i = i + 1
 	
 	print('========================================')
-	subprocess.call(['python', 'VirtualMachine.py'])
+	subprocess.call(['python3', 'VirtualMachine.py'])
 	print('========================================')
 		
 def p_program2(p):
@@ -173,7 +173,7 @@ def p_vars_c(p):
 def p_vars_s(p):
 	'''
 	vars_s			: ID id_seen vars_options
-					| ID id_seen LSQRBRACKET is_array exp RSQRBRACKET array_calcs vars_matrix vars_options
+					| ID id_seen LSQRBRACKET is_array CTEI RSQRBRACKET array_calcs vars_matrix vars_options
 	'''
 
 def p_vars_options(p):
@@ -190,7 +190,7 @@ def p_vars_end(p):
 
 def p_vars_matrix(p):
 	'''
-	vars_matrix		: LSQRBRACKET exp RSQRBRACKET array_calcs array_end
+	vars_matrix		: LSQRBRACKET CTEI RSQRBRACKET array_calcs array_end
 					| array_end empty
 	'''
 
@@ -1055,9 +1055,6 @@ def p_is_array(p):
 	curr_id = varName
 	dirFunc[currentFunction]['table'][varName]['dim'] = []
 
-	arr_r = virtualAddress.setAddress('int', f'temp{location}') # CREATE R for current array
-	quadruple.generateQuad("=", getConstant(1, 'int'), None, arr_r)
-
 def p_array_calcs(p):
 	'''
 	array_calcs			: empty
@@ -1069,33 +1066,12 @@ def p_array_calcs(p):
 	location = 'Global' if programName == currentFunction else 'Local'
 	varName = curr_id
 
-	l_inf = getConstant(0, 'int') # from 0 --> l_sup
-	l_sup = quadruple.pilaO.pop()
-	l_sup_type = quadruple.pTypes.pop()
+	l_sup = p[-2]
 
-	# Check exp result is INT
-	if(l_sup_type != 'int'):
-		print(f"Semantic Error: Tamaño de Arreglo: {varName} no es numerico")
-		exit()
-	
-	# GENERATE QUADS FOR ARRAY CALCS
 	# R = (L_sup - L_inf + 1) * R
-	va = virtualAddress.setAddress(l_sup_type, f'temp{location}')
-	quadruple.generateQuad("-", l_sup, l_inf, va)
+	arr_r = (l_sup - 0 + 1) * arr_r
 
-	past_va = va
-	va = virtualAddress.setAddress(l_sup_type, f'temp{location}')
-	quadruple.generateQuad("+", past_va, getConstant(1, 'int'), va)
-
-	past_va = va
-	va = virtualAddress.setAddress(l_sup_type, f'temp{location}')
-	quadruple.generateQuad("*", past_va, arr_r, va)
-
-	past_va = va
-	va = virtualAddress.setAddress(l_sup_type, f'temp{location}')
-	quadruple.generateQuad("=", past_va, None, arr_r)
-
-	dirFunc[currentFunction]['table'][varName]['dim'].append({'l_inf': l_inf, 'l_sup': l_sup, 'm': 0})
+	dirFunc[currentFunction]['table'][varName]['dim'].append({'l_sup': l_sup, 'm': 0})
 
 	arr_dim += 1
 
@@ -1116,24 +1092,12 @@ def p_array_end(p):
 
 	for elem in arr_list:
 		# R = R / (L_sup_dim - L_inf_dim + 1)
-		l_inf = elem["l_inf"]
 		l_sup = elem["l_sup"]
 
-		va = virtualAddress.setAddress('int', f'temp{location}')
-		quadruple.generateQuad("-", l_sup, l_inf, va)
-
-		past_va = va
-		va = virtualAddress.setAddress('int', f'temp{location}')
-		quadruple.generateQuad("+", past_va, getConstant(1, 'int'), va)
-
-		past_va = va
-		va = virtualAddress.setAddress('int', f'temp{location}')
-		quadruple.generateQuad("/", arr_r, past_va, va)
-
-		quadruple.generateQuad("=", va, None, arr_r)
+		arr_r = arr_r / (l_sup - 0 + 1)
 
 		# Stores m in DIM table
-		dirFunc[currentFunction]['table'][varName]['dim'][indx]['m'] = va
+		dirFunc[currentFunction]['table'][varName]['dim'][indx]['m'] = int(arr_r)
 		indx += 1
 
 		# NO offset since its based in 0

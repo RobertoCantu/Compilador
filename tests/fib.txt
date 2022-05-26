@@ -1,7 +1,7 @@
 program fib_;
 
 var int a, b, c;
-var float arr[1+6][4], arr2[4];
+var float arr[1][4], arr2[4];
 
 functions
 function int fib(int n) {
