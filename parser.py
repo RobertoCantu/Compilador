@@ -64,6 +64,7 @@ def p_program(p):
 	dirFunc["globalsTempUsed"]["float"] = globals[1]
 	dirFunc["globalsTempUsed"]["char"] = globals[2]
 	dirFunc["globalsTempUsed"]["bool"] = globals[3]
+	dirFunc["globalsTempUsed"]["pointer"] = globals[4]
 
 	quadruple.generateQuad('END', None, None, None) # END OF FILE
 	p[0] = 'Code compiled successfully'
@@ -83,7 +84,7 @@ def p_program(p):
 		i = i + 1
 	
 	print('========================================')
-	subprocess.call(['python3', 'VirtualMachine.py'])
+	subprocess.call(['python', 'VirtualMachine.py'])
 	print('========================================')
 		
 def p_program2(p):
@@ -1177,7 +1178,7 @@ def p_add_verify(p):
 	address_m = getConstant(m, 'int')
 
 	# Create quad
-	location = 'global' if programName == currentFunction else 'local'
+	location = 'tempGlobal' if programName == currentFunction else 'tempLocal'
 
 	va = virtualAddress.setAddress("int", location )
 	quadruple.generateQuad("*", aux, address_m, va)

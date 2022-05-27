@@ -75,8 +75,9 @@ def getGlobalTempUsed():
   floats = floatTempGlobalAddress - 10000
   chars  = charTempGlobalAddress - 11000
   bools = boolTempGlobalAddress - 12000
+  pointers = global_pointers - 70000
     
-  return (ints, floats, chars, bools)
+  return (ints, floats, chars, bools, pointers)
 
 def setArrayAddresses(type, scope, size):
   global intGlobalAddress, floatGlobalAddress, charGlobalAddress, intLocalAddress, floatLocalAddress, charLocalAddress, intTempGlobalAddress, floatTempGlobalAddress, charTempGlobalAddress, intTempLocalAddress, floatTempLocalAddress, charTempLocalAddress, intConstAddress, floatConstAddress, charConstAddress

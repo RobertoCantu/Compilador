@@ -21,8 +21,8 @@ char_local_temp_base = 15000
 bool_local_temp_base = 16000
 
 class Memory():
-  def __init__(self, intSize = 0, floatSize = 0, charSize = 0, boolSize = 0):
-    self.data = [[None] * intSize,[None] * floatSize,[None] * charSize,[None] * boolSize]
+  def __init__(self, intSize = 0, floatSize = 0, charSize = 0, boolSize = 0, pointerSize = 0):
+    self.data = [[None] * intSize,[None] * floatSize,[None] * charSize,[None] * boolSize, [None] * pointerSize]
 
   def insert(self, address, value, type):
     if(type == 'int'):
@@ -36,6 +36,9 @@ class Memory():
 
     elif(type == 'bool'):
       self.data[3][address] = value
+
+    elif(type == 'pointer'):
+      self.data[4][address] = value
 
   def get_value_by_address(self, address):
     if (address in self.data):
@@ -57,6 +60,9 @@ class Memory():
 
     elif(type == 'bool'):
       return self.data[3]
+
+    elif(type == 'pointer'):
+      return self.data[4]
   
   def printMemory(self):
     print(self.data)
@@ -115,10 +121,10 @@ int_global_temp_size = dirFunc['globalsTempUsed']['int']
 float_global_temp_size = dirFunc['globalsTempUsed']['float']
 char_global_temp_size = dirFunc['globalsTempUsed']['char']
 bool_global_temp_size = dirFunc['globalsTempUsed']['bool']
+pointer_global_temp_size = dirFunc['globalsTempUsed']['pointer']
 
 # Create global temp Memory
-temp_global_mem = Memory(int_global_temp_size, float_global_temp_size, char_global_temp_size, bool_global_temp_size)
-
+temp_global_mem = Memory(int_global_temp_size, float_global_temp_size, char_global_temp_size, bool_global_temp_size, pointer_global_temp_size)
 # Create extra Memory 
 extra_memory.append(const_mem)
 extra_memory.append(temp_global_mem)
@@ -195,6 +201,10 @@ def insert_to_memory(address,value):
   # Insert global temp bool
   elif(address >= 12000 and address <= 12999):
     extra_memory[1].insert(address - 12000, value, "bool")
+
+  # Insert global temp pointer
+  elif(address >= 70000 and address <= 70999):
+    extra_memory[1].insert(address - 70000, value, "pointer")    
 
 ################################################################
 def get_val_from_memory(address, get_just_address= False):
@@ -310,6 +320,15 @@ def get_val_from_memory(address, get_just_address= False):
   elif(address >= 12000 and address <= 12999):
     return extra_memory[1].return_memory_space("bool")[address - 12000]
 
+  # !!!!!!!!!!!!!!!! This is a global temp pointer
+  elif(address >= 70000 and address <= 70999):
+    return extra_memory[1].return_memory_space("pointer")[address - 70000]
+  
+
+# def insert_to_memory_pointer(address, value):
+#   real_address = get_val_from_memory(address)
+#   insert_to_memory(real_address, value)
+
 ip = 0
 i = 0
 checkpoint = []
@@ -321,21 +340,38 @@ while(curr_quad[0] != 'END'):
   # print("Memoria local array: ", local_memory)
   curr_quad = get_quad(quads, ip)
 
-  print(f'{ip}: {curr_quad}')
+  # print(f'{ip}: {curr_quad}')
 
   # Switch
   # Assign
   if(curr_quad[0] == '='):
+
     val_to_assign = get_val_from_memory(curr_quad[1])
     res_dir = curr_quad[3]
-    insert_to_memory(res_dir, val_to_assign)
+    # Careful this is a pointer
+    if(res_dir >= 70000):
+      real_address= get_val_from_memory(res_dir)
+      insert_to_memory(real_address, val_to_assign)
+    else:
+      insert_to_memory(res_dir, val_to_assign)
     ip +=1
 
   # Arithmetic operations
   elif(curr_quad[0] == '+'):
-    left_value = get_val_from_memory(curr_quad[1])
-    right_value = get_val_from_memory(curr_quad[2])
+    if(curr_quad[1] >= 70000):
+      left_address = get_val_from_memory(curr_quad[1])
+    else:
+      left_address = curr_quad[1]
+    left_value = get_val_from_memory(left_address)
+
+    if(curr_quad[2] >= 70000):
+      right_address = get_val_from_memory(curr_quad[2])
+    else:
+      right_address = curr_quad[2]
+    right_value = get_val_from_memory(right_address)
+    
     temp_address = curr_quad[3]
+
     try:
       insert_to_memory(temp_address, left_value + right_value)
     except:
@@ -447,7 +483,11 @@ while(curr_quad[0] != 'END'):
 
   # Console operations
   elif(curr_quad[0] == 'WRITE'):
-    val = get_val_from_memory(curr_quad[3])
+    if(curr_quad[3] >= 70000):
+      real_address = get_val_from_memory(curr_quad[3])
+      val = get_val_from_memory(real_address)
+    else:
+      val = get_val_from_memory(curr_quad[3])
     print(val)
     ip += 1
 
