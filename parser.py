@@ -41,6 +41,11 @@ funcCalledStack = []
 paramCounter = None
 currentParamTable = None
 
+# Dimensions
+DIM = 1
+pila_dim = []
+curr_node = None
+
 def p_program(p):
 	'''
 	program 		: PROGRAM ID create_main_func SEMICOLON program2 program3 program4 MAIN start_main LBRACKET bloque RBRACKET SEMICOLON
@@ -349,14 +354,14 @@ def p_asignacion(p):
 
 def p_variable(p):
 	'''
-	variable	: ID  variable2 add_id
+	variable	: ID  add_id variable2
 					
 	'''
 
 def p_variable2(p):
 	'''
 	variable2	: DOT ID
-				| LSQRBRACKET exp RSQRBRACKET 
+				| LSQRBRACKET verify_dim add_fake_bottom exp pop_fake_bottom add_verify RSQRBRACKET 
 				| empty
 	'''
 
@@ -538,7 +543,7 @@ def p_add_id(p):
 	global dirFunc
 	global programName
 
-	varID = p[-2]
+	varID = p[-1]
 
 	# Look in locals
 	if (varID in dirFunc[currentFunction]['table']):
@@ -1105,6 +1110,60 @@ def p_array_end(p):
 
 	curr_id = ""
 
+# Array Access
+def p_verify_dim(p):
+	'''
+	verify_dim	: empty
+	'''
+	global dirFunc
+	global currentFunction
+	global DIM
+	global curr_node
+	arr_id_address = quadruple.get_pilaO_stack().pop()
+	arr_id = p[-3]
+	# Check if local
+	arr_type = quadruple.get_pilaTypes_stack().pop()
+
+	# Check if id is an array
+	if('dim' in dirFunc[currentFunction]['table'][arr_id]):
+		DIM = 1
+		pila_dim.append({
+			'id': arr_id,
+			'dim': DIM
+		})
+		curr_node = dirFunc[currentFunction]['table'][arr_id]['dim'][0]
+
+	else:
+		print(f"Semantic Error: {arr_id} is not an array")
+		exit()
+
+def p_add_verify(p):
+	'''
+	add_verify	: empty
+	'''
+	# Create Verify quad
+	global curr_node
+	access_value = quadruple.pilaO_top()
+	l_sup = curr_node['l_sup']
+	# Check if constant already exist
+	if (constantsTable.getConstantByValue(l_sup) == None):
+		constantsTable.addConstant(l_sup, virtualAddress.setAddress('int', 'constant'))
+
+	address_l_sup = constantsTable.getConstantByValue(l_sup)['address']
+	quadruple.generateQuad("Verify", access_value, None, address_l_sup)
+
+	# Formula
+	aux = quadruple.get_pilaO_stack().pop()
+	m = curr_node['m']
+	# Check if constant already exist
+	if (constantsTable.getConstantByValue(m) == None):
+		constantsTable.addConstant(m, virtualAddress.setAddress('int', 'constant'))
+	address_m = constantsTable.getConstantByValue(m)['address']
+	# Create quad
+	location = 'global' if programName == currentFunction else 'local'
+	va= virtualAddress.setAddress("int", location )
+	quadruple.push_pilaO(va)
+	quadruple.generateQuad("*", aux, address_m, va)
 
 
 ################ END OF NEURAL POINTS ################
