@@ -11,6 +11,7 @@ class Quadruple:
         self.pilaO = deque()    # pilaO = PILA DE OPERANDOS
         self.pTypes = deque()   # pTypes = PILA DE TIPOS
         self.pSaltos = deque()  # pSaltos = PILA DE SALTOS
+        self.pilaDIM = deque()  # pilaDIM = PILA DE DIMENSIONES DE ARRAYS
         self.counter = 666      # 
         self.quad_counter = 0   # CONT. PARA LISTA DE CUADRUPLOS
 

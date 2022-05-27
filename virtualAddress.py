@@ -35,7 +35,7 @@ local_pointers = 71000
 # RESET TEMPORALS FOR RE-USE
 def resetLocalTemporals():
   global intGlobalAddress, floatGlobalAddress, charGlobalAddress, intLocalAddress, floatLocalAddress, charLocalAddress, intTempGlobalAddress, floatTempGlobalAddress, charTempGlobalAddress, intTempLocalAddress, floatTempLocalAddress, charTempLocalAddress, intConstAddress, floatConstAddress, charConstAddress
-  global boolGlobalAddress, boolLocalAddress, boolTempGlobalAddress, boolTempLocalAddress, boolConstAddress
+  global boolGlobalAddress, boolLocalAddress, boolTempGlobalAddress, boolTempLocalAddress, boolConstAddress, local_pointers
   intLocalAddress = 5000
   floatLocalAddress = 6000
   charLocalAddress = 7000
@@ -44,6 +44,7 @@ def resetLocalTemporals():
   floatTempLocalAddress = 14000
   charTempLocalAddress = 15000
   boolTempLocalAddress = 16000
+  local_pointers = 71000
 
 def getLocalTempUsed():
   ints = intTempLocalAddress - 13000
@@ -143,7 +144,7 @@ def setArrayAddresses(type, scope, size):
 # Set Address
 def setAddress(type, scope):
   global intGlobalAddress, floatGlobalAddress, charGlobalAddress, intLocalAddress, floatLocalAddress, charLocalAddress, intTempGlobalAddress, floatTempGlobalAddress, charTempGlobalAddress, intTempLocalAddress, floatTempLocalAddress, charTempLocalAddress, intConstAddress, floatConstAddress, charConstAddress
-  global boolGlobalAddress, boolLocalAddress, boolTempGlobalAddress, boolTempLocalAddress, boolConstAddress
+  global boolGlobalAddress, boolLocalAddress, boolTempGlobalAddress, boolTempLocalAddress, boolConstAddress, global_pointers, local_pointers
   if(type == "int" and scope == "global"):
     if(intGlobalAddress >= 1000 and intGlobalAddress <= 1999):
       aux = intGlobalAddress
@@ -319,6 +320,24 @@ def setAddress(type, scope):
     if(boolConstAddress >= 20000 and boolConstAddress <= 20999):
       aux = boolConstAddress
       boolConstAddress += 1
+      return aux
+    else:
+      print("Addresing Overflow")
+      exit()
+  
+  if(type == "pointer" and scope == "global"):
+    if(global_pointers >= 70000 and global_pointers <= 70999):
+      aux = global_pointers
+      global_pointers += 1
+      return aux
+    else:
+      print("Addresing Overflow")
+      exit()
+  
+  if(type == "pointer" and scope == "local"):
+    if(local_pointers >= 71000 and local_pointers <= 71999 ):
+      aux = local_pointers
+      local_pointers += 1
       return aux
     else:
       print("Addresing Overflow")

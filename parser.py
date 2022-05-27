@@ -43,7 +43,6 @@ currentParamTable = None
 
 # Dimensions
 DIM = 1
-pila_dim = []
 curr_node = None
 
 def p_program(p):
@@ -75,6 +74,7 @@ def p_program(p):
 	print("Pila de tipos", quadruple.pTypes)
 	print("Pila de operadores", quadruple.poper)
 	print("Pila Saltos", quadruple.pSaltos)
+	print("Pila arrays", quadruple.pilaDIM)
 	print("Size of quads list", quadruple.quad_counter)
 	print("Lista de cuadruplos: ")
 	i = 0
@@ -361,8 +361,14 @@ def p_variable(p):
 def p_variable2(p):
 	'''
 	variable2	: DOT ID
-				| LSQRBRACKET verify_dim add_fake_bottom exp pop_fake_bottom add_verify RSQRBRACKET 
+				| LSQRBRACKET verify_dim add_fake_bottom exp pop_fake_bottom add_verify RSQRBRACKET variable_array_2
 				| empty
+	'''
+
+def p_variable_array_2(p):
+	'''
+	variable_array_2	: incr_dim LSQRBRACKET add_fake_bottom exp pop_fake_bottom add_verify RSQRBRACKET end_arr_access
+						| end_arr_access empty
 	'''
 
 def p_condicion(p):
@@ -1118,16 +1124,19 @@ def p_verify_dim(p):
 	global dirFunc
 	global currentFunction
 	global DIM
-	global curr_node
+	global curr_node, curr_id
+
 	arr_id_address = quadruple.get_pilaO_stack().pop()
 	arr_id = p[-3]
+	curr_id = arr_id
+
 	# Check if local
 	arr_type = quadruple.get_pilaTypes_stack().pop()
 
 	# Check if id is an array
 	if('dim' in dirFunc[currentFunction]['table'][arr_id]):
 		DIM = 1
-		pila_dim.append({
+		quadruple.pilaDIM.append({
 			'id': arr_id,
 			'dim': DIM
 		})
@@ -1142,29 +1151,76 @@ def p_add_verify(p):
 	add_verify	: empty
 	'''
 	# Create Verify quad
-	global curr_node
+	global curr_node, DIM, curr_id
+
+	if(DIM > 1 and len(dirFunc[currentFunction]['table'][curr_id]['dim']) == 2):
+		curr_node = dirFunc[currentFunction]['table'][curr_id]['dim'][1]
+
+	elif(DIM > 1 and len(dirFunc[currentFunction]['table'][curr_id]['dim']) != 2 ):
+		print(f"Semantic Error: accesando indice de arreglo no existente")
+		exit()
+
+
 	access_value = quadruple.pilaO_top()
 	l_sup = curr_node['l_sup']
-	# Check if constant already exist
-	if (constantsTable.getConstantByValue(l_sup) == None):
-		constantsTable.addConstant(l_sup, virtualAddress.setAddress('int', 'constant'))
 
-	address_l_sup = constantsTable.getConstantByValue(l_sup)['address']
-	quadruple.generateQuad("Verify", access_value, None, address_l_sup)
+	# Check if constant already exist
+	address_l_sup = getConstant(l_sup, 'int')
+
+	quadruple.generateQuad("VERIFY", access_value, None, address_l_sup)
 
 	# Formula
 	aux = quadruple.get_pilaO_stack().pop()
 	m = curr_node['m']
+
 	# Check if constant already exist
-	if (constantsTable.getConstantByValue(m) == None):
-		constantsTable.addConstant(m, virtualAddress.setAddress('int', 'constant'))
-	address_m = constantsTable.getConstantByValue(m)['address']
+	address_m = getConstant(m, 'int')
+
 	# Create quad
 	location = 'global' if programName == currentFunction else 'local'
-	va= virtualAddress.setAddress("int", location )
-	quadruple.push_pilaO(va)
-	quadruple.generateQuad("*", aux, address_m, va)
 
+	va = virtualAddress.setAddress("int", location )
+	quadruple.generateQuad("*", aux, address_m, va)
+	quadruple.push_pilaO(va)
+
+	if (DIM > 1):
+		aux2 = quadruple.pilaO.pop()
+		aux1 = quadruple.pilaO.pop()
+		va = virtualAddress.setAddress("int", location )
+		quadruple.generateQuad("+", aux1, aux2, va)
+		quadruple.push_pilaO(va)
+
+def p_incr_dim(p):
+	'''
+	incr_dim	: empty
+	'''
+	global DIM, curr_id
+
+	print(curr_id)
+
+	DIM += 1
+	quadruple.pilaDIM.append({"id": curr_id, "dim": DIM})
+
+def p_end_arr_access(p):
+	'''
+	end_arr_access	: empty
+	'''
+	global DIM, curr_id
+	global programName, currentFunction
+
+	aux1 = quadruple.pilaO.pop()
+
+	addrs = dirFunc[currentFunction]['table'][curr_id]['address']
+	addrs = getConstant(addrs, 'int')
+
+	location = 'global' if programName == currentFunction else 'local'
+
+	va = virtualAddress.setAddress("pointer", location)
+	quadruple.generateQuad("+", aux1, addrs, va)
+
+	quadruple.pilaO.append(va)
+
+	print(va)
 
 ################ END OF NEURAL POINTS ################
 
