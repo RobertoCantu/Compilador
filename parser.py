@@ -1221,8 +1221,6 @@ def p_end_arr_access(p):
 
 	quadruple.pilaO.append(va)
 
-	print(va)
-
 ################ END OF NEURAL POINTS ################
 
 

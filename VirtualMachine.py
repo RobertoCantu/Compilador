@@ -329,6 +329,20 @@ def get_val_from_memory(address, get_just_address= False):
 #   real_address = get_val_from_memory(address)
 #   insert_to_memory(real_address, value)
 
+def get_val(address, get_just_address= False):
+  
+  if(get_just_address):
+    if(address >= 70000):
+      address = get_val_from_memory(address)
+    return address
+
+  if(address >= 70000):
+      address = get_val_from_memory(address)
+
+  ret_value = get_val_from_memory(address)
+
+  return ret_value
+
 ip = 0
 i = 0
 checkpoint = []
@@ -346,29 +360,26 @@ while(curr_quad[0] != 'END'):
   # Assign
   if(curr_quad[0] == '='):
 
-    val_to_assign = get_val_from_memory(curr_quad[1])
+    # val_to_assign = get_val_from_memory(curr_quad[1])
+    val_to_assign = get_val(curr_quad[1])
+    
     res_dir = curr_quad[3]
+
     # Careful this is a pointer
-    if(res_dir >= 70000):
-      real_address= get_val_from_memory(res_dir)
-      insert_to_memory(real_address, val_to_assign)
-    else:
-      insert_to_memory(res_dir, val_to_assign)
+    # if(res_dir >= 70000):
+      # real_address= get_val_from_memory(res_dir)
+      # insert_to_memory(real_address, val_to_assign)
+    # else:
+      # insert_to_memory(res_dir, val_to_assign)
+    
+    insert_to_memory(get_val(res_dir, True), val_to_assign)
     ip +=1
 
   # Arithmetic operations
   elif(curr_quad[0] == '+'):
-    if(curr_quad[1] >= 70000):
-      left_address = get_val_from_memory(curr_quad[1])
-    else:
-      left_address = curr_quad[1]
-    left_value = get_val_from_memory(left_address)
 
-    if(curr_quad[2] >= 70000):
-      right_address = get_val_from_memory(curr_quad[2])
-    else:
-      right_address = curr_quad[2]
-    right_value = get_val_from_memory(right_address)
+    left_value = get_val(curr_quad[1])
+    right_value = get_val(curr_quad[2])
     
     temp_address = curr_quad[3]
 
@@ -381,8 +392,8 @@ while(curr_quad[0] != 'END'):
 
   elif(curr_quad[0] == '-'):
     # print(curr_quad)
-    left_value = get_val_from_memory(curr_quad[1])
-    right_value = get_val_from_memory(curr_quad[2])
+    left_value = get_val(curr_quad[1])
+    right_value = get_val(curr_quad[2])
     temp_address = curr_quad[3]
     try:
       insert_to_memory(temp_address, left_value - right_value)
@@ -392,8 +403,8 @@ while(curr_quad[0] != 'END'):
 
 
   elif(curr_quad[0] == '*'):
-    left_value = get_val_from_memory(curr_quad[1])
-    right_value = get_val_from_memory(curr_quad[2])
+    left_value = get_val(curr_quad[1])
+    right_value = get_val(curr_quad[2])
     temp_address = curr_quad[3]
     try:
       insert_to_memory(temp_address, left_value * right_value)
@@ -402,8 +413,8 @@ while(curr_quad[0] != 'END'):
     ip +=1
 
   elif(curr_quad[0] == '/'):
-    left_value = get_val_from_memory(curr_quad[1])
-    right_value = get_val_from_memory(curr_quad[2])
+    left_value = get_val(curr_quad[1])
+    right_value = get_val(curr_quad[2])
     temp_address = curr_quad[3]
     try:
       insert_to_memory(temp_address, left_value / right_value)
@@ -415,51 +426,51 @@ while(curr_quad[0] != 'END'):
   
   # Comparison operations
   elif(curr_quad[0] == '=='):
-    left_value = get_val_from_memory(curr_quad[1])
-    right_value = get_val_from_memory(curr_quad[2])
+    left_value = get_val(curr_quad[1])
+    right_value = get_val(curr_quad[2])
     temp_address = curr_quad[3]
     insert_to_memory(temp_address, left_value == right_value)
     ip += 1
 
   elif(curr_quad[0] == '!='):
-    left_value = get_val_from_memory(curr_quad[1])
-    right_value = get_val_from_memory(curr_quad[2])
+    left_value = get_val(curr_quad[1])
+    right_value = get_val(curr_quad[2])
     temp_address = curr_quad[3]
     insert_to_memory(temp_address, left_value != right_value)
     ip += 1
 
   elif(curr_quad[0] == '<'):
-    left_value = get_val_from_memory(curr_quad[1])
-    right_value = get_val_from_memory(curr_quad[2])
+    left_value = get_val(curr_quad[1])
+    right_value = get_val(curr_quad[2])
     temp_address = curr_quad[3]
     insert_to_memory(temp_address, left_value < right_value)
     ip += 1
 
   elif(curr_quad[0] == '<='):
-    left_value = get_val_from_memory(curr_quad[1])
-    right_value = get_val_from_memory(curr_quad[2])
+    left_value = get_val(curr_quad[1])
+    right_value = get_val(curr_quad[2])
     temp_address = curr_quad[3]
     insert_to_memory(temp_address, left_value <= right_value)
     ip += 1
 
   elif(curr_quad[0] == '>='):
-    left_value = get_val_from_memory(curr_quad[1])
-    right_value = get_val_from_memory(curr_quad[2])
+    left_value = get_val(curr_quad[1])
+    right_value = get_val(curr_quad[2])
     temp_address = curr_quad[3]
     insert_to_memory(temp_address, left_value >= right_value)
     ip += 1
   
   elif(curr_quad[0] == '>'):
-    left_value = get_val_from_memory(curr_quad[1])
-    right_value = get_val_from_memory(curr_quad[2])
+    left_value = get_val(curr_quad[1])
+    right_value = get_val(curr_quad[2])
     temp_address = curr_quad[3]
     insert_to_memory(temp_address, left_value > right_value)
     ip += 1
 
   # Logical operator
   elif(curr_quad[0] == '&&'):
-    left_value = get_val_from_memory(curr_quad[1])
-    right_value = get_val_from_memory(curr_quad[2])
+    left_value = get_val(curr_quad[1])
+    right_value = get_val(curr_quad[2])
     temp_address = curr_quad[3]
     res_bool = None
     if(left_value == True and right_value == True):
@@ -470,8 +481,8 @@ while(curr_quad[0] != 'END'):
     ip += 1
 
   elif(curr_quad[0] == '||'):
-    left_value = get_val_from_memory(curr_quad[1])
-    right_value = get_val_from_memory(curr_quad[2])
+    left_value = get_val(curr_quad[1])
+    right_value = get_val(curr_quad[2])
     temp_address = curr_quad[3]
     res_bool = None
     if(left_value == True or right_value == True):
