@@ -11,7 +11,6 @@ main {
 
   a[4][4] = 7;
   write(b[3]);
-  write(a[ b[3]] [4]);
-
+  write(a[b[3]][4]);
   
 };
