@@ -294,7 +294,7 @@ def p_f(p):
 	'''
 	f			: CTEI add_int
 				| CTEF add_float
-				| CTESTRING
+				| CTESTRING add_str
 				| llamada
 				| variable
 				| LPAREN add_fake_bottom exp pop_fake_bottom RPAREN
@@ -599,6 +599,19 @@ def p_add_int(p):
 	address_int = constantsTable.getConstantByValue(cint)['address']
 	quadruple.push_pTypes("int")
 	quadruple.push_pilaO(address_int)
+
+def p_add_str(p):
+	"""
+	add_str : empty
+	"""
+	cstr = p[-1] # INT VALUE
+	# Check if constant already exist
+	if (constantsTable.getConstantByValue(cstr) == None):
+		constantsTable.addConstant(cstr, virtualAddress.setAddress('char', 'constant'))
+
+	address_str = constantsTable.getConstantByValue(cstr)['address']
+	quadruple.push_pTypes("char")
+	quadruple.push_pilaO(address_str)
 
 def p_add_float(p):
 	"""

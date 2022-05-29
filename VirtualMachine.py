@@ -499,20 +499,25 @@ while(curr_quad[0] != 'END'):
       val = get_val_from_memory(real_address)
     else:
       val = get_val_from_memory(curr_quad[3])
-    print(val)
+    new_string=str(val).replace('"','')
+
+    if(new_string == '\\n'):
+      print('\n')
+    else:
+      print((new_string), end=' ')
     ip += 1
 
   elif(curr_quad[0] == 'READ'):
     res = input()
     address = curr_quad[3]
     # Check flavor of memory
-    if(address >= 1000 and address <=1999 or address >= 5000 and address <=5999):
+    if(address >= 1000 and address <=1999 or address >= 5000 and address <=5999 or address >= 70000):
       res = int(res)
     elif(address >= 2000 and address <=2999 or address >= 6000 and address <=6999):
       res = float(res)
     elif(address >= 3000 and address <=3999 or address >= 7000 and address <=7999):
       res = str(res)
-    insert_to_memory(address, res)
+    insert_to_memory(get_val(address, True), res)
     ip += 1
 
   # Goto's

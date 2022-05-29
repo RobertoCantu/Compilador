@@ -1,0 +1,50 @@
+program test_;
+
+var int a[3][3], b[3][3], mult[3][3], i, j, r , c, k;
+
+
+
+main {
+
+  r = 3;
+  c = 3;
+
+
+  for i = 0 to r do {
+      for j = 0 to c do {
+        read(a[i][j]);
+      };
+      write("\n");
+  };
+
+  for i = 0 to r do {
+      for j = 0 to c do {
+        read(b[i][j]);
+      };
+      write("\n");
+  };
+
+
+  for i = 0 to r do {
+      for j = 0 to c do {
+        mult[i][j] = 0;
+        for k = 0 to c do {
+          mult[i][j] = mult[i][j] + a[i][k] * b[k][j];
+        };
+      };
+  };
+
+
+
+
+
+  for i = 0 to r do {
+      for j = 0 to c do {
+        write(mult[i][j]);
+      };
+    write("\n");
+  };
+
+
+  
+};
