@@ -618,7 +618,16 @@ while(curr_quad[0] != 'END'):
     ip += 1
   
   elif(curr_quad[0] == 'VERIFY'):
-    ip += 1
+    check_value = get_val(curr_quad[1])
+    upper_limit = get_val(curr_quad[3])
+
+    print(f'0 <= {check_value} < {upper_limit}')
+
+    if (check_value >= 0 and check_value < upper_limit):
+      print(curr_quad)
+      ip += 1
+    else:
+      raise RuntimeError("Fuera de rangos")
 
   
   i += 1
