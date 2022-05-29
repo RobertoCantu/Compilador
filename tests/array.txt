@@ -1,13 +1,18 @@
 program test_;
 
-var int a[5], b;
+var int a[5][5], b[5], i;
+
 
 
 main {
-  a[3] = 7;
-  a[1] = a[3] + a[3];
-  b = a[1];
 
-  write(a[1]);
-  write(b);
+  i = 3;
+  b[3] = 3;
+
+  a[3][4] = 7;
+
+  write(a[ b[i] ][4]);
+
+  write(b[3]);
+  
 };
