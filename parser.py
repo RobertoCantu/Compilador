@@ -1158,7 +1158,6 @@ def p_add_verify(p):
 	curr_id = curr_arr['id']
 	curr_dim = curr_arr['dim']
 
-	print(quadruple.pilaDIM)
 
 	if(curr_dim > 1 and len(dirFunc[currentFunction]['table'][curr_id]['dim']) == 2):
 		curr_node = dirFunc[currentFunction]['table'][curr_id]['dim'][1]
@@ -1178,6 +1177,7 @@ def p_add_verify(p):
 
 	# # Formula
 	aux = quadruple.get_pilaO_stack().pop()
+	print("CUrrent node: ", curr_node)
 	m = curr_node['m']
 
 	# Check if constant already exist
@@ -1203,9 +1203,6 @@ def p_incr_dim(p):
 	'''
 	global DIM, curr_id
 
-	print(curr_id)
-	print("Entrooo")
-
 	curr_arr = quadruple.pDim_top()
 	dim = curr_arr['dim']
 
@@ -1217,10 +1214,9 @@ def p_end_arr_access(p):
 	'''
 	end_arr_access	: empty
 	'''
-	global DIM, curr_id
+	global DIM, curr_id, curr_node
 	global programName, currentFunction
 
-	print(quadruple.pilaO)
 	aux1 = quadruple.pilaO.pop()
 
 	addrs = dirFunc[currentFunction]['table'][curr_id]['address']
@@ -1232,8 +1228,14 @@ def p_end_arr_access(p):
 	quadruple.generateQuad("+", aux1, addrs, va)
 
 	quadruple.pilaO.append(va)
-
 	quadruple.pilaDIM.pop()
+
+	if(len(quadruple.pilaDIM) > 0):
+		curr_arr = quadruple.pDim_top()
+		id_arr = curr_arr['id']
+		curr_node = dirFunc[currentFunction]['table'][id_arr]['dim'][0]
+
+
 
 
 ################ END OF NEURAL POINTS ################

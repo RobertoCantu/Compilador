@@ -631,6 +631,8 @@ while(curr_quad[0] != 'END'):
 
   
   i += 1
+
+
 # print('Memoria global')
 # global_memory.printMemory()
 
