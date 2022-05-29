@@ -1129,7 +1129,7 @@ def p_verify_dim(p):
 
 	arr_id_address = quadruple.get_pilaO_stack().pop()
 	arr_id = p[-3]
-	curr_id = arr_id
+	# curr_id = arr_id
 
 	# Check if local
 	arr_type = quadruple.get_pilaTypes_stack().pop()
@@ -1154,10 +1154,16 @@ def p_add_verify(p):
 	# Create Verify quad
 	global curr_node, DIM, curr_id
 
-	if(DIM > 1 and len(dirFunc[currentFunction]['table'][curr_id]['dim']) == 2):
+	curr_arr = quadruple.pDim_top()
+	curr_id = curr_arr['id']
+	curr_dim = curr_arr['dim']
+
+	print(quadruple.pilaDIM)
+
+	if(curr_dim > 1 and len(dirFunc[currentFunction]['table'][curr_id]['dim']) == 2):
 		curr_node = dirFunc[currentFunction]['table'][curr_id]['dim'][1]
 
-	elif(DIM > 1 and len(dirFunc[currentFunction]['table'][curr_id]['dim']) != 2 ):
+	elif(curr_dim > 1 and len(dirFunc[currentFunction]['table'][curr_id]['dim']) != 2 ):
 		print(f"Semantic Error: accesando indice de arreglo no existente")
 		exit()
 
@@ -1170,7 +1176,7 @@ def p_add_verify(p):
 
 	quadruple.generateQuad("VERIFY", access_value, None, address_l_sup)
 
-	# Formula
+	# # Formula
 	aux = quadruple.get_pilaO_stack().pop()
 	m = curr_node['m']
 
@@ -1184,7 +1190,7 @@ def p_add_verify(p):
 	quadruple.generateQuad("*", aux, address_m, va)
 	quadruple.push_pilaO(va)
 
-	if (DIM > 1):
+	if (curr_dim > 1):
 		aux2 = quadruple.pilaO.pop()
 		aux1 = quadruple.pilaO.pop()
 		va = virtualAddress.setAddress("int", location )
@@ -1198,9 +1204,14 @@ def p_incr_dim(p):
 	global DIM, curr_id
 
 	print(curr_id)
+	print("Entrooo")
 
-	DIM += 1
-	quadruple.pilaDIM.append({"id": curr_id, "dim": DIM})
+	curr_arr = quadruple.pDim_top()
+	dim = curr_arr['dim']
+
+	dim += 1
+	
+	quadruple.pilaDIM.append({"id": curr_id, "dim": dim})
 
 def p_end_arr_access(p):
 	'''
@@ -1209,6 +1220,7 @@ def p_end_arr_access(p):
 	global DIM, curr_id
 	global programName, currentFunction
 
+	print(quadruple.pilaO)
 	aux1 = quadruple.pilaO.pop()
 
 	addrs = dirFunc[currentFunction]['table'][curr_id]['address']
@@ -1220,6 +1232,9 @@ def p_end_arr_access(p):
 	quadruple.generateQuad("+", aux1, addrs, va)
 
 	quadruple.pilaO.append(va)
+
+	quadruple.pilaDIM.pop()
+
 
 ################ END OF NEURAL POINTS ################
 

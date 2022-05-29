@@ -1,6 +1,6 @@
 program test_;
 
-var int a[5][5], b[5], i;
+var int a[5][5], b[5], c[5], i;
 
 
 
@@ -9,10 +9,9 @@ main {
   i = 3;
   b[3] = 3;
 
-  a[3][4] = 7;
-
-  write(a[ b[i] ][4]);
-
+  c[b[3]] = 2;
   write(b[3]);
+
+  write(c[3]);
   
 };

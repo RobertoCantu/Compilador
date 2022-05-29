@@ -74,6 +74,12 @@ class Quadruple:
         else:
             return None
 
+    def pDim_top(self):
+        if(len(self.pilaDIM) > 0):
+            return self.pilaDIM[len(self.pilaDIM)-1]
+        else:
+            return None
+
     # When an operator is found it creates the quadruple
     def found_operator(self, operator, location):
         operator = self.poper.pop()
