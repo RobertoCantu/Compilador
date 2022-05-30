@@ -1166,6 +1166,7 @@ def p_add_verify(p):
 	'''
 	# Create Verify quad
 	global curr_node, DIM, curr_id
+	global currentFunction, dirFunc
 
 	curr_arr = quadruple.pDim_top()
 	curr_id = curr_arr['id']
@@ -1190,25 +1191,37 @@ def p_add_verify(p):
 
 	# # Formula
 	aux = quadruple.get_pilaO_stack().pop()
-	print("CUrrent node: ", curr_node)
-	m = curr_node['m']
+	aux_type = quadruple.pTypes.pop()
 
-	# Check if constant already exist
+	print(aux)
+	print(aux_type)
+	# print("Current node: ", curr_node)
+
+	m = curr_node['m']
 	address_m = getConstant(m, 'int')
 
 	# Create quad
 	location = 'tempGlobal' if programName == currentFunction else 'tempLocal'
 
-	va = virtualAddress.setAddress("int", location )
+	va = virtualAddress.setAddress("int", location)
 	quadruple.generateQuad("*", aux, address_m, va)
 	quadruple.push_pilaO(va)
+	quadruple.push_pTypes(dirFunc[currentFunction]['table'][curr_id]['type']) # ARRAY type
 
 	if (curr_dim > 1):
 		aux2 = quadruple.pilaO.pop()
 		aux1 = quadruple.pilaO.pop()
+		
+		t1 = quadruple.pTypes.pop()
+		t2 = quadruple.pTypes.pop()
+
+		retType = SEMANTIC[t1][t2]['+']
+
 		va = virtualAddress.setAddress("int", location )
 		quadruple.generateQuad("+", aux1, aux2, va)
+
 		quadruple.push_pilaO(va)
+		quadruple.push_pTypes(retType)
 
 def p_incr_dim(p):
 	'''
