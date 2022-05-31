@@ -38,6 +38,7 @@ class Memory():
       self.data[3][address] = value
 
     elif(type == 'pointer'):
+      # print(self.data)
       self.data[4][address] = value
 
   def get_value_by_address(self, address):
@@ -208,6 +209,7 @@ def insert_to_memory(address,value):
 
   # Insert local temp pointer
   elif(address >= 71000 and address <= 71999):
+    # print(address-71000)
     extra_memory[1].insert(address - 71000, value, "pointer")        
 
 ################################################################
@@ -363,6 +365,7 @@ while(curr_quad[0] != 'END'):
   curr_quad = get_quad(quads, ip)
 
   # print(f'{ip}: {curr_quad}')
+  # print(global_memory.printMemory())
 
   # Switch
   # Assign
@@ -390,6 +393,10 @@ while(curr_quad[0] != 'END'):
     right_value = get_val(curr_quad[2])
     
     temp_address = curr_quad[3]
+
+    # print()
+    # print(f'{curr_quad[1]} + {curr_quad[2]} = {temp_address}')
+    # print(f'{left_value} + {right_value} = {temp_address}')
 
     try:
       insert_to_memory(temp_address, left_value + right_value)

@@ -1292,7 +1292,7 @@ def p_end_arr_access(p):
 
 	location = 'global' if programName == currentFunction else 'local'
 
-	va = virtualAddress.setAddress("pointer", location)
+	va = virtualAddress.setAddress("pointer", 'global')
 	quadruple.generateQuad("+", aux1, addrs, va)
 
 	quadruple.pilaO.append(va)
