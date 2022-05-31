@@ -34,10 +34,6 @@ main {
       };
   };
 
-
-
-
-
   for i = 0 to r do {
       for j = 0 to c do {
         write(mult[i][j]);

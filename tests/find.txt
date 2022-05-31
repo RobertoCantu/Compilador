@@ -1,0 +1,45 @@
+program test_;
+
+var int a[10], i, n, res;
+
+functions
+function int find(int n){
+  
+  var int i, returnValue;
+  i = 0;
+
+  while(i < 10){
+   if(a[i] == n){
+     returnValue = 1;
+   };
+   i = i + 1;
+  };
+
+  if(returnValue == 1){
+    returnValue = 1;
+  } else {
+    returnValue = 0;
+  };
+  
+  return (returnValue);
+}
+
+main {
+  write("Llena el vector con numeros");
+  write("\n");
+   for i = 0 to 10 do {
+    read(a[i]);
+  };
+
+  write("Inserta el valor que buscas en el vector");
+  read(n);
+  res = find(4);
+  if(res == 1){
+    write("Si esta en el vector");
+    write("\n");
+  } else {
+    write("No esta en el vector");
+    write("\n");
+  };
+  
+};

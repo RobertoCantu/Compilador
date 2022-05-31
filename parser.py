@@ -40,6 +40,8 @@ funcCalled = None
 funcCalledStack = []
 paramCounter = None
 currentParamTable = None
+tempFunc = None
+auxFunc = None
 
 # Dimensions
 DIM = 1
@@ -1139,6 +1141,9 @@ def p_verify_dim(p):
 	global currentFunction
 	global DIM
 	global curr_node, curr_id
+	global programName
+	global tempFunc
+	global auxFunc
 
 	arr_id_address = quadruple.get_pilaO_stack().pop()
 	arr_id = p[-3]
@@ -1147,18 +1152,38 @@ def p_verify_dim(p):
 	# Check if local
 	arr_type = quadruple.get_pilaTypes_stack().pop()
 
-	# Check if id is an array
-	if('dim' in dirFunc[currentFunction]['table'][arr_id]):
-		DIM = 1
-		quadruple.pilaDIM.append({
-			'id': arr_id,
-			'dim': DIM
-		})
-		curr_node = dirFunc[currentFunction]['table'][arr_id]['dim'][0]
+	# Check if id is an array local
+	if(arr_id in dirFunc[currentFunction]['table']):
+		if('dim' in dirFunc[currentFunction]['table'][arr_id]):
+			DIM = 1
+			quadruple.pilaDIM.append({
+				'id': arr_id,
+				'dim': DIM
+			})
+			curr_node = dirFunc[currentFunction]['table'][arr_id]['dim'][0]
+
+		else:
+			print(f"Semantic Error: {arr_id} is not an array")
+			exit()
+	# Check global
+	elif(arr_id in dirFunc[programName]['table']):
+		if('dim' in dirFunc[programName]['table'][arr_id]):
+			DIM = 1
+			quadruple.pilaDIM.append({
+				'id': arr_id,
+				'dim': DIM
+			})
+			curr_node = dirFunc[programName]['table'][arr_id]['dim'][0]
+
+		else:
+			print(f"Semantic Error: {arr_id} is not an array")
+			exit()
 
 	else:
-		print(f"Semantic Error: {arr_id} is not an array")
+		print(f"Semantic Error: Variable {arr_id} no declarada")
 		exit()
+
+
 
 def p_add_verify(p):
 	'''
@@ -1166,20 +1191,28 @@ def p_add_verify(p):
 	'''
 	# Create Verify quad
 	global curr_node, DIM, curr_id
-	global currentFunction, dirFunc
+	global currentFunction, dirFunc, programName
+
 
 	curr_arr = quadruple.pDim_top()
 	curr_id = curr_arr['id']
 	curr_dim = curr_arr['dim']
 
+	if(curr_id in dirFunc[currentFunction]['table']):
+		if(curr_dim > 1 and len(dirFunc[currentFunction]['table'][curr_id]['dim']) == 2):
+			curr_node = dirFunc[currentFunction]['table'][curr_id]['dim'][1]
 
-	if(curr_dim > 1 and len(dirFunc[currentFunction]['table'][curr_id]['dim']) == 2):
-		curr_node = dirFunc[currentFunction]['table'][curr_id]['dim'][1]
+		elif(curr_dim > 1 and len(dirFunc[currentFunction]['table'][curr_id]['dim']) != 2 ):
+			print(f"Semantic Error: accesando indice de arreglo no existente")
+			exit()
 
-	elif(curr_dim > 1 and len(dirFunc[currentFunction]['table'][curr_id]['dim']) != 2 ):
-		print(f"Semantic Error: accesando indice de arreglo no existente")
-		exit()
+	elif(curr_id in dirFunc[programName]['table']):
+		if(curr_dim > 1 and len(dirFunc[programName]['table'][curr_id]['dim']) == 2):
+			curr_node = dirFunc[programName]['table'][curr_id]['dim'][1]
 
+		elif(curr_dim > 1 and len(dirFunc[programName]['table'][curr_id]['dim']) != 2 ):
+			print(f"Semantic Error: accesando indice de arreglo no existente")
+			exit()
 
 	access_value = quadruple.pilaO_top()
 	l_sup = curr_node['l_sup']
@@ -1206,7 +1239,15 @@ def p_add_verify(p):
 	va = virtualAddress.setAddress("int", location)
 	quadruple.generateQuad("*", aux, address_m, va)
 	quadruple.push_pilaO(va)
-	quadruple.push_pTypes(dirFunc[currentFunction]['table'][curr_id]['type']) # ARRAY type
+
+	if(curr_id in dirFunc[currentFunction]['table']):
+		quadruple.push_pTypes(dirFunc[currentFunction]['table'][curr_id]['type']) # ARRAY type
+
+
+	elif(curr_id in dirFunc[programName]['table']):
+		quadruple.push_pTypes(dirFunc[programName]['table'][curr_id]['type']) # ARRAY type
+
+
 
 	if (curr_dim > 1):
 		aux2 = quadruple.pilaO.pop()
@@ -1244,8 +1285,13 @@ def p_end_arr_access(p):
 	global programName, currentFunction
 
 	aux1 = quadruple.pilaO.pop()
+	if(curr_id in dirFunc[currentFunction]['table']):
+		addrs = dirFunc[currentFunction]['table'][curr_id]['address']
 
-	addrs = dirFunc[currentFunction]['table'][curr_id]['address']
+
+	elif(curr_id in dirFunc[programName]['table']):
+		addrs = dirFunc[programName]['table'][curr_id]['address']
+
 	addrs = getConstant(addrs, 'int')
 
 	location = 'global' if programName == currentFunction else 'local'
@@ -1259,7 +1305,11 @@ def p_end_arr_access(p):
 	if(len(quadruple.pilaDIM) > 0):
 		curr_arr = quadruple.pDim_top()
 		id_arr = curr_arr['id']
-		curr_node = dirFunc[currentFunction]['table'][id_arr]['dim'][0]
+		if(curr_id in dirFunc[currentFunction]['table']):
+			curr_node = dirFunc[currentFunction]['table'][id_arr]['dim'][0]
+
+		elif(curr_id in dirFunc[programName]['table']):
+			curr_node = dirFunc[programName]['table'][id_arr]['dim'][0]
 
 
 

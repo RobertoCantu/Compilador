@@ -204,7 +204,11 @@ def insert_to_memory(address,value):
 
   # Insert global temp pointer
   elif(address >= 70000 and address <= 70999):
-    extra_memory[1].insert(address - 70000, value, "pointer")    
+    extra_memory[1].insert(address - 70000, value, "pointer")
+
+  # Insert local temp pointer
+  elif(address >= 71000 and address <= 71999):
+    extra_memory[1].insert(address - 71000, value, "pointer")        
 
 ################################################################
 def get_val_from_memory(address, get_just_address= False):
@@ -323,6 +327,10 @@ def get_val_from_memory(address, get_just_address= False):
   # !!!!!!!!!!!!!!!! This is a global temp pointer
   elif(address >= 70000 and address <= 70999):
     return extra_memory[1].return_memory_space("pointer")[address - 70000]
+
+  # !!!!!!!!!!!!!!!! This is a local temp pointer
+  elif(address >= 71000 and address <= 71999):
+    return extra_memory[1].return_memory_space("pointer")[address - 71000]
   
 
 # def insert_to_memory_pointer(address, value):
@@ -429,6 +437,8 @@ while(curr_quad[0] != 'END'):
     left_value = get_val(curr_quad[1])
     right_value = get_val(curr_quad[2])
     temp_address = curr_quad[3]
+    # insert_to_memory(get_val(temp_address, True), left_value == right_value)
+
     insert_to_memory(temp_address, left_value == right_value)
     ip += 1
 
@@ -502,7 +512,7 @@ while(curr_quad[0] != 'END'):
     new_string=str(val).replace('"','')
 
     if(new_string == '\\n'):
-      print('\n')
+      print('\n',end='')
     else:
       print((new_string), end=' ')
     ip += 1
