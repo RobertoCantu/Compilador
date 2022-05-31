@@ -1,0 +1,24 @@
+program test_;
+
+var int a, t;
+
+functions
+function int fib(int n){
+  var int i, prevPrevNumber, prevNumber, currNumber;
+  prevNumber = 0;
+  currNumber = 1;
+
+  for i = 1 to n do {
+    prevPrevNumber = prevNumber;
+    prevNumber = currNumber;
+    currNumber = prevPrevNumber + prevNumber;
+  }; 
+
+  return (currNumber);
+
+}
+
+main {
+  a = fib(4);
+  write(a);
+};
