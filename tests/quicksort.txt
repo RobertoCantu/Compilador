@@ -1,31 +1,37 @@
 program test_;
 
-var int arr[6], n;
+var int arr[6], x, i;
 
 
 functions
 function int partition(int low, int high) {
-    var int pivot, i, aux, j;
+    var int pivot, i, aux, aux2, j;
 
     pivot = arr[high];
     i = (low - 1);
 
-    for j = low to (high) do {
+    j = low;
+
+    while(j < high) {
 
         if (arr[j] < pivot) {
 
             i = i + 1;
 
             aux = arr[i];
-            arr[i] = arr[j];
+            aux2 = arr[j];
+
+            arr[i] = aux2;
             arr[j] = aux;
+        };
 
-        }; 
-
+        j = j + 1;
     };
 
     aux = arr[i + 1];
-    arr[i + 1] = arr[high];
+    aux2 = arr[high];
+
+    arr[i + 1] = aux2;
     arr[high] = aux;
 
     return (i + 1);
@@ -48,6 +54,8 @@ function void quickSort(int low, int high) {
 function void printArray() {
     var int i;
 
+    write("here");
+
     for i = 0 to 6 do {
         write(arr[i]);
     }; 
@@ -58,7 +66,7 @@ main {
 
     arr[0] = 10;
     arr[1] = 7;
-    arr[2] = 8;
+    arr[2] = 3;
     arr[3] = 9;
     arr[4] = 1;
     arr[5] = 5;
@@ -66,4 +74,8 @@ main {
     quickSort(0, 5);
     
     printArray(); 
+
+    for i = 0 to 6 do {
+        write(arr[i]);
+    }; 
 };
