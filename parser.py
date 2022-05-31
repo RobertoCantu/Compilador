@@ -86,7 +86,7 @@ def p_program(p):
 		i = i + 1
 	
 	print('========================================')
-	subprocess.call(['python', 'VirtualMachine.py'])
+	subprocess.call(['python3', 'VirtualMachine.py'])
 	print('========================================')
 		
 def p_program2(p):
@@ -328,7 +328,7 @@ def p_estatutos(p):
 def p_llamada(p):
 	'''
 	llamada			: ID LPAREN func_exists_create_era add_fake_bottom llamada2 RPAREN verify_params_coherency pop_fake_bottom
-					| ID LPAREN func_exists_create_era add_fake_bottom RPAREN verify_params_coherency pop_fake_bottom
+					| ID LPAREN func_exists_create_era add_fake_bottom RPAREN pop_fake_bottom
 	'''
 
 def p_llamada2(p):
@@ -340,7 +340,7 @@ def p_llamada2(p):
 def p_llamada_void(p):
 	'''
 	llamada_void	: ID LPAREN func_exists_create_era llamada_void2 RPAREN verify_params_coherency SEMICOLON
-					| ID LPAREN func_exists_create_era RPAREN verify_params_coherency SEMICOLON
+					| ID LPAREN func_exists_create_era RPAREN SEMICOLON
 	'''
 
 def p_llamada_void2(p):
@@ -1024,7 +1024,7 @@ def p_verify_params_coherency(p):
 	'''
 	global funcCalled, funcCalledStack, programName, globalVars
 	global dirFunc
-	global programName, currentFunction
+	global programName, currentFunctionxw
 	
 	# Check if table of params is empty
 	paramsTable = dirFunc[funcCalled]['paramsTable']
@@ -1225,10 +1225,6 @@ def p_add_verify(p):
 	# # Formula
 	aux = quadruple.get_pilaO_stack().pop()
 	aux_type = quadruple.pTypes.pop()
-
-	print(aux)
-	print(aux_type)
-	# print("Current node: ", curr_node)
 
 	m = curr_node['m']
 	address_m = getConstant(m, 'int')

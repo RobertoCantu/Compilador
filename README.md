@@ -48,3 +48,11 @@ En este sexto avance: se ceo la maquina virtual con la ejecución de expresiones
 - En el mismo archivo se crearon varios objetos Memory los cuales van guardando los valores de las variables y los resultados de los cuádruplos para implementar el Data segment, Stack segment y Extra segment. 
 - Se recorren todos los cuádruplos en un ciclo utilizando un instruction pointer y con varios casos condicionales dependiendo del cuádruplo. 
 
+# Avance 7
+
+En este séptimo avance: se realizó el manejo de arreglos, tanto su creación como su indexación. 
+- Se agregaron los puntos neurales para la creación e indexación de arreglos, tanto vectores como matrices. 
+- Se agregaron los cuádruplos de tipo verify y se revisa en Virtual Machine la verificación de que se esté dentro de los límites. 
+- Se agregaron espacios en memoria para poder manejar los datos de tipo pointer.
+- Se creó una función para revisar si la dirección es de tipo pointer y regresar ya sea la dirección o el valor al que apunta está variable. 
+- Se probó exitosamente la multiplicación de matrices. 
