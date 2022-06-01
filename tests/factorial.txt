@@ -5,14 +5,11 @@ var int a, t;
 functions
 function int factorial(int n){
   var int returnValue, x;
-  write(n);
   if(n == 0)
   {
     returnValue = 1;
   } else {
-    t = n - 1;
-    write(t);
-    returnValue = n * factorial(n-1);
+    returnValue = n * factorial(n - 1);
   };
 
   return (returnValue);
@@ -20,6 +17,7 @@ function int factorial(int n){
 }
 
 main {
-  a = factorial(10);
+  a = factorial(500);
   write(a);
+  write("\n");
 };

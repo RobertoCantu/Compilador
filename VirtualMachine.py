@@ -379,7 +379,7 @@ class VirtualMachine():
         try:
           self.insert_to_memory(temp_address, int(left_value / right_value))
         except ZeroDivisionError:
-          raise ZeroDivisionError("Semantic Error: Division entre 0")
+          raise ZeroDivisionError("RuntimeError: Division entre 0")
         except:
           raise RuntimeError("Variable sin valor asignado")
         ip +=1
@@ -495,6 +495,9 @@ class VirtualMachine():
           ip += 1
         
       elif(curr_quad[0] == 'ERA'):
+        # StackOverflow error
+        if(len(self.local_memory) > 500):
+          raise RuntimeError("StackOverflow")
         self.curr_local_memory = []
           
         # Obtain name of function
@@ -597,7 +600,7 @@ class VirtualMachine():
         if (check_value >= 0 and check_value < upper_limit):
           ip += 1
         else:
-          raise RuntimeError("Fuera de rangos")
+          raise RuntimeError("Out of bounds")
 
 # Loads code
 objectCodeData = None

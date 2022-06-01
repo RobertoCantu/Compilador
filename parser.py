@@ -89,7 +89,7 @@ def p_program(p):
 		i = i + 1
 	
 	print('========================================')
-	# subprocess.call(['python', 'VirtualMachine.py'])
+	subprocess.call(['python', 'VirtualMachine.py'])
 	print('========================================')
 		
 def p_program2(p):
@@ -1349,7 +1349,7 @@ def getConstant(val, val_type):
 
 # Error rule for syntax errors
 def p_error(p):
-	print ("Line %s, illegal token %s" % (p.lineno, p.value))
+	print ("Syntax Error in line %s, illegal token %s" % (p.lineno, p.value))
 
 
 parser = yacc.yacc()
