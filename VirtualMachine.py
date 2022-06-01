@@ -79,8 +79,8 @@ class VirtualMachine():
     self.global_memory = Memory(int_size, float_size, char_size, bool_size )
 
   def create_extra_segment_memory(self, constant_table, int_global_temp_size, float_global_temp_size, char_global_temp_size, bool_global_temp_size, pointer_global_temp_size):
+    const_mem = Memory()
     for key, value in constant_table.items():
-      const_mem = Memory()
       #Add it to list of constants ints
       if(value['address'] >= 17000 and value['address'] <= 17999):
         const_mem.return_memory_space("int").append(value['name'])
@@ -101,7 +101,7 @@ class VirtualMachine():
     
     self.extra_memory.append(const_mem)
     self.extra_memory.append(temp_global_mem)
-
+  
   def insert_to_memory(self, address,value):
     # Globals logic
     # Insert global int
@@ -495,7 +495,7 @@ class VirtualMachine():
           ip += 1
         
       elif(curr_quad[0] == 'ERA'):
-        curr_local_memory = []
+        self.curr_local_memory = []
           
         # Obtain name of function
         function_name = curr_quad[1]
@@ -520,11 +520,11 @@ class VirtualMachine():
         new_local_temp_memory = Memory(ints_temp, floats_temp, chars_temp, bools_temp, pointer_temp)
 
         # Points to new space of memory
-        curr_local_memory.append(new_local_memory)
-        curr_local_memory.append(new_local_temp_memory)
+        self.curr_local_memory.append(new_local_memory)
+        self.curr_local_memory.append(new_local_temp_memory)
 
         # Add new space to stack
-        self.local_memory.append(curr_local_memory)
+        self.local_memory.append(self.curr_local_memory)
 
         # Create counters useful for managing parameters
         int_count = 0
@@ -581,9 +581,9 @@ class VirtualMachine():
         self.local_memory.pop()
         # Update current memory
         if(len(self.local_memory) > 0):
-          curr_local_memory = self.local_memory[-1]
+          self.curr_local_memory = self.local_memory[-1]
         else:
-          curr_local_memory = None
+          self.curr_local_memory = None
 
         ip =  checkpoint.pop() + 1
         
