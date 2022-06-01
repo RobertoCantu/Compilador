@@ -71,8 +71,11 @@ def p_program(p):
 	quadruple.generateQuad('END', None, None, None) # END OF FILE
 	p[0] = 'Code compiled successfully'
 
-	keys = dirFunc.keys()
 	print("Diccionario de funciones", dirFunc)
+	for key in dirFunc.keys():
+		print(dirFunc[key])
+		print()
+
 	print("Pila de operandos", quadruple.pilaO)
 	print("Pila de tipos", quadruple.pTypes)
 	print("Pila de operadores", quadruple.poper)
@@ -964,6 +967,9 @@ def p_end_of_func(p):
 	dirFunc[currentFunction]['usedTemp']['float'] = locals_temp_used[1]
 	dirFunc[currentFunction]['usedTemp']['char'] = locals_temp_used[2]
 	dirFunc[currentFunction]['usedTemp']['bool'] = locals_temp_used[3]
+	dirFunc[currentFunction]['usedTemp']['pointer'] = locals_temp_used[4]
+
+	print(locals_temp_used)
 
 	virtualAddress.resetLocalTemporals() # RESETS LOCAL TEMPORALS FOR FUNCTIONS
 	# Set currFunc to main
@@ -1292,7 +1298,7 @@ def p_end_arr_access(p):
 
 	location = 'global' if programName == currentFunction else 'local'
 
-	va = virtualAddress.setAddress("pointer", 'global')
+	va = virtualAddress.setAddress("pointer", location)
 	quadruple.generateQuad("+", aux1, addrs, va)
 
 	quadruple.pilaO.append(va)

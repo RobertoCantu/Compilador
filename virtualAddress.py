@@ -51,8 +51,9 @@ def getLocalTempUsed():
   floats = floatTempLocalAddress - 14000
   chars  = charTempLocalAddress - 15000
   bools = boolTempLocalAddress - 16000
+  pointers = local_pointers - 71000
 
-  return (ints, floats, chars, bools)
+  return (ints, floats, chars, bools, pointers)
 
 def getLocalUsed():
   ints = intLocalAddress - 5000

@@ -186,6 +186,12 @@ def insert_to_memory(address,value):
   # Insert Local temp bool
   elif(address >= 16000 and address <= 16999):
     curr_local_memory[1].insert(address - 16000, value, "bool")
+  
+  # Insert local temp pointer
+  elif(address >= 71000 and address <= 71999):
+    # print(address-71000)
+    curr_local_memory[1].insert(address - 71000, value, "pointer")  
+
 ######################################################################
   # Insert global temp int
   if(address >= 9000 and address <= 9999):
@@ -206,11 +212,6 @@ def insert_to_memory(address,value):
   # Insert global temp pointer
   elif(address >= 70000 and address <= 70999):
     extra_memory[1].insert(address - 70000, value, "pointer")
-
-  # Insert local temp pointer
-  elif(address >= 71000 and address <= 71999):
-    # print(address-71000)
-    extra_memory[1].insert(address - 71000, value, "pointer")        
 
 ################################################################
 def get_val_from_memory(address, get_just_address= False):
@@ -291,6 +292,10 @@ def get_val_from_memory(address, get_just_address= False):
   # Return Local temp  bool
   elif(address >= 16000 and address <= 16999):
     return curr_local_memory[1].return_memory_space("bool")[address - 16000]
+  
+    # !!!!!!!!!!!!!!!! This is a local temp pointer
+  elif(address >= 71000 and address <= 71999):
+    return curr_local_memory[1].return_memory_space("pointer")[address - 71000]
 
   # Constans logic -- Extra memory
   # Return constant int
@@ -329,10 +334,6 @@ def get_val_from_memory(address, get_just_address= False):
   # !!!!!!!!!!!!!!!! This is a global temp pointer
   elif(address >= 70000 and address <= 70999):
     return extra_memory[1].return_memory_space("pointer")[address - 70000]
-
-  # !!!!!!!!!!!!!!!! This is a local temp pointer
-  elif(address >= 71000 and address <= 71999):
-    return extra_memory[1].return_memory_space("pointer")[address - 71000]
   
 
 # def insert_to_memory_pointer(address, value):
@@ -551,27 +552,33 @@ while(curr_quad[0] != 'END'):
   
   elif(curr_quad[0] == 'ERA'):
     curr_local_memory = []
+    
     # Obtain name of function
     function_name = curr_quad[1]
+
     # Obtain required locals
     locals = dirFunc[function_name]['localsUsed']
     ints = locals['int']
     floats = locals['float']
     chars = locals['char']
     bools = locals['bool']
+
     # Obtain required temp locals
     temp_locals = dirFunc[function_name]['usedTemp']
     ints_temp = temp_locals['int']
     floats_temp = temp_locals['float']
     chars_temp = temp_locals['char']
     bools_temp = temp_locals['bool']
+    pointer_temp = temp_locals['pointer']
 
     # Create space memory
     new_local_memory = Memory(ints, floats, chars, bools)
-    new_local_temp_memory = Memory(ints_temp, floats_temp, chars_temp, bools_temp)
+    new_local_temp_memory = Memory(ints_temp, floats_temp, chars_temp, bools_temp, pointer_temp)
+
     # Points to new space of memory
     curr_local_memory.append(new_local_memory)
     curr_local_memory.append(new_local_temp_memory)
+
     # Add new space to stack
     local_memory.append(curr_local_memory)
 
