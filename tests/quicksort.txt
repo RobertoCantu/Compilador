@@ -54,11 +54,11 @@ function void quickSort(int low, int high) {
 function void printArray() {
     var int i;
 
-    write("here");
-
     for i = 0 to 6 do {
         write(arr[i]);
     }; 
+    write("\n");
+
 }
 
 
@@ -74,8 +74,4 @@ main {
     quickSort(0, 5);
     
     printArray(); 
-
-    for i = 0 to 6 do {
-        write(arr[i]);
-    }; 
 };

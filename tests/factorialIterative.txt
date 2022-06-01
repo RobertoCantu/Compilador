@@ -1,0 +1,21 @@
+program test_;
+
+var int a, t;
+
+functions
+function int factorial(int n){
+  var int i, fact;
+  fact = 1;
+
+  for i = 1 to n + 1 do {
+   fact = fact * i;
+  }; 
+
+  return (fact);
+
+}
+
+main {
+  a = factorial(6);
+  write(a);
+};
