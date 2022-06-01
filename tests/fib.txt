@@ -36,8 +36,9 @@ main {
 
     b = fib(5);
     write(b);
+    write("\n");
 
     b = fib2(5);
     write(b);
-    
+    write("\n");
 };

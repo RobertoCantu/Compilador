@@ -86,7 +86,7 @@ def p_program(p):
 		i = i + 1
 	
 	print('========================================')
-	subprocess.call(['python3', 'VirtualMachine.py'])
+	subprocess.call(['python', 'VirtualMachine.py'])
 	print('========================================')
 		
 def p_program2(p):
@@ -328,7 +328,7 @@ def p_estatutos(p):
 def p_llamada(p):
 	'''
 	llamada			: ID LPAREN func_exists_create_era add_fake_bottom llamada2 RPAREN verify_params_coherency pop_fake_bottom
-					| ID LPAREN func_exists_create_era add_fake_bottom RPAREN pop_fake_bottom
+					| ID LPAREN func_exists_create_era  RPAREN gosub_no_params
 	'''
 
 def p_llamada2(p):
@@ -340,7 +340,7 @@ def p_llamada2(p):
 def p_llamada_void(p):
 	'''
 	llamada_void	: ID LPAREN func_exists_create_era llamada_void2 RPAREN verify_params_coherency SEMICOLON
-					| ID LPAREN func_exists_create_era RPAREN SEMICOLON
+					| ID LPAREN func_exists_create_era RPAREN gosub_no_params SEMICOLON
 	'''
 
 def p_llamada_void2(p):
@@ -975,7 +975,7 @@ def p_func_exists_create_era(p):
 	'''
 	func_exists_create_era : empty
 	'''
-	global funcCalled, funcCalledStack
+	global funcCalled
 	global dirFunc
 	global paramCounter
 	global currentParamTable
@@ -983,7 +983,6 @@ def p_func_exists_create_era(p):
 	funcName = p[-2]
 
 	if(funcName in dirFunc):
-		funcCalledStack.append(funcName)
 		funcCalled = funcName
 	
 	else:
@@ -1022,7 +1021,7 @@ def p_verify_params_coherency(p):
 	'''
 	verify_params_coherency	: empty
 	'''
-	global funcCalled, funcCalledStack, programName, globalVars
+	global funcCalled, programName, globalVars
 	global dirFunc
 	global programName, currentFunctionxw
 	
@@ -1035,16 +1034,13 @@ def p_verify_params_coherency(p):
 	else:
 		quadruple.generateQuad("GOSUB", funcCalled, None, dirFunc[funcCalled]['startAtQuad'])
 		funcCalledType = dirFunc[funcCalled]["type"]
+		# Parche guadulupano
 		if(funcCalledType != 'void'):
-
-			# Save return value in global vars table
-			# dirFunc[programName]["table"][funcCalled] = {'name': funcCalled, 'type': funcCalledType, 'dir': quadruple.counter}
-
 			if (programName == currentFunction):
 				va = virtualAddress.setAddress(funcCalledType, 'tempGlobal')
 			else:
 				va = virtualAddress.setAddress(funcCalledType, 'tempLocal') # FUNCTION CALLS INSIDE FUNCTIONS
-
+			# Get address of function
 			func_return_va = globalVars[funcCalled]['address']
 
 			quadruple.generateQuad("=", func_return_va, None, va)
@@ -1052,12 +1048,27 @@ def p_verify_params_coherency(p):
 			quadruple.push_pTypes(funcCalledType)
 			quadruple.counter += 1
 
-	funcCalledStack.pop()
-	if(len(funcCalledStack) > 0):
-		# Get last element from stack
-		funcCalled = funcCalledStack[-1]
-	else:
-		funcCalled = None
+def p_gosub_no_params(p):
+	'''
+	gosub_no_params	: empty
+	'''
+	quadruple.generateQuad("GOSUB", funcCalled, None, dirFunc[funcCalled]['startAtQuad'])
+	funcCalledType = dirFunc[funcCalled]["type"]
+	# Parche guadulupano
+	if(funcCalledType != 'void'):
+
+		if (programName == currentFunction):
+			va = virtualAddress.setAddress(funcCalledType, 'tempGlobal')
+		else:
+			va = virtualAddress.setAddress(funcCalledType, 'tempLocal') # FUNCTION CALLS INSIDE FUNCTIONS
+		# Get address of function
+		func_return_va = globalVars[funcCalled]['address']
+
+		quadruple.generateQuad("=", func_return_va, None, va)
+		quadruple.push_pilaO(va)
+		quadruple.push_pTypes(funcCalledType)
+		quadruple.counter += 1
+
 	
 def p_add_to_global_vars(p):
 	'''
