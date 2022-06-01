@@ -13,6 +13,8 @@ from Quadruples import Quadruple
 from Directory import ConstantsTable
 import pickle
 import subprocess
+from error import SemanticError
+
 
 # Dict
 dirFunc = {}
@@ -511,8 +513,7 @@ def p_id_seen(p):
 	varID = p[-1]
 
 	if(varID in dirFunc[currentFunction]["table"]):
-		print("Semantic Error: Declaracion multiple de variables")
-		exit()
+		raise SemanticError("Naming collisions multiple declaration of variable ")
 	else:
 		if(currentFunction == programName):
 			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'global')}
@@ -571,8 +572,7 @@ def p_add_id(p):
 		quadruple.push_pilaO(address) # Add address to operands stack
 
 	else:
-		print(f"Semantic Error: Variable \"{varID}\" no declarada ")
-		exit()
+		raise SemanticError("Undeclared variable")
 
 def p_add_param(p):
 	'''
@@ -589,8 +589,7 @@ def p_add_param(p):
 		# Add signature
 		dirFunc[currentFunction]['paramsTable'].append(paramType)
 	else:
-		print(f"Variable \"{param}\" ya declarada ")
-		exit()
+		raise SemanticError("Naming collisions multiple declaration of variable ")
 
 def p_add_int(p):
 	"""
@@ -765,8 +764,7 @@ def p_while_eval_exp(p):
 	cond = quadruple.get_pilaO_stack().pop()
 	type_condition = quadruple.get_pilaTypes_stack().pop()
 	if (type_condition != 'bool'):
-		print('Expected boolean exp')
-		exit()
+		raise SemanticError("Type mismatched expected a boolean exp")
 	else:
 		quadruple.generateQuad('GOTOF', cond, 'empty', 'empty')
 		quadruple.push_pSaltos(quadruple.quad_counter - 1)
@@ -804,11 +802,15 @@ def p_for_store_id(p):
 		v_control_va =  dirFunc[currentFunction]['table'][v_control]['address']
 
 	else:
+		raise SemanticError(f"Undeclared variable {v_control}")
+
 		print(f"Semantic Error: Type mismatch, Variable \"{v_control}\" no existe")
 		exit()
 
 	# Check it's type
 	if not (numerical(v_type)):
+		raise SemanticError("Type mismatched expected a numeric variable")
+
 		print(f"Semantic Error: Type missmatch, Variable \"{v_control}\" no numerica ")
 		exit()
 
@@ -909,6 +911,7 @@ def p_func_add_return(p):
 
 	# CHECK GLOBAL VARS
 	if (varName in globalVars):
+		raise SemanticError("Naming collisions multiple declaration of variable ")
 		print(f'error {varName} already exists')
 		exit()
 	else:
@@ -946,6 +949,8 @@ def p_func_return(p):
 		quadruple.generateQuad('RETURN', None, None, va) # NOT SURE IF NEEDED!!!
 
 	except:
+		raise SemanticError("Type mismatched return value is incorrect")
+
 		print(f'Comp. error: in function: {currentFunction}, return value not correct')
 		exit()
 
@@ -992,6 +997,8 @@ def p_func_exists_create_era(p):
 		funcCalled = funcName
 	
 	else:
+		raise SemanticError(f"Undeclared variable {funcName}")
+
 		print(f'Semantic Error: Funcion {funcName}, no declarada')
 		exit()
 	
@@ -1013,6 +1020,8 @@ def p_verify_param(p):
 		quadruple.generateQuad("PARAMETER", argument, None, paramCounter)
 	
 	else:
+		raise SemanticError(f"Type mismatched argument {paramCounter} is not of type {real_param_type}")
+
 		print(f"Semantic error: Firma incorrecta, arugmento {paramCounter} no es de tipo {real_param_type}")
 		exit()
 
@@ -1034,6 +1043,8 @@ def p_verify_params_coherency(p):
 	# Check if table of params is empty
 	paramsTable = dirFunc[funcCalled]['paramsTable']
 	if(len(paramsTable) != paramCounter):
+		raise SemanticError(f"Type mismatched incorrect number of params for {funcCalled}")
+
 		print("Semantic Error: Numero de parametros incorrecto")
 		exit()
 		
@@ -1180,6 +1191,8 @@ def p_verify_dim(p):
 			curr_node = dirFunc[currentFunction]['table'][arr_id]['dim'][0]
 
 		else:
+			raise SemanticError(f"Type mismatched {arr_id} is not an array")
+
 			print(f"Semantic Error: {arr_id} is not an array")
 			exit()
 	# Check global
@@ -1193,10 +1206,12 @@ def p_verify_dim(p):
 			curr_node = dirFunc[programName]['table'][arr_id]['dim'][0]
 
 		else:
+			raise SemanticError(f"Type mismatched {arr_id} is not an array")
 			print(f"Semantic Error: {arr_id} is not an array")
 			exit()
 
 	else:
+		raise SemanticError(f"Undeclared variable {arr_id}")
 		print(f"Semantic Error: Variable {arr_id} no declarada")
 		exit()
 
@@ -1220,6 +1235,8 @@ def p_add_verify(p):
 			curr_node = dirFunc[currentFunction]['table'][curr_id]['dim'][1]
 
 		elif(curr_dim > 1 and len(dirFunc[currentFunction]['table'][curr_id]['dim']) != 2 ):
+			raise SemanticError(f"Type mismatched {curr_id} is not a matrix")
+
 			print(f"Semantic Error: accesando indice de arreglo no existente")
 			exit()
 
@@ -1228,6 +1245,7 @@ def p_add_verify(p):
 			curr_node = dirFunc[programName]['table'][curr_id]['dim'][1]
 
 		elif(curr_dim > 1 and len(dirFunc[programName]['table'][curr_id]['dim']) != 2 ):
+			raise SemanticError(f"Type mismatched {curr_id} is not a matrix")
 			print(f"Semantic Error: accesando indice de arreglo no existente")
 			exit()
 

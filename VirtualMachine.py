@@ -1,12 +1,4 @@
-from audioop import add
-from glob import glob
-from locale import currency
-# from msilib.schema import Error
-from operator import le
 import pickle
-from collections import deque
-from tabnanny import check
-from threading import local
 from error import RuntimeError
 
 # Define same memory bases as the compiler

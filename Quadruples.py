@@ -2,6 +2,7 @@ from collections import deque
 from cube import SEMANTIC
 import virtualAddress
 from Directory import ConstantsTable
+from error import SemanticError
 
 class Quadruple:
 
@@ -106,6 +107,7 @@ class Quadruple:
             self.pilaO.append(va)
 
         except:
+            raise SemanticError("Type mismatched")
             print('Error in operator')
             exit()
     
@@ -125,6 +127,8 @@ class Quadruple:
             # print(f"{operator}, t{r_operand}, null, {l_operand}")
             self.generateQuad(operator, r_operand, 'empty', l_operand)
         except:
+            raise SemanticError("Type mismatched")
+
             print('Error in equal')
             exit()
 
@@ -140,6 +144,8 @@ class Quadruple:
     # FUNCTIONS FOR IF, ELSE 
     def createIf(self, tag):
         if(self.pTypes.pop() != "bool"): 
+            raise SemanticError("Type mismatched expected a boolean exp")
+
             print('Expected boolean exp')
             exit()
 
@@ -170,6 +176,7 @@ class Quadruple:
 
         # Debe ser solo entera
         if not ( numerical(exp_type) ):
+            raise SemanticError(f"Type mismatched {exp_type} is not numeric")
             print(f"Variable \"{exp_type}\" no numerica ")
             exit()
 	
@@ -190,6 +197,7 @@ class Quadruple:
         exp_res = self.pilaO.pop()
 
         if not(numerical(exp_type)):
+            raise SemanticError(f"Type mismatched {exp_type} is not numeric")
             print(f"Variable \"{exp_type}\" no numerica ")
             exit()
         
