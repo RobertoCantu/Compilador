@@ -1,0 +1,39 @@
+program binarySearch_;
+
+var int arr[5], i, res;
+
+functions
+function int binary(int l, int r, int x){
+  var int mid, retVal;
+  
+  if(r >= l){
+    mid = l + (r - l) / 2;
+
+    if(arr[mid] == x){
+      retVal = mid;
+    } else {
+      if(arr[mid] > x){
+        retVal = binary(l, mid - 1, x);
+      } else {
+        retVal = binary(mid + 1, r, x);
+      };
+    };
+
+    
+  } else {
+    retVal = 0;
+  };
+
+  return (retVal);
+
+}
+
+main {
+  write("Llena el vector");
+  write("\n");
+  for i = 0 to 5 do {
+    read(arr[i]);
+  };
+
+  res = binary(0, 4, 3);
+};

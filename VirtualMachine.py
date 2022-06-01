@@ -432,7 +432,7 @@ while(curr_quad[0] != 'END'):
     right_value = get_val(curr_quad[2])
     temp_address = curr_quad[3]
     try:
-      insert_to_memory(temp_address, left_value / right_value)
+      insert_to_memory(temp_address, int(left_value / right_value))
     except ZeroDivisionError:
       raise ZeroDivisionError("Semantic Error: Division entre 0")
     except:
