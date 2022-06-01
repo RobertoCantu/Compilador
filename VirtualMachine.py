@@ -338,7 +338,7 @@ class VirtualMachine():
         try:
           self.insert_to_memory(temp_address, left_value + right_value)
         except:
-          raise RuntimeError("Variable sin valor asignado")
+          raise RuntimeError("Variable without value")
         ip +=1
 
 
@@ -350,7 +350,7 @@ class VirtualMachine():
         try:
           self.insert_to_memory(temp_address, left_value - right_value)
         except:
-          raise RuntimeError("Variable sin valor asignado")
+          raise RuntimeError("Variable without value")
         ip +=1
 
 
@@ -361,7 +361,7 @@ class VirtualMachine():
         try:
           self.insert_to_memory(temp_address, left_value * right_value)
         except:
-          raise RuntimeError("Variable sin valor asignado")
+          raise RuntimeError("Variable without value")
         ip +=1
 
       elif(curr_quad[0] == '/'):
@@ -371,9 +371,9 @@ class VirtualMachine():
         try:
           self.insert_to_memory(temp_address, int(left_value / right_value))
         except ZeroDivisionError:
-          raise ZeroDivisionError("RuntimeError: Division entre 0")
+          raise ZeroDivisionError("RuntimeError: Division by 0")
         except:
-          raise RuntimeError("Variable sin valor asignado")
+          raise RuntimeError("Variable without value")
         ip +=1
         
       # Comparison operations
