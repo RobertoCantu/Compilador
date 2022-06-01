@@ -599,9 +599,6 @@ class VirtualMachine():
         else:
           raise RuntimeError("Fuera de rangos")
 
-
-
-    
 # Loads code
 objectCodeData = None
 with open('object.p', 'rb') as handle:
