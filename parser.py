@@ -90,25 +90,22 @@ def p_program(p):
 		print(f"{i}", quad)
 		i = i + 1
 	
-	print('========================================')
-	subprocess.call(['python', 'VirtualMachine.py'])
-	print('========================================')
 		
 def p_program2(p):
 	'''
-	program2		: vars_ add_to_global_vars
+	program2		: objects_
 					| empty
 	'''
 
 def p_program3(p):
 	'''
-	program3		: funciones
+	program3		: vars_ add_to_global_vars
 					| empty
 	'''
 
 def p_program4(p):
 	'''
-	program4		: class_
+	program4		: funciones
 					| empty
 	'''
 
@@ -135,35 +132,24 @@ def p_tipo_simple(p):
 
 def p_tipo_compuesto(p):
 	'''
-	tipo_compuesto	: FILE
-					| ID
+	tipo_compuesto	: ID
 	'''
 	p[0] = p[1]
 
-def p_class_(p):
+def p_objects_(p):
 	'''
-	class_			: CLASS ID class_seen class1_ 
-	'''
-def p_class1_(p):
-	'''
-	class1_			: INHERITS ID
-					| class2_
-	'''
-
-def p_class2_(p):
-	'''
-	class2_			: LBRACKET class3_ RBRACKET end_of_func SEMICOLON
-	'''
-
-def p_class3_(p):
-	'''
-	class3_			: vars_
-					| funciones
+	objects_		: OBJECTS objects_1
 					| empty
 	'''
 
-# <VARS>
+def p_objects_1(p):
+	'''
+	objects_1		: OBJECT ID add_object_id LBRACKET vars_ RBRACKET SEMICOLON object_end objects_1
+					| empty
+	'''
 
+
+# <VARS>
 def p_vars_(p):
 	'''
 	vars_ 			: VAR create_var_table vars_type
@@ -179,8 +165,8 @@ def p_vars_type(p):
 
 def p_vars_c(p):
 	'''
-	vars_c			: ID id_seen COMMA
-					| ID id_seen SEMICOLON vars_end
+	vars_c			: ID id_seen_obj COMMA vars_c
+					| ID id_seen_obj SEMICOLON vars_end
 	'''
 
 def p_vars_s(p):
@@ -505,10 +491,7 @@ def p_id_seen(p):
 	'''
 	id_seen			: empty
 	'''
-	global currentFunction
-	global dirFunc
-	global currentType
-	global programName
+	global currentFunction, dirFunc, currentType, programName
 
 	varID = p[-1]
 
@@ -519,6 +502,23 @@ def p_id_seen(p):
 			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'global')}
 		else:
 			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'local')} # Don't know
+
+def p_id_seen_obj(p):
+	'''
+	id_seen_obj		: empty
+	'''
+	global currentFunction, dirFunc, currentType, programName
+
+	varID = p[-1]
+
+	if(varID in dirFunc[currentFunction]["table"]):
+		raise SemanticError("Naming collisions multiple declaration of variable")
+	else:
+		if(currentFunction == programName):
+			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'global')}
+		else:
+			raise SemanticError("Cannot declare objects inside functions")
+
 
 def p_class_seen(p):
 	'''
@@ -572,7 +572,7 @@ def p_add_id(p):
 		quadruple.push_pilaO(address) # Add address to operands stack
 
 	else:
-		raise SemanticError("Undeclared variable")
+		raise SemanticError(f"Undeclared variable {varID}")
 
 def p_add_param(p):
 	'''
@@ -1342,7 +1342,30 @@ def p_end_arr_access(p):
 		elif(curr_id in dirFunc[programName]['table']):
 			curr_node = dirFunc[programName]['table'][id_arr]['dim'][0]
 
+# OBJECTS
+def p_add_object_id(p):
+	'''
+	add_object_id	: empty
+	'''
+	global dirFunc, currentFunction, programName
 
+	obj_name = p[-1]
+
+	if (obj_name in dirFunc):
+		raise SemanticError("Naming collisions multiple declaration of object")
+	
+	dirFunc[obj_name] = {'name': obj_name, 'type': 'object', 'table': None, 'functions': None, 'paramsTable': None }
+
+	currentFunction = obj_name
+
+
+def p_object_end(p):
+	'''
+	object_end	: empty
+	'''
+	global currentFunction, programName
+
+	currentFunction = programName
 
 
 ################ END OF NEURAL POINTS ################
@@ -1396,3 +1419,8 @@ if __name__ == '__main__':
 				"constantsTable": constantsTable.getConstants()
 			}, handle
 		)
+
+	
+	print('========================================')
+	subprocess.call(['python3', 'VirtualMachine.py'])
+	print('========================================')

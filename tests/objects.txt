@@ -1,0 +1,18 @@
+program objs_;
+
+objects
+object Car {
+    var int year, price;
+    var float cost;
+};
+
+var Car ford;
+var int x, a;
+
+
+
+main {
+
+    x = 10;
+    write(x);
+}; 
