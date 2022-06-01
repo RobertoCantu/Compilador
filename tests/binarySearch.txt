@@ -1,6 +1,6 @@
 program binarySearch_;
 
-var int arr[5], i, res;
+var int arr[5], i, res, x;
 
 functions
 function int binary(int l, int r, int x){
@@ -21,7 +21,7 @@ function int binary(int l, int r, int x){
 
     
   } else {
-    retVal = 0;
+    retVal = -1;
   };
 
   return (retVal);
@@ -35,5 +35,17 @@ main {
     read(arr[i]);
   };
 
-  res = binary(0, 4, 3);
+  write("Ingresa el elemento que quieres buscar");
+  write("\n");
+  read(x);
+
+  res = binary(0, 4, x);
+  if(res == -1){
+    write("No se logro encontrar el elemento");
+    write("\n");
+  } else {
+    write("El elemento se encuentra en la posicion");
+    write(res);
+    write("\n");
+  };
 };
