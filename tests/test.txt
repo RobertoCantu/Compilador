@@ -18,7 +18,7 @@ function int fib(int n) {
     if(n <= 1) {
         ret = n;
     } else {
-        ret = fib(n-1) + fib(n-2);
+        ret = fib(n - 1) + fib(n - 2);
     };
 
     return (ret);

@@ -89,7 +89,7 @@ def p_program(p):
 		i = i + 1
 	
 	print('========================================')
-	subprocess.call(['python', 'VirtualMachine.py'])
+	# subprocess.call(['python', 'VirtualMachine.py'])
 	print('========================================')
 		
 def p_program2(p):
