@@ -114,6 +114,7 @@ class VirtualMachine():
     # Local - Local Memory
     # Insert Local temp int
     if(address >= 5000 and address <= 5999):
+      print(self.curr_local_memory)
       self.curr_local_memory[0].insert(address - 5000, value, "int")
 
     # Insert Local temp float

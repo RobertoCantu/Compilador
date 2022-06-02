@@ -49,6 +49,9 @@ auxFunc = None
 DIM = 1
 curr_node = None
 
+# Objects
+curr_obj = None
+
 def p_program(p):
 	'''
 	program 		: PROGRAM ID create_main_func SEMICOLON program2 program3 program4 MAIN start_main LBRACKET bloque RBRACKET SEMICOLON
@@ -111,13 +114,7 @@ def p_program4(p):
 
 def p_bloque(p):
 	'''
-	bloque			: estatutos bloque1
-					| empty
-	'''
-
-def p_bloque1(p):
-	'''
-	bloque1			: estatutos bloque1
+	bloque			: estatutos bloque
 					| empty
 	'''
 
@@ -348,13 +345,13 @@ def p_asignacion(p):
 
 def p_variable(p):
 	'''
-	variable	: ID  add_id variable2
+variable	: ID  add_id variable2
 					
 	'''
 
 def p_variable2(p):
 	'''
-	variable2	: DOT ID
+	variable2	: DOT ID add_id_obj
 				| LSQRBRACKET verify_dim add_fake_bottom exp pop_fake_bottom add_verify RSQRBRACKET variable_array_2
 				| empty
 	'''
@@ -499,9 +496,11 @@ def p_id_seen(p):
 		raise SemanticError("Naming collisions multiple declaration of variable ")
 	else:
 		if(currentFunction == programName):
-			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'global')}
+			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'global'), 'isObject': False}
+		elif(dirFunc[currentFunction]['type'] == 'object'):
+			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType}
 		else:
-			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'local')} # Don't know
+			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'local'), 'isObject': False} # Don't know
 
 def p_id_seen_obj(p):
 	'''
@@ -513,11 +512,17 @@ def p_id_seen_obj(p):
 
 	if(varID in dirFunc[currentFunction]["table"]):
 		raise SemanticError("Naming collisions multiple declaration of variable")
+
+	if(currentFunction == programName):
+		vars_table = dirFunc[currentType]['table']
+		auxDic = {}
+		
+
+		for var in vars_table:
+			auxDic[var] =  {'name': var, 'type':vars_table[var]['type'], 'address': virtualAddress.setAddress(vars_table[var]['type'], 'global')}
+		dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType, 'address': auxDic, 'isObject': True}
 	else:
-		if(currentFunction == programName):
-			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'global')}
-		else:
-			raise SemanticError("Cannot declare objects inside functions")
+		raise SemanticError("Cannot declare objects inside functions")
 
 
 def p_class_seen(p):
@@ -555,25 +560,54 @@ def p_add_id(p):
 	global globalVars
 	global dirFunc
 	global programName
+	global curr_obj
+
+	varID = p[-1]
+	print(varID)
+	print(dirFunc)
+	if(dirFunc[currentFunction]['table'][varID]['isObject'] == True):
+		#This is an object
+		curr_obj = p[-1]
+	else:
+		# Look in locals
+		if (varID in dirFunc[currentFunction]['table']):
+			address = dirFunc[currentFunction]['table'][varID]["address"]
+			var_type = dirFunc[currentFunction]['table'][varID]["type"]
+			quadruple.push_pTypes(var_type) # Add type of id to type stack
+			quadruple.push_pilaO(address) # Add address to operands stack
+		# If not look in global
+		elif (varID in dirFunc[programName]['table']):
+			address = dirFunc[programName]['table'][varID]["address"]
+			var_type = dirFunc[programName]['table'][varID]["type"]
+			quadruple.push_pTypes(var_type) # Add type of id to type stack
+			quadruple.push_pilaO(address) # Add address to operands stack
+		else:
+			raise SemanticError(f"Undeclared variable {varID}")
+
+def p_add_id_obj(p):
+	'''
+	add_id_obj : empty
+
+	'''
+
+	global currentFunction
+	global globalVars
+	global dirFunc
+	global programName
+	global curr_obj
 
 	varID = p[-1]
 
-	# Look in locals
-	if (varID in dirFunc[currentFunction]['table']):
-		address = dirFunc[currentFunction]['table'][varID]["address"]
-		var_type = dirFunc[currentFunction]['table'][varID]["type"]
-		quadruple.push_pTypes(var_type) # Add type of id to type stack
-		quadruple.push_pilaO(address) # Add address to operands stack
-	# If not look in global
-	elif (varID in dirFunc[programName]['table']):
-		address = dirFunc[programName]['table'][varID]["address"]
-		var_type = dirFunc[programName]['table'][varID]["type"]
-		quadruple.push_pTypes(var_type) # Add type of id to type stack
-		quadruple.push_pilaO(address) # Add address to operands stack
-
+	obj_vars = dirFunc[currentFunction]['table'][curr_obj]['address']
+	# Check if attribute exist in class
+	if(varID in obj_vars):
+		attr_address = obj_vars[varID]['address']
+		attr_type = obj_vars[varID]['type']
+		quadruple.push_pTypes(attr_type) # Add type of id to type stack
+		quadruple.push_pilaO(attr_address) # Add address to operands stack
 	else:
-		raise SemanticError(f"Undeclared variable {varID}")
-
+		raise SemanticError(f"Type mismatched class {curr_obj} does not have an attribute named {varID}")
+	
 def p_add_param(p):
 	'''
 	add_param	: empty
@@ -1422,5 +1456,5 @@ if __name__ == '__main__':
 
 	
 	print('========================================')
-	subprocess.call(['python3', 'VirtualMachine.py'])
+	subprocess.call(['python', 'VirtualMachine.py'])
 	print('========================================')

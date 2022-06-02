@@ -3,16 +3,27 @@ program objs_;
 objects
 object Car {
     var int year, price;
+    var int a[10];
     var float cost;
+
+   
+};
+
+object Animal {
+    var int birth, price;
 };
 
 var Car ford;
-var int x, a;
+var Car mazda;
+var Animal dog;
+var int x;
+
 
 
 
 main {
+    ford.price = 3;
+    mazda.price = 4;
 
-    x = 10;
-    write(x);
+    write(ford.price + mazda.price);
 }; 
