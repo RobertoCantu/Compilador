@@ -50,7 +50,9 @@ DIM = 1
 curr_node = None
 
 # Objects
-curr_obj = None
+curr_obj = None		# Instance of object when working with expressions
+curr_class = None	# Current class being declared
+inObject = False	# If we are currently in a class (used in functions)
 
 def p_program(p):
 	'''
@@ -141,7 +143,7 @@ def p_objects_(p):
 
 def p_objects_1(p):
 	'''
-	objects_1		: OBJECT ID add_object_id LBRACKET vars_ RBRACKET SEMICOLON object_end objects_1
+	objects_1		: OBJECT ID add_object_id LBRACKET vars_ funciones RBRACKET SEMICOLON object_end objects_1
 					| empty
 	'''
 
@@ -199,7 +201,7 @@ def p_funciones(p):
 def p_funciones2(p):
 	'''
 	funciones2		:  FUNCTION tipo_simple ID add_func func_add_return LPAREN create_var_table param RPAREN LBRACKET vars_ count_function_elements bloque RETURN LPAREN exp RPAREN func_return SEMICOLON RBRACKET end_of_func funciones2
-					|  FUNCTION VOID ID add_func LPAREN create_var_table param RPAREN LBRACKET vars_ count_parameters count_locals count_quads count_function_elements bloque RBRACKET end_of_func funciones2
+					|  FUNCTION VOID ID add_func LPAREN create_var_table param RPAREN LBRACKET vars_ count_function_elements bloque RBRACKET end_of_func funciones2
 					| empty
 	'''
 
@@ -316,7 +318,7 @@ def p_estatutos(p):
 def p_llamada(p):
 	'''
 	llamada			: ID LPAREN func_exists_create_era add_fake_bottom llamada2 RPAREN verify_params_coherency pop_fake_bottom
-					| ID LPAREN func_exists_create_era  RPAREN gosub_no_params
+					| ID LPAREN func_exists_create_era RPAREN gosub_no_params
 	'''
 
 def p_llamada2(p):
@@ -345,8 +347,7 @@ def p_asignacion(p):
 
 def p_variable(p):
 	'''
-variable	: ID  add_id variable2
-					
+	variable	: ID  add_id variable2			
 	'''
 
 def p_variable2(p):
@@ -417,16 +418,6 @@ def p_for_loop(p):
 	for_loop	: FOR ID for_store_id EQUALS exp for_exp_equal_id TO exp for_comparison DO LBRACKET bloque RBRACKET for_end SEMICOLON
 	'''
 
-def p_open_file(p):
-	'''
-	open_file	: ID DOT OPEN LPAREN CTESTRING RPAREN SEMICOLON
-	'''
-
-def p_close_file(p):
-	'''
-	close_file	: ID DOT CLOSE LPAREN RPAREN SEMICOLON
-	'''
-
 def p_empty(p):
 	'''
 	empty	:
@@ -440,10 +431,7 @@ def p_create_main_func(p):
 	'''
 	create_main_func : empty
 	'''
-
-	global dirFunc
-	global programName
-	global currentFunction
+	global dirFunc, programName, currentFunction
 		
 	dirFunc[p[-1]] = {"name": p[-1], "type": "global", "table": None, "paramsTable": None}
 	
@@ -467,14 +455,17 @@ def p_add_func(p):
 	'''
 	add_func		: empty
 	'''
+	global dirFunc, currentFunction, inObject, curr_class
 
-	global dirFunc
-	global currentFunction
+	func_name = p[-1]
+
+	if (inObject):
+		dirFunc[curr_class]['functions'] = {}
+		dirFunc[curr_class]['functions'][func_name] = {"name": func_name, "type": p[-2], "table": None, "paramsTable": None }
+	else: 
+		dirFunc[func_name] = {"name": func_name, "type": p[-2], "table": None, "paramsTable": None }
 	
-	# dirFunc = dc.DirFunc()
-	# dirFunc.addFunc({"name": p[-1], "type": p[-3], "table": None })
-	dirFunc[p[-1]] = {"name": p[-1], "type": p[-2], "table": None, "paramsTable": None }
-	currentFunction = p[-1]
+	currentFunction = func_name
 
 
 def p_type_seen(p):
@@ -488,19 +479,29 @@ def p_id_seen(p):
 	'''
 	id_seen			: empty
 	'''
-	global currentFunction, dirFunc, currentType, programName
+	global currentFunction, dirFunc, currentType, programName, curr_class, inObject
 
 	varID = p[-1]
 
-	if(varID in dirFunc[currentFunction]["table"]):
+	# Inside object declaration
+	if (inObject):
+		if (currentFunction == curr_class): # Variable declaration inside Objects
+			curr_func = dirFunc[curr_class]
+		else: # Variable declaration inside function inside Objects
+			curr_func = dirFunc[curr_class]['functions'][currentFunction]
+	else: 
+		curr_func = dirFunc[currentFunction]
+	
+
+	if(varID in curr_func["table"]):
 		raise SemanticError("Naming collisions multiple declaration of variable ")
 	else:
 		if(currentFunction == programName):
-			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'global'), 'isObject': False}
-		elif(dirFunc[currentFunction]['type'] == 'object'):
-			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType}
+			curr_func['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'global'), 'isObject': False}
+		elif(curr_func['type'] == 'object'):
+			curr_func['table'][varID] = {'name': varID, 'type': currentType}
 		else:
-			dirFunc[currentFunction]['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'local'), 'isObject': False} # Don't know
+			curr_func['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'local'), 'isObject': False} # Don't know
 
 def p_id_seen_obj(p):
 	'''
@@ -525,62 +526,76 @@ def p_id_seen_obj(p):
 		raise SemanticError("Cannot declare objects inside functions")
 
 
-def p_class_seen(p):
-	'''
-	class_seen		: empty
-	'''
-	global currentFunction
-	global dirFunc
-	global currentType
-	currentFunction = p[-1]
-	dirFunc[p[-1]] = {"name": p[-1], "type": "class", "table": None }
-
 def p_create_var_table(p):
 	'''
 	create_var_table	: empty
 	'''
-
-	global currentFunction, programName
-	global dirFunc
-
-	if not (dirFunc[currentFunction]["table"]):
-		dirFunc[currentFunction]["table"] = {}
-		# dirFunc[currentFunction]["paramsTable"] = []
+	global currentFunction, programName, dirFunc, inObject, curr_class
+	
+	if (inObject): # Inside OBJECTS
+		if (currentFunction == curr_class):  # var table for object object
+			curr_func = dirFunc[curr_class]
+		else: # var table for function inside object
+			curr_func = dirFunc[curr_class]['functions'][currentFunction]
+	else: 
+		curr_func = dirFunc[currentFunction]
+	
+	if not (curr_func["table"]):
+		curr_func["table"] = {}
 	if(currentFunction != programName):
-		if not (dirFunc[currentFunction]["paramsTable"]):
-			dirFunc[currentFunction]["paramsTable"] = []
+		if not (curr_func["paramsTable"]):
+			curr_func["paramsTable"] = []
 
 def p_add_id(p):
 	'''
 	add_id : empty
 
 	'''
-
-	global currentFunction
-	global globalVars
-	global dirFunc
-	global programName
-	global curr_obj
+	global currentFunction, programName, globalVars, dirFunc, curr_obj, inObject, curr_class
 
 	varID = p[-1]
-	print(varID)
-	print(dirFunc)
-	if(dirFunc[currentFunction]['table'][varID]['isObject'] == True):
-		#This is an object
-		curr_obj = p[-1]
-	else:
+
+
+	# Que HORROR, tiene mucho para refactorizar
+	# MEMORIA QUE SEA SOLO PARA OBJETOS ? COMO HABIAS DICHO
+	# AL MOMENTO DE CREAR UN OBJETO SE SE REUTILIZAN DIRECCIONES, ES PROBABLEMENTE NECESARIO PARA PODER LLAMAR LAS VARIABLES GLOBALES DE LAS FUNCIONES
+	if (inObject):
+		# LOCALS INSIDE FUNCTION OF OBJECT
+		if (varID in dirFunc[curr_class]['functions'][currentFunction]['table']):
+
+			address = dirFunc[curr_class]['functions'][currentFunction]['table'][varID]["address"]
+			var_type = dirFunc[curr_class]['functions'][currentFunction]['table'][varID]["type"]
+
+			quadruple.push_pTypes(var_type) # Add type of id to type stack
+			quadruple.push_pilaO(address) # Add address to operands stack
+
+		# GLOBALS INSIDE OBJECT
+		# EL PROBLEMA ES SABER CUALES DIRECIONES USAR, YA QUE MUCHOS OBJETOS PUEDEN LLAMAR A ESTA FUNCION Y ESOS PUEDEN SER SUS VARIABLES GLOBALES
+		else: 
+			raise SemanticError(f"Undeclared variable {varID}")
+	else: 
 		# Look in locals
 		if (varID in dirFunc[currentFunction]['table']):
-			address = dirFunc[currentFunction]['table'][varID]["address"]
-			var_type = dirFunc[currentFunction]['table'][varID]["type"]
-			quadruple.push_pTypes(var_type) # Add type of id to type stack
-			quadruple.push_pilaO(address) # Add address to operands stack
+			if(dirFunc[currentFunction]['table'][varID]['isObject'] == True):
+				#This is an object
+				curr_obj = p[-1]
+				print('here')
+			else:
+				address = dirFunc[currentFunction]['table'][varID]["address"]
+				var_type = dirFunc[currentFunction]['table'][varID]["type"]
+				quadruple.push_pTypes(var_type) # Add type of id to type stack
+				quadruple.push_pilaO(address) # Add address to operands stack
+
 		# If not look in global
 		elif (varID in dirFunc[programName]['table']):
-			address = dirFunc[programName]['table'][varID]["address"]
-			var_type = dirFunc[programName]['table'][varID]["type"]
-			quadruple.push_pTypes(var_type) # Add type of id to type stack
-			quadruple.push_pilaO(address) # Add address to operands stack
+			if(dirFunc[programName]['table'][varID]['isObject'] == True):
+				#This is an object
+				curr_obj = p[-1]
+			else:
+				address = dirFunc[programName]['table'][varID]["address"]
+				var_type = dirFunc[programName]['table'][varID]["type"]
+				quadruple.push_pTypes(var_type) # Add type of id to type stack
+				quadruple.push_pilaO(address) # Add address to operands stack
 		else:
 			raise SemanticError(f"Undeclared variable {varID}")
 
@@ -589,16 +604,15 @@ def p_add_id_obj(p):
 	add_id_obj : empty
 
 	'''
-
-	global currentFunction
-	global globalVars
-	global dirFunc
-	global programName
-	global curr_obj
+	global currentFunction, globalVars, dirFunc, programName, curr_obj, curr_class
 
 	varID = p[-1]
 
+	print(curr_obj)
+	print(varID)
+
 	obj_vars = dirFunc[currentFunction]['table'][curr_obj]['address']
+
 	# Check if attribute exist in class
 	if(varID in obj_vars):
 		attr_address = obj_vars[varID]['address']
@@ -612,18 +626,28 @@ def p_add_param(p):
 	'''
 	add_param	: empty
 	'''
-	global currentFunction
-	global dirFunc
+	global currentFunction, dirFunc, curr_class, inObject
 
 	param = p[-1]
 	paramType = p[-2]
 
-	if ( param not in dirFunc[currentFunction]['table']):
-		dirFunc[currentFunction]['table'][param] = {'name': param, 'type': paramType, 'address': virtualAddress.setAddress(paramType, 'local')}
-		# Add signature
-		dirFunc[currentFunction]['paramsTable'].append(paramType)
-	else:
-		raise SemanticError("Naming collisions multiple declaration of variable ")
+	if (inObject): 
+
+		curr_class_func = dirFunc[curr_class]['functions'][currentFunction]
+
+		if ( param not in curr_class_func['table'] ):
+			curr_class_func['table'][param] = {'name': param, 'type': paramType, 'address': virtualAddress.setAddress(paramType, 'local'), 'isObject': False}
+			# Add signature
+			curr_class_func['paramsTable'].append(paramType)
+		else:
+			raise SemanticError("Naming collisions multiple declaration of variable ")
+	else: 
+		if ( param not in dirFunc[currentFunction]['table']):
+			dirFunc[currentFunction]['table'][param] = {'name': param, 'type': paramType, 'address': virtualAddress.setAddress(paramType, 'local'), 'isObject': False}
+			# Add signature
+			dirFunc[currentFunction]['paramsTable'].append(paramType)
+		else:
+			raise SemanticError("Naming collisions multiple declaration of variable ")
 
 def p_add_int(p):
 	"""
@@ -881,64 +905,37 @@ def p_for_end(p):
 	quadruple.for_end(location, address_one)
 
 # Functions 
-def p_count_parameters(p):
-	'''
-	count_parameters	: empty
-	'''
-	global currentFunction
-	global dirFunc
-
-	totalParams = len(dirFunc[currentFunction]["paramsTable"])
-	dirFunc[currentFunction]["totalParams"] = totalParams
-
-def p_count_locals(p):
-	'''
-	count_locals	: empty
-	'''
-	global currentFunction
-	global dirFunc
-
-	totalLocals = len(dirFunc[currentFunction]["table"])
-	dirFunc[currentFunction]["totalLocals"] = totalLocals - dirFunc[currentFunction]["totalParams"]
-
-def p_count_quads(p):
-	'''
-	count_quads : empty
-	'''
-	dirFunc[currentFunction]["startAtQuad"] = quadruple.quad_counter
-
-
 def p_count_function_elements(p):
 	'''
 	count_function_elements	: empty
 	'''
-	global currentFunction
-	global dirFunc
+	global currentFunction, dirFunc, inObject, curr_class
 
-	totalParams = len(dirFunc[currentFunction]["paramsTable"])
-	dirFunc[currentFunction]["totalParams"] = totalParams
-
-	totalLocals = len(dirFunc[currentFunction]["table"])
-	dirFunc[currentFunction]["totalLocals"] = totalLocals - dirFunc[currentFunction]["totalParams"]
-
+	if (inObject):
+		current_function = dirFunc[curr_class]['functions'][currentFunction]
+	else: 
+		current_function = dirFunc[currentFunction]
+	
+	totalParams = len(current_function["paramsTable"])
+	current_function["totalParams"] = totalParams
+	
+	totalLocals = len(current_function["table"])
+	current_function["totalLocals"] = totalLocals - current_function["totalParams"]
+	
 	# Count locals vars
 	locals = virtualAddress.getLocalUsed()
-	dirFunc[currentFunction]["localsUsed"] = {}
-	dirFunc[currentFunction]["localsUsed"]["int"] = locals[0]
-	dirFunc[currentFunction]["localsUsed"]["float"] = locals[1]
-	dirFunc[currentFunction]["localsUsed"]["char"] = locals[2]
-	dirFunc[currentFunction]["localsUsed"]["bool"] = locals[3]
-
-	dirFunc[currentFunction]["startAtQuad"] = quadruple.quad_counter
-
+	current_function["localsUsed"] = {}
+	current_function["localsUsed"]["int"] = locals[0]
+	current_function["localsUsed"]["float"] = locals[1]
+	current_function["localsUsed"]["char"] = locals[2]
+	current_function["localsUsed"]["bool"] = locals[3]
+	current_function["startAtQuad"] = quadruple.quad_counter
 
 def p_func_add_return(p):
 	'''
 	func_add_return			: empty
 	'''
-	global currentFunction
-	global dirFunc
-	global globalVars
+	global currentFunction, dirFunc, globalVars, inObject, curr_class
 
 	varName = p[-2]
 	varType = p[-3]
@@ -949,16 +946,17 @@ def p_func_add_return(p):
 		print(f'error {varName} already exists')
 		exit()
 	else:
-		# ADD VALUE AND TYPE TO GLOBAL VARS
-		globalVars[varName] = {'name': varName, 'type': varType, 'address': virtualAddress.setAddress(varType, 'global')}
+		if(inObject):
+			globalVars[varName] = {'name': f'{curr_class}.{varName}', 'type': varType, 'address': virtualAddress.setAddress(varType, 'global'), 'isObject': False}
+		else:
+			# ADD VALUE AND TYPE TO GLOBAL VARS
+			globalVars[varName] = {'name': varName, 'type': varType, 'address': virtualAddress.setAddress(varType, 'global'), 'isObject': False}
 
 def p_func_return(p):
 	'''
 	func_return			: empty
 	'''
-	global currentFunction, programName
-	global dirFunc
-	global globalVars
+	global currentFunction, programName, dirFunc, globalVars, inObject, curr_class
 
 	# GET FUNCTION'S TYPE AND RETURN VAR
 	funcVar = globalVars[currentFunction]['name']
@@ -976,8 +974,8 @@ def p_func_return(p):
 		# quadruple.counter += 1
 		va = virtualAddress.setAddress(retVarType, 'tempLocal')
 
-		# ASIGN EXP TO FUNCTION'S VAR 
-		func_return_va = globalVars[currentFunction]['address']
+		# ASIGN EXP TO FUNCTION'S VAR
+		func_return_va = globalVars[currentFunction]['address'] if not inObject else globalVars[curr_class]['functions'][currentFunction]['address'] # Check if function in object or not
 		quadruple.generateQuad('=', retVar, None, func_return_va)
 
 		quadruple.generateQuad('RETURN', None, None, va) # NOT SURE IF NEEDED!!!
@@ -992,27 +990,31 @@ def p_end_of_func(p):
 	'''
 	end_of_func		: empty
 	'''
-	global currentFunction
-	global programName
-	global dirFunc
+	global currentFunction, programName, dirFunc, inObject, curr_class
 
 	# dirFunc[currentFunction]['table'] = None # Delete function's var table at the end.
 	quadruple.generateQuad('ENDFUNC', None, None, None)
 
 	# Count local temporals and add it to dirFunc (int,float, char, bool)
 	locals_temp_used = virtualAddress.getLocalTempUsed()
-	dirFunc[currentFunction]['usedTemp'] = {}
-	dirFunc[currentFunction]['usedTemp']['int'] = locals_temp_used[0]
-	dirFunc[currentFunction]['usedTemp']['float'] = locals_temp_used[1]
-	dirFunc[currentFunction]['usedTemp']['char'] = locals_temp_used[2]
-	dirFunc[currentFunction]['usedTemp']['bool'] = locals_temp_used[3]
-	dirFunc[currentFunction]['usedTemp']['pointer'] = locals_temp_used[4]
 
-	print(locals_temp_used)
+	if (inObject):
+		curr_func = dirFunc[curr_class]['functions'][currentFunction]
+	else: 
+		curr_func = dirFunc[currentFunction]
+
+	curr_func['usedTemp'] = {}
+	curr_func['usedTemp']['int'] = locals_temp_used[0]
+	curr_func['usedTemp']['float'] = locals_temp_used[1]
+	curr_func['usedTemp']['char'] = locals_temp_used[2]
+	curr_func['usedTemp']['bool'] = locals_temp_used[3]
+	curr_func['usedTemp']['pointer'] = locals_temp_used[4]
+
+	# print(locals_temp_used)
 
 	virtualAddress.resetLocalTemporals() # RESETS LOCAL TEMPORALS FOR FUNCTIONS
-	# Set currFunc to main
-	currentFunction = programName
+
+	currentFunction = programName # Set currFunc to main
 
 
 # Functions call
@@ -1125,9 +1127,7 @@ def p_add_to_global_vars(p):
 	'''
 	add_to_global_vars 		: empty
 	'''
-	global currentFunction
-	global dirFunc
-	global globalVars
+	global currentFunction, dirFunc, globalVars
 
 	globalVars = dirFunc[currentFunction]['table']
 
@@ -1135,8 +1135,7 @@ def p_is_array(p):
 	'''
 	is_array		: empty
 	'''
-	global currentFunction
-	global dirFunc, globalVars
+	global currentFunction, dirFunc, globalVars
 	global arr_dim, arr_r, curr_id
 
 	location = 'Global' if programName == currentFunction else 'Local'
@@ -1148,8 +1147,7 @@ def p_array_calcs(p):
 	'''
 	array_calcs			: empty
 	'''
-	global currentFunction, programName
-	global dirFunc, globalVars
+	global currentFunction, programName, dirFunc, globalVars
 	global arr_dim, arr_r, curr_id
 
 	location = 'Global' if programName == currentFunction else 'Local'
@@ -1381,7 +1379,7 @@ def p_add_object_id(p):
 	'''
 	add_object_id	: empty
 	'''
-	global dirFunc, currentFunction, programName
+	global dirFunc, currentFunction, programName, inObject, curr_class
 
 	obj_name = p[-1]
 
@@ -1391,15 +1389,19 @@ def p_add_object_id(p):
 	dirFunc[obj_name] = {'name': obj_name, 'type': 'object', 'table': None, 'functions': None, 'paramsTable': None }
 
 	currentFunction = obj_name
+	curr_class = obj_name
+	inObject = True
 
 
 def p_object_end(p):
 	'''
 	object_end	: empty
 	'''
-	global currentFunction, programName
+	global currentFunction, programName, inObject, curr_class
 
 	currentFunction = programName
+	curr_class = None
+	inObject = False
 
 
 ################ END OF NEURAL POINTS ################
@@ -1456,5 +1458,5 @@ if __name__ == '__main__':
 
 	
 	print('========================================')
-	subprocess.call(['python', 'VirtualMachine.py'])
+	subprocess.call(['python3', 'VirtualMachine.py'])
 	print('========================================')

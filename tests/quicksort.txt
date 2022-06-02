@@ -58,7 +58,6 @@ function void printArray() {
         write(arr[i]);
     }; 
     write("\n");
-
 }
 
 
@@ -70,6 +69,8 @@ main {
     arr[3] = 9;
     arr[4] = 1;
     arr[5] = 5;
+
+    printArray(); 
 
     quickSort(0, 5);
     
