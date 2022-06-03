@@ -11,6 +11,10 @@ object Car {
        year = 2022;
        price = price + 1;
    }
+
+   function void area(int a){
+       a = 5;
+   }
 };
 
 var Car ford;

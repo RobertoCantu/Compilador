@@ -467,7 +467,6 @@ def p_add_func(p):
 	func_name = p[-1]
 
 	if (inObject):
-		dirFunc[curr_class]['functions'] = {}
 		dirFunc[curr_class]['functions'][func_name] = {"name": func_name, "type": p[-2], "table": None, "paramsTable": None }
 	else: 
 		dirFunc[func_name] = {"name": func_name, "type": p[-2], "table": None, "paramsTable": None }
@@ -1033,7 +1032,8 @@ def p_func_exists_create_era(p):
 
 	if (curr_obj): # CALL FROM FUNCTION OBJECT
 		class_name = dirFunc[programName]['table'][curr_obj]['type']
-
+		print()
+		print(dirFunc[class_name])
 		if (funcName in dirFunc[class_name]['functions']):
 			funcCalled = funcName
 			curr_func = dirFunc[class_name]['functions'][funcName]
@@ -1436,7 +1436,7 @@ def p_add_object_id(p):
 	if (obj_name in dirFunc):
 		raise SemanticError("Naming collisions multiple declaration of object")
 	
-	dirFunc[obj_name] = {'name': obj_name, 'type': 'object', 'table': None, 'functions': None, 'paramsTable': None }
+	dirFunc[obj_name] = {'name': obj_name, 'type': 'object', 'table': None, 'functions': {}, 'paramsTable': None }
 
 	currentFunction = obj_name
 	curr_class = obj_name
