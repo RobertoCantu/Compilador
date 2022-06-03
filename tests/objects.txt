@@ -13,7 +13,11 @@ object Car {
    }
 
    function void area(int a){
-       a = 5;
+       write(a);
+   }
+
+   function int china(int a){
+       return (5);
    }
 };
 
@@ -43,5 +47,10 @@ main {
 
     write(mazda.price);
     write("\n");
+
+    mazda:area(88);
+    write("\n");
+
+    mazda:china(5);
 
 }; 

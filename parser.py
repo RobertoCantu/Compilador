@@ -948,6 +948,8 @@ def p_func_add_return(p):
 
 	varName = p[-2]
 	varType = p[-3]
+	print("wwwwwwwwwwwwwwwwt")
+	print(globalVars)
 
 	# CHECK GLOBAL VARS
 	if (varName in globalVars):
@@ -972,6 +974,9 @@ def p_func_return(p):
 	# CHECK RETURN VALUE IS EQUAL TO TYPE OF FUNCTION
 	retVar = quadruple.pilaO.pop()
 	retVarType = quadruple.pTypes.pop()
+	print()
+	print(globalVars)
+	print("que rayos pasa")
 
 	try:
 		retType = SEMANTIC[funcVarType][retVarType]['=']
@@ -982,7 +987,7 @@ def p_func_return(p):
 		va = virtualAddress.setAddress(retVarType, 'tempLocal')
 
 		# ASIGN EXP TO FUNCTION'S VAR
-		func_return_va = globalVars[currentFunction]['address'] if not inObject else globalVars[curr_class]['functions'][currentFunction]['address'] # Check if function in object or not
+		func_return_va = globalVars[currentFunction]['address'] if not inObject else globalVars[currentFunction]['address'] # Check if function in object or not
 		quadruple.generateQuad('=', retVar, None, func_return_va)
 
 		quadruple.generateQuad('RETURN', None, None, va) # NOT SURE IF NEEDED!!!
@@ -1115,7 +1120,22 @@ def p_verify_params_coherency(p):
 		curr_func_type = dirFunc[class_name]['functions'][funcCalled]['type']
 		# Parche guadalupano
 		if(curr_func_type != 'void'):
+			print()
 			print("No soy void")
+			print(funcCalled)
+			print(globalVars)
+			if (programName == currentFunction):
+				va = virtualAddress.setAddress(curr_func_type, 'tempGlobal')
+			else:
+				va = virtualAddress.setAddress(curr_func_type, 'tempLocal') # FUNCTION CALLS INSIDE FUNCTIONS
+			# Get address of function
+			func_return_va = globalVars[funcCalled]['address']
+
+			quadruple.generateQuad("=", func_return_va, None, va)
+			quadruple.push_pilaO(va)
+			quadruple.push_pTypes(curr_func_type)
+			quadruple.counter += 1
+			
 
 		# Swap to original addresses of class
 		for key in dirFunc[class_name]['table']:
@@ -1192,8 +1212,10 @@ def p_add_to_global_vars(p):
 	add_to_global_vars 		: empty
 	'''
 	global currentFunction, dirFunc, globalVars
-
-	globalVars = dirFunc[currentFunction]['table']
+	# print("aqui ando ahora si")
+	# print()
+	# print(currentFunction)
+	# globalVars = dirFunc[currentFunction]['table']
 
 def p_is_array(p):
 	'''
