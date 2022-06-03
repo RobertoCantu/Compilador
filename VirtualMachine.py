@@ -536,8 +536,14 @@ class VirtualMachine():
         ip += 1
         
       elif(curr_quad[0] == 'PARAMETER'):
-        # Signature
-        params_table = dirFunc[function_name]["paramsTable"]
+        # Check if it is an object
+        if(curr_quad[2] != None):
+          class_name = curr_quad[2]
+          # Signature
+          params_table = dirFunc[class_name]['functions'][function_name]['paramsTable']
+        else:
+         # Signature
+          params_table = dirFunc[function_name]["paramsTable"]
         # Obtain paramater index
         paramIndex = curr_quad[3] - 1
         argument_type = params_table[paramIndex]

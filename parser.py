@@ -319,7 +319,7 @@ def p_estatutos(p):
 def p_llamada(p):
 	'''
 	llamada			: ID LPAREN func_exists_create_era add_fake_bottom llamada2 RPAREN verify_params_coherency pop_fake_bottom
-					| ID LPAREN func_exists_create_era RPAREN gosub_no_params
+					| ID LPAREN func_exists_create_era RPAREN set_param_counter_cero verify_params_coherency gosub_no_params
 	'''
 
 def p_llamada2(p):
@@ -331,7 +331,7 @@ def p_llamada2(p):
 def p_llamada_void(p):
 	'''
 	llamada_void	: ID LPAREN func_exists_create_era llamada_void2 RPAREN verify_params_coherency SEMICOLON
-					| ID LPAREN func_exists_create_era RPAREN gosub_no_params SEMICOLON
+					| ID LPAREN func_exists_create_era RPAREN set_param_counter_cero verify_params_coherency gosub_no_params SEMICOLON
 	'''
 
 def p_llamada_void2(p):
@@ -342,8 +342,8 @@ def p_llamada_void2(p):
 
 def p_object_function_call(p):
 	'''
-	object_function_call	: ID COLON add_curr_obj ID LPAREN func_exists_create_era llamada_void2 RPAREN SEMICOLON
-							| ID COLON add_curr_obj ID LPAREN func_exists_create_era RPAREN gosub_no_params SEMICOLON
+	object_function_call	: ID COLON add_curr_obj ID LPAREN func_exists_create_era llamada_void2 RPAREN verify_params_coherency SEMICOLON
+							| ID COLON add_curr_obj ID LPAREN func_exists_create_era RPAREN  gosub_no_params SEMICOLON
 	'''
 
 def p_asignacion(p):
@@ -499,9 +499,6 @@ def p_id_seen(p):
 	else: 
 		curr_func = dirFunc[currentFunction]
 
-	print()
-	print("Aquii")
-	print(curr_func)
 	
 
 	if(varID in curr_func["table"]):
@@ -883,22 +880,14 @@ def p_for_store_id(p):
 	else:
 		raise SemanticError(f"Undeclared variable {v_control}")
 
-		print(f"Semantic Error: Type mismatch, Variable \"{v_control}\" no existe")
-		exit()
-
 	# Check it's type
 	if not (numerical(v_type)):
 		raise SemanticError("Type mismatched expected a numeric variable")
-
-		print(f"Semantic Error: Type missmatch, Variable \"{v_control}\" no numerica ")
-		exit()
 
 	# PUSH pilaO & pTypes
 	quadruple.pilaO.append(v_control_va)
 	quadruple.pTypes.append(v_type)
 	
-
-
 def p_for_exp_equal_id(p):
 	'''
 	for_exp_equal_id	: empty
@@ -964,8 +953,6 @@ def p_func_add_return(p):
 	# CHECK GLOBAL VARS
 	if (varName in globalVars):
 		raise SemanticError("Naming collisions multiple declaration of variable ")
-		print(f'error {varName} already exists')
-		exit()
 	else:
 		if(inObject):
 			globalVars[varName] = {'name': f'{curr_class}.{varName}', 'type': varType, 'address': virtualAddress.setAddress(varType, 'global'), 'isObject': False}
@@ -1003,9 +990,6 @@ def p_func_return(p):
 
 	except:
 		raise SemanticError("Type mismatched return value is incorrect")
-
-		print(f'Comp. error: in function: {currentFunction}, return value not correct')
-		exit()
 
 def p_end_of_func(p):
 	'''
@@ -1056,11 +1040,6 @@ def p_func_exists_create_era(p):
 
 			# Create swapping between original class address with instance
 			curr_func_vars = curr_func['table']
-			print()
-			print("Lol")
-			print(dirFunc[class_name]['table'])
-			print(dirFunc[programName]['table'][curr_obj]['address'])
-			print()
 		else:
 			raise SemanticError(f"Undeclared variable {funcName}")
 
@@ -1081,24 +1060,37 @@ def p_func_exists_create_era(p):
 
 	currentParamTable = curr_func["paramsTable"]
 
+
+def p_set_param_counter_cero(p):
+	'''
+	set_param_counter_cero	: empty
+	'''
+	global paramCounter
+	paramCounter = 0
+
 def p_verify_param(p):
 	'''
 	verify_param	: empty
 	'''
+	global curr_obj, dirFunc, programName, funcCalled
+	class_name = None
 	argument = quadruple.get_pilaO_stack().pop()
 	argument_type = quadruple.get_pilaTypes_stack().pop()
-	# print(argument)
 
 	# Verify types
-	real_param_type = currentParamTable[paramCounter - 1]
+	try:
+		real_param_type = currentParamTable[paramCounter - 1]
+	except:
+		raise SemanticError(f"Type mismatched incorrect number of params for {funcCalled}")
+
+	if(curr_obj):
+		class_name = dirFunc[programName]['table'][curr_obj]['type']
+
 	if(argument_type == real_param_type):
-		quadruple.generateQuad("PARAMETER", argument, None, paramCounter)
-	
+		quadruple.generateQuad("PARAMETER", argument, class_name, paramCounter)
+
 	else:
 		raise SemanticError(f"Type mismatched argument {paramCounter} is not of type {real_param_type}")
-
-		print(f"Semantic error: Firma incorrecta, arugmento {paramCounter} no es de tipo {real_param_type}")
-		exit()
 
 def p_next_param(p):
 	'''
@@ -1111,32 +1103,50 @@ def p_verify_params_coherency(p):
 	'''
 	verify_params_coherency	: empty
 	'''
-	global funcCalled, programName, globalVars, dirFunc, programName, currentFunctionxw
+	global funcCalled, programName, globalVars, dirFunc, programName, currentFunction, inObject, curr_obj
 	
+	if (curr_obj): # IF FUNCTION CALL IS FROM AM OBJECT
+		class_name = dirFunc[programName]['table'][curr_obj]['type']
+		curr_func = dirFunc[class_name]['functions'][funcCalled]
+		paramsTable = curr_func['paramsTable']
+		if(len(paramsTable) != paramCounter):
+			raise SemanticError(f"Type mismatched incorrect number of params for {funcCalled}")
+		quadruple.generateQuad( "GOSUB", funcCalled, None, curr_func['startAtQuad'] )
+		curr_func_type = dirFunc[class_name]['functions'][funcCalled]['type']
+		# Parche guadalupano
+		if(curr_func_type != 'void'):
+			print("No soy void")
+
+		# Swap to original addresses of class
+		for key in dirFunc[class_name]['table']:
+			quadruple.generateQuad("=",dirFunc[class_name]['table'][key]['address'] , None, dirFunc[programName]['table'][curr_obj]['address'][key]['address'] )
+
+		curr_obj = None # stops using curr_obj
+
+
 	# Check if table of params is empty
-	paramsTable = dirFunc[funcCalled]['paramsTable']
-	if(len(paramsTable) != paramCounter):
-		raise SemanticError(f"Type mismatched incorrect number of params for {funcCalled}")
-
-		print("Semantic Error: Numero de parametros incorrecto")
-		exit()
-		
 	else:
-		quadruple.generateQuad("GOSUB", funcCalled, None, dirFunc[funcCalled]['startAtQuad'])
-		funcCalledType = dirFunc[funcCalled]["type"]
-		# Parche guadulupano
-		if(funcCalledType != 'void'):
-			if (programName == currentFunction):
-				va = virtualAddress.setAddress(funcCalledType, 'tempGlobal')
-			else:
-				va = virtualAddress.setAddress(funcCalledType, 'tempLocal') # FUNCTION CALLS INSIDE FUNCTIONS
-			# Get address of function
-			func_return_va = globalVars[funcCalled]['address']
+		paramsTable = dirFunc[funcCalled]['paramsTable']
+		if(len(paramsTable) != paramCounter):
+			raise SemanticError(f"Type mismatched incorrect number of params for {funcCalled}")
+		else:
+			if(paramCounter > 0):
+				#Dont generate gosub is a function with no params
+				quadruple.generateQuad("GOSUB", funcCalled, None, dirFunc[funcCalled]['startAtQuad'])
+				funcCalledType = dirFunc[funcCalled]["type"]
+				# Parche guadulupano
+				if(funcCalledType != 'void'):
+					if (programName == currentFunction):
+						va = virtualAddress.setAddress(funcCalledType, 'tempGlobal')
+					else:
+						va = virtualAddress.setAddress(funcCalledType, 'tempLocal') # FUNCTION CALLS INSIDE FUNCTIONS
+					# Get address of function
+					func_return_va = globalVars[funcCalled]['address']
 
-			quadruple.generateQuad("=", func_return_va, None, va)
-			quadruple.push_pilaO(va)
-			quadruple.push_pTypes(funcCalledType)
-			quadruple.counter += 1
+					quadruple.generateQuad("=", func_return_va, None, va)
+					quadruple.push_pilaO(va)
+					quadruple.push_pTypes(funcCalledType)
+					quadruple.counter += 1
 
 def p_gosub_no_params(p):
 	'''
@@ -1278,9 +1288,6 @@ def p_verify_dim(p):
 
 		else:
 			raise SemanticError(f"Type mismatched {arr_id} is not an array")
-
-			print(f"Semantic Error: {arr_id} is not an array")
-			exit()
 	# Check global
 	elif(arr_id in dirFunc[programName]['table']):
 		if('dim' in dirFunc[programName]['table'][arr_id]):
@@ -1293,15 +1300,9 @@ def p_verify_dim(p):
 
 		else:
 			raise SemanticError(f"Type mismatched {arr_id} is not an array")
-			print(f"Semantic Error: {arr_id} is not an array")
-			exit()
 
 	else:
 		raise SemanticError(f"Undeclared variable {arr_id}")
-		print(f"Semantic Error: Variable {arr_id} no declarada")
-		exit()
-
-
 
 def p_add_verify(p):
 	'''
@@ -1323,17 +1324,12 @@ def p_add_verify(p):
 		elif(curr_dim > 1 and len(dirFunc[currentFunction]['table'][curr_id]['dim']) != 2 ):
 			raise SemanticError(f"Type mismatched {curr_id} is not a matrix")
 
-			print(f"Semantic Error: accesando indice de arreglo no existente")
-			exit()
-
 	elif(curr_id in dirFunc[programName]['table']):
 		if(curr_dim > 1 and len(dirFunc[programName]['table'][curr_id]['dim']) == 2):
 			curr_node = dirFunc[programName]['table'][curr_id]['dim'][1]
 
 		elif(curr_dim > 1 and len(dirFunc[programName]['table'][curr_id]['dim']) != 2 ):
 			raise SemanticError(f"Type mismatched {curr_id} is not a matrix")
-			print(f"Semantic Error: accesando indice de arreglo no existente")
-			exit()
 
 	access_value = quadruple.pilaO_top()
 	l_sup = curr_node['l_sup']

@@ -5,7 +5,7 @@ object Car {
     var int year, price;
 
    functions
-   function void calc() {
+   function void calc(int a) {
        var int x, y, z;
        x = 21;
        year = 2022;
@@ -18,25 +18,26 @@ var Car mazda;
 var int x;
 
 functions
-function void hello() {
+function void hello(int a) {
     write("Hello world");
     write("\n");
 }
 
 main {
-    ford.price = 3;
+    ford.price = 8;
     ford.year = 0;
 
     mazda.year = 0;
     mazda.price = 4;
 
-    hello();
+    ford:calc(4);
 
-    ford:calc();
     write(ford.price);
+    write("\n");
 
-    mazda:calc();
+    mazda:calc(4);
 
-     hello();
+    write(mazda.price);
+    write("\n");
 
 }; 
