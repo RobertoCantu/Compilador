@@ -313,6 +313,7 @@ def p_estatutos(p):
 					| for_loop
 					| while_loop
 					| llamada_void
+					| object_function_call
 	'''
 
 def p_llamada(p):
@@ -337,6 +338,12 @@ def p_llamada_void2(p):
 	'''
 	llamada_void2	: add_fake_bottom exp pop_fake_bottom verify_param
 					| add_fake_bottom exp pop_fake_bottom verify_param COMMA next_param llamada_void2
+	'''
+
+def p_object_function_call(p):
+	'''
+	object_function_call	: ID COLON add_curr_obj ID LPAREN func_exists_create_era llamada_void2 RPAREN SEMICOLON
+							| ID COLON add_curr_obj ID LPAREN func_exists_create_era RPAREN gosub_no_params SEMICOLON
 	'''
 
 def p_asignacion(p):
@@ -499,7 +506,7 @@ def p_id_seen(p):
 		if(currentFunction == programName):
 			curr_func['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'global'), 'isObject': False}
 		elif(curr_func['type'] == 'object'):
-			curr_func['table'][varID] = {'name': varID, 'type': currentType}
+			curr_func['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'local'), 'isObject': False }
 		else:
 			curr_func['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'local'), 'isObject': False} # Don't know
 
@@ -555,13 +562,11 @@ def p_add_id(p):
 
 	varID = p[-1]
 
-
-	# Que HORROR, tiene mucho para refactorizar
-	# MEMORIA QUE SEA SOLO PARA OBJETOS ? COMO HABIAS DICHO
-	# AL MOMENTO DE CREAR UN OBJETO SE SE REUTILIZAN DIRECCIONES, ES PROBABLEMENTE NECESARIO PARA PODER LLAMAR LAS VARIABLES GLOBALES DE LAS FUNCIONES
 	if (inObject):
-		# LOCALS INSIDE FUNCTION OF OBJECT
+		# LOCALS INSIDE FUNCTION INSIDE OBJECT
 		if (varID in dirFunc[curr_class]['functions'][currentFunction]['table']):
+
+			curr_func_table = dirFunc[curr_class]['functions'][currentFunction]['table']
 
 			address = dirFunc[curr_class]['functions'][currentFunction]['table'][varID]["address"]
 			var_type = dirFunc[curr_class]['functions'][currentFunction]['table'][varID]["type"]
@@ -569,9 +574,18 @@ def p_add_id(p):
 			quadruple.push_pTypes(var_type) # Add type of id to type stack
 			quadruple.push_pilaO(address) # Add address to operands stack
 
-		# GLOBALS INSIDE OBJECT
-		# EL PROBLEMA ES SABER CUALES DIRECIONES USAR, YA QUE MUCHOS OBJETOS PUEDEN LLAMAR A ESTA FUNCION Y ESOS PUEDEN SER SUS VARIABLES GLOBALES
-		else: 
+		# ATTRIBUTES DEFINED IN OBJECT
+		elif(varID in dirFunc[curr_class]['table']):
+
+			curr_func_table = dirFunc[curr_class]['table']
+
+			address = curr_func_table[varID]["address"]
+			var_type = curr_func_table[varID]["type"]
+
+			quadruple.push_pTypes(var_type) # Add type of id to type stack
+			quadruple.push_pilaO(address) # Add address to operands stack
+
+		else:
 			raise SemanticError(f"Undeclared variable {varID}")
 	else: 
 		# Look in locals
@@ -579,8 +593,8 @@ def p_add_id(p):
 			if(dirFunc[currentFunction]['table'][varID]['isObject'] == True):
 				#This is an object
 				curr_obj = p[-1]
-				print('here')
 			else:
+				curr_func =  dirFunc[currentFunction]['table']
 				address = dirFunc[currentFunction]['table'][varID]["address"]
 				var_type = dirFunc[currentFunction]['table'][varID]["type"]
 				quadruple.push_pTypes(var_type) # Add type of id to type stack
@@ -592,12 +606,15 @@ def p_add_id(p):
 				#This is an object
 				curr_obj = p[-1]
 			else:
+				curr_func = dirFunc[programName]['table']
 				address = dirFunc[programName]['table'][varID]["address"]
 				var_type = dirFunc[programName]['table'][varID]["type"]
 				quadruple.push_pTypes(var_type) # Add type of id to type stack
 				quadruple.push_pilaO(address) # Add address to operands stack
 		else:
 			raise SemanticError(f"Undeclared variable {varID}")
+		
+
 
 def p_add_id_obj(p):
 	'''
@@ -607,9 +624,6 @@ def p_add_id_obj(p):
 	global currentFunction, globalVars, dirFunc, programName, curr_obj, curr_class
 
 	varID = p[-1]
-
-	print(curr_obj)
-	print(varID)
 
 	obj_vars = dirFunc[currentFunction]['table'][curr_obj]['address']
 
@@ -622,6 +636,9 @@ def p_add_id_obj(p):
 	else:
 		raise SemanticError(f"Type mismatched class {curr_obj} does not have an attribute named {varID}")
 	
+	curr_obj = None
+
+
 def p_add_param(p):
 	'''
 	add_param	: empty
@@ -1022,25 +1039,33 @@ def p_func_exists_create_era(p):
 	'''
 	func_exists_create_era : empty
 	'''
-	global funcCalled
-	global dirFunc
-	global paramCounter
-	global currentParamTable
+	global funcCalled, dirFunc, paramCounter, currentParamTable, curr_obj, programName
 
 	funcName = p[-2]
 
-	if(funcName in dirFunc):
+	if (curr_obj): # CALL FROM FUNCTION OBJECT
+		class_name = dirFunc[programName]['table'][curr_obj]['type']
+
+		if (funcName in dirFunc[class_name]['functions']):
+			funcCalled = funcName
+			curr_func = dirFunc[class_name]['functions'][funcName]
+		else:
+			raise SemanticError(f"Undeclared variable {funcName}")
+
+	elif(funcName in dirFunc): # NORMAL FUNCTION CALL
 		funcCalled = funcName
-	
+		curr_func = dirFunc[funcCalled]
 	else:
 		raise SemanticError(f"Undeclared variable {funcName}")
-
-		print(f'Semantic Error: Funcion {funcName}, no declarada')
-		exit()
 	
-	quadruple.generateQuad("ERA", funcCalled, None, None)
+	if (curr_obj): 
+		quadruple.generateQuad("ERA", funcCalled, None, class_name)
+	else: 
+		quadruple.generateQuad("ERA", funcCalled, None, None)
+
 	paramCounter = 1
-	currentParamTable = dirFunc[funcCalled]["paramsTable"]
+
+	currentParamTable = curr_func["paramsTable"]
 
 def p_verify_param(p):
 	'''
@@ -1072,9 +1097,7 @@ def p_verify_params_coherency(p):
 	'''
 	verify_params_coherency	: empty
 	'''
-	global funcCalled, programName, globalVars
-	global dirFunc
-	global programName, currentFunctionxw
+	global funcCalled, programName, globalVars, dirFunc, programName, currentFunctionxw
 	
 	# Check if table of params is empty
 	paramsTable = dirFunc[funcCalled]['paramsTable']
@@ -1105,8 +1128,18 @@ def p_gosub_no_params(p):
 	'''
 	gosub_no_params	: empty
 	'''
-	quadruple.generateQuad("GOSUB", funcCalled, None, dirFunc[funcCalled]['startAtQuad'])
-	funcCalledType = dirFunc[funcCalled]["type"]
+	global curr_obj, funcCalled, programName
+
+	if (curr_obj): # IF FUNCTION CALL IS FROM AM OBJECT
+		class_name = dirFunc[programName]['table'][curr_obj]['type']
+		curr_func = dirFunc[class_name]['functions'][funcCalled]
+		quadruple.generateQuad( "GOSUB", funcCalled, None, curr_func['startAtQuad'] )
+	else: 
+		curr_func = dirFunc[funcCalled]
+		quadruple.generateQuad("GOSUB", funcCalled, None, curr_func['startAtQuad'])
+
+	funcCalledType = curr_func["type"]
+
 	# Parche guadulupano
 	if(funcCalledType != 'void'):
 
@@ -1121,6 +1154,9 @@ def p_gosub_no_params(p):
 		quadruple.push_pilaO(va)
 		quadruple.push_pTypes(funcCalledType)
 		quadruple.counter += 1
+	
+
+	curr_obj = None # stops using curr_obj
 
 	
 def p_add_to_global_vars(p):
@@ -1403,6 +1439,13 @@ def p_object_end(p):
 	curr_class = None
 	inObject = False
 
+def p_add_curr_obj(p):
+	'''
+	add_curr_obj	: empty
+	'''
+	global curr_obj
+
+	curr_obj = p[-2]
 
 ################ END OF NEURAL POINTS ################
 

@@ -9,6 +9,7 @@ object Car {
    function void calc() {
        var int x, y, z;
        x = 21;
+       year = 2022;
        write(x);
    }
 };
@@ -17,10 +18,21 @@ var Car ford;
 var Car mazda;
 var int x;
 
+functions
+function void hello() {
+    write("Hello world");
+}
+
 main {
     ford.price = 3;
     mazda.price = 4;
     ford.cost = 22000.2;
+
+    hello();
+
+    ford:calc();
+
+     hello();
 
     write(ford.price + mazda.price);
     write(ford.cost);

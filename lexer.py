@@ -27,6 +27,7 @@ reserved = {
     'function': 'FUNCTION',
     'functions': 'FUNCTIONS',
     'do': 'DO',
+    'func': 'FUNC',
 }
 
 # List of token names.   This is always required

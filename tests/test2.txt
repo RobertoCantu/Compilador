@@ -1,6 +1,7 @@
 program test_;
 
 var int y, z, b, c;
+var char x;
 
 functions
 function void bark(int g){
@@ -11,16 +12,20 @@ function void bark(int g){
 }
 
 main {
+    z = 3;
     y = z + 1;
     b = 22 * 3;
+    c = 4;
+    x = "a";
 
     if(c < 10) {
         y = 12; 
+        write(x);
     } else {
         y = 22; 
     };
 
-    c = (22+3) + 1;
+    c = (22 + 3) + 1;
 
     write(22*3);
 };
