@@ -3,14 +3,13 @@ program objs_;
 objects
 object Car {
     var int year, price;
-    var float cost;
 
    functions
    function void calc() {
        var int x, y, z;
        x = 21;
        year = 2022;
-       write(x);
+       price = price + 1;
    }
 };
 
@@ -21,19 +20,23 @@ var int x;
 functions
 function void hello() {
     write("Hello world");
+    write("\n");
 }
 
 main {
     ford.price = 3;
+    ford.year = 0;
+
+    mazda.year = 0;
     mazda.price = 4;
-    ford.cost = 22000.2;
 
     hello();
 
     ford:calc();
+    write(ford.price);
+
+    mazda:calc();
 
      hello();
 
-    write(ford.price + mazda.price);
-    write(ford.cost);
 }; 

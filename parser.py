@@ -498,6 +498,10 @@ def p_id_seen(p):
 			curr_func = dirFunc[curr_class]['functions'][currentFunction]
 	else: 
 		curr_func = dirFunc[currentFunction]
+
+	print()
+	print("Aquii")
+	print(curr_func)
 	
 
 	if(varID in curr_func["table"]):
@@ -506,7 +510,7 @@ def p_id_seen(p):
 		if(currentFunction == programName):
 			curr_func['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'global'), 'isObject': False}
 		elif(curr_func['type'] == 'object'):
-			curr_func['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'local'), 'isObject': False }
+			curr_func['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'global'), 'isObject': False }
 		else:
 			curr_func['table'][varID] = {'name': varID, 'type': currentType, 'address': virtualAddress.setAddress(currentType, 'local'), 'isObject': False} # Don't know
 
@@ -1049,6 +1053,14 @@ def p_func_exists_create_era(p):
 		if (funcName in dirFunc[class_name]['functions']):
 			funcCalled = funcName
 			curr_func = dirFunc[class_name]['functions'][funcName]
+
+			# Create swapping between original class address with instance
+			curr_func_vars = curr_func['table']
+			print()
+			print("Lol")
+			print(dirFunc[class_name]['table'])
+			print(dirFunc[programName]['table'][curr_obj]['address'])
+			print()
 		else:
 			raise SemanticError(f"Undeclared variable {funcName}")
 
@@ -1060,6 +1072,8 @@ def p_func_exists_create_era(p):
 	
 	if (curr_obj): 
 		quadruple.generateQuad("ERA", funcCalled, None, class_name)
+		for key in dirFunc[class_name]['table']:
+			quadruple.generateQuad("=", dirFunc[programName]['table'][curr_obj]['address'][key]['address'], None,  dirFunc[class_name]['table'][key]['address'])
 	else: 
 		quadruple.generateQuad("ERA", funcCalled, None, None)
 
@@ -1134,6 +1148,10 @@ def p_gosub_no_params(p):
 		class_name = dirFunc[programName]['table'][curr_obj]['type']
 		curr_func = dirFunc[class_name]['functions'][funcCalled]
 		quadruple.generateQuad( "GOSUB", funcCalled, None, curr_func['startAtQuad'] )
+	
+		# Swap to original addresses of class
+		for key in dirFunc[class_name]['table']:
+			quadruple.generateQuad("=",dirFunc[class_name]['table'][key]['address'] , None, dirFunc[programName]['table'][curr_obj]['address'][key]['address'] )
 	else: 
 		curr_func = dirFunc[funcCalled]
 		quadruple.generateQuad("GOSUB", funcCalled, None, curr_func['startAtQuad'])
@@ -1501,5 +1519,5 @@ if __name__ == '__main__':
 
 	
 	print('========================================')
-	subprocess.call(['python3', 'VirtualMachine.py'])
+	subprocess.call(['python', 'VirtualMachine.py'])
 	print('========================================')

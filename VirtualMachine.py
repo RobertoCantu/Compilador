@@ -496,15 +496,21 @@ class VirtualMachine():
         # Obtain name of function
         function_name = curr_quad[1]
 
+        # Look if function is global or inside a class
+        if(curr_quad[3] != None):
+          class_name = curr_quad[3]
+          curr_func = dirFunc[class_name]['functions'][function_name]
+        else:
+          curr_func = dirFunc[function_name]
         # Obtain required locals
-        locals = dirFunc[function_name]['localsUsed']
+        locals = curr_func['localsUsed']
         ints = locals['int']
         floats = locals['float']
         chars = locals['char']
         bools = locals['bool']
 
         # Obtain required temp locals
-        temp_locals = dirFunc[function_name]['usedTemp']
+        temp_locals = curr_func['usedTemp']
         ints_temp = temp_locals['int']
         floats_temp = temp_locals['float']
         chars_temp = temp_locals['char']
