@@ -1,0 +1,50 @@
+program objs_;
+
+objects
+object Fib {
+  var int a;
+
+  functions
+  function int iterative(int n){
+    var int i, prevPrevNumber, prevNumber, currNumber;
+    prevNumber = 0;
+    currNumber = 1;
+
+    for i = 1 to n do {
+      prevPrevNumber = prevNumber;
+      prevNumber = currNumber;
+      currNumber = prevPrevNumber + prevNumber;
+    }; 
+
+    return (currNumber);
+  }
+
+  function int recursive(int n) {
+
+      var int ret;
+
+      if(n <= 1) {
+          ret = n;
+      } else {
+          ret = recursive(n - 1) + recursive(n - 2);
+      };
+
+      return (ret);
+  }
+};
+
+var int a, res;
+var Fib b;
+
+main {
+
+     a = b:iterative(5);
+     
+     write(a, "\n");
+
+    res = b:recursive(10);
+
+    write(res, "\n");
+
+
+}; 

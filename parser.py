@@ -866,14 +866,20 @@ def p_for_store_id(p):
 	'''
 	for_store_id		: empty
 	'''
-	global currentFunction
-	global dirFunc
-	global programName
+	global currentFunction, dirFunc, programName, inObject, curr_class
 
 	v_control = p[-1]
 
 	# Check it exists in local function if not checks in global and is a numerical var
-	if ( v_control in dirFunc[currentFunction]['table']):
+
+	if(inObject):
+		if (v_control in dirFunc[curr_class]['functions'][currentFunction]['table']):
+			v_type = dirFunc[curr_class]['functions'][currentFunction]['table'][v_control]['type']
+			v_control_va =  dirFunc[curr_class]['functions'][currentFunction]['table'][v_control]['address']
+		else:
+			raise SemanticError(f"Undeclared variable {v_control}")
+
+	elif ( v_control in dirFunc[currentFunction]['table']):
 
 		v_type = dirFunc[currentFunction]['table'][v_control]['type']
 		v_control_va =  dirFunc[currentFunction]['table'][v_control]['address']
@@ -1033,11 +1039,19 @@ def p_func_exists_create_era(p):
 	'''
 	func_exists_create_era : empty
 	'''
-	global funcCalled, dirFunc, paramCounter, currentParamTable, curr_obj, programName
+	global funcCalled, dirFunc, paramCounter, currentParamTable, curr_obj, programName, inObject, curr_class
 
 	funcName = p[-2]
+	if (inObject):
+		print(curr_class)
+		if(funcName in dirFunc[curr_class]['functions']):
+			funcCalled = funcName
+			curr_func = dirFunc[curr_class]['functions'][funcName]
 
-	if (curr_obj): # CALL FROM FUNCTION OBJECT
+		else:
+			raise SemanticError(f"Undeclared variable {funcName}")
+		
+	elif (curr_obj): # CALL FROM FUNCTION OBJECT
 		class_name = dirFunc[programName]['table'][curr_obj]['type']
 		if (funcName in dirFunc[class_name]['functions']):
 			funcCalled = funcName
@@ -1056,8 +1070,12 @@ def p_func_exists_create_era(p):
 	
 	if (curr_obj): 
 		quadruple.generateQuad("ERA", funcCalled, None, class_name)
+		# Address swap between class attr and object instance
 		for key in dirFunc[class_name]['table']:
 			quadruple.generateQuad("=", dirFunc[programName]['table'][curr_obj]['address'][key]['address'], None,  dirFunc[class_name]['table'][key]['address'])
+	elif(inObject):
+		quadruple.generateQuad("ERA", funcCalled, None, curr_class)
+
 	else: 
 		quadruple.generateQuad("ERA", funcCalled, None, None)
 
@@ -1077,7 +1095,7 @@ def p_verify_param(p):
 	'''
 	verify_param	: empty
 	'''
-	global curr_obj, dirFunc, programName, funcCalled
+	global curr_obj, dirFunc, programName, funcCalled, inObject, curr_class
 	class_name = None
 	argument = quadruple.get_pilaO_stack().pop()
 	argument_type = quadruple.get_pilaTypes_stack().pop()
@@ -1088,7 +1106,9 @@ def p_verify_param(p):
 	except:
 		raise SemanticError(f"Type mismatched incorrect number of params for {funcCalled}")
 
-	if(curr_obj):
+	if(inObject):
+		class_name = curr_class
+	elif(curr_obj):
 		class_name = dirFunc[programName]['table'][curr_obj]['type']
 
 	if(argument_type == real_param_type):
@@ -1108,9 +1128,30 @@ def p_verify_params_coherency(p):
 	'''
 	verify_params_coherency	: empty
 	'''
-	global funcCalled, programName, globalVars, dirFunc, programName, currentFunction, inObject, curr_obj
+	global funcCalled, programName, globalVars, dirFunc, programName, currentFunction, inObject, curr_obj, curr_class
 	
-	if (curr_obj): # IF FUNCTION CALL IS FROM AM OBJECT
+	if(inObject):
+		curr_func = dirFunc[curr_class]['functions'][funcCalled]
+		paramsTable = curr_func['paramsTable']
+		if(len(paramsTable) != paramCounter):
+			raise SemanticError(f"Type mismatched incorrect number of params for {funcCalled}")
+		quadruple.generateQuad( "GOSUB", funcCalled, None, curr_func['startAtQuad'] )
+		curr_func_type = curr_func['type']
+		# Parche guadalupano
+		if(curr_func_type != 'void'):
+			if (programName == currentFunction):
+				va = virtualAddress.setAddress(curr_func_type, 'tempGlobal')
+			else:
+				va = virtualAddress.setAddress(curr_func_type, 'tempLocal') # FUNCTION CALLS INSIDE FUNCTIONS
+			# Get address of function
+			func_return_va = globalVars[funcCalled]['address']
+
+			quadruple.generateQuad("=", func_return_va, None, va)
+			quadruple.push_pilaO(va)
+			quadruple.push_pTypes(curr_func_type)
+			quadruple.counter += 1
+	
+	elif (curr_obj): # IF FUNCTION CALL IS FROM AM OBJECT
 		class_name = dirFunc[programName]['table'][curr_obj]['type']
 		curr_func = dirFunc[class_name]['functions'][funcCalled]
 		paramsTable = curr_func['paramsTable']
