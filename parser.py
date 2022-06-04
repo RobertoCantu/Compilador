@@ -144,6 +144,7 @@ def p_objects_(p):
 def p_objects_1(p):
 	'''
 	objects_1		: OBJECT ID add_object_id LBRACKET vars_ funciones RBRACKET SEMICOLON object_end objects_1
+					| OBJECT ID INHERITS ID parent_class LBRACKET vars_ funciones RBRACKET SEMICOLON object_end objects_1
 					| empty
 	'''
 
@@ -954,8 +955,6 @@ def p_func_add_return(p):
 
 	varName = p[-2]
 	varType = p[-3]
-	print("wwwwwwwwwwwwwwwwt")
-	print(globalVars)
 
 	# CHECK GLOBAL VARS
 	if (varName in globalVars):
@@ -980,9 +979,6 @@ def p_func_return(p):
 	# CHECK RETURN VALUE IS EQUAL TO TYPE OF FUNCTION
 	retVar = quadruple.pilaO.pop()
 	retVarType = quadruple.pTypes.pop()
-	print()
-	print(globalVars)
-	print("que rayos pasa")
 
 	try:
 		retType = SEMANTIC[funcVarType][retVarType]['=']
@@ -1043,8 +1039,6 @@ def p_func_exists_create_era(p):
 
 	if (curr_obj): # CALL FROM FUNCTION OBJECT
 		class_name = dirFunc[programName]['table'][curr_obj]['type']
-		print()
-		print(dirFunc[class_name])
 		if (funcName in dirFunc[class_name]['functions']):
 			funcCalled = funcName
 			curr_func = dirFunc[class_name]['functions'][funcName]
@@ -1126,10 +1120,6 @@ def p_verify_params_coherency(p):
 		curr_func_type = dirFunc[class_name]['functions'][funcCalled]['type']
 		# Parche guadalupano
 		if(curr_func_type != 'void'):
-			print()
-			print("No soy void")
-			print(funcCalled)
-			print(globalVars)
 			if (programName == currentFunction):
 				va = virtualAddress.setAddress(curr_func_type, 'tempGlobal')
 			else:
@@ -1218,10 +1208,6 @@ def p_add_to_global_vars(p):
 	add_to_global_vars 		: empty
 	'''
 	global currentFunction, dirFunc, globalVars
-	# print("aqui ando ahora si")
-	# print()
-	# print(currentFunction)
-	# globalVars = dirFunc[currentFunction]['table']
 
 def p_is_array(p):
 	'''
@@ -1488,6 +1474,29 @@ def p_add_curr_obj(p):
 	global curr_obj
 
 	curr_obj = p[-2]
+
+def p_parent_class(p):
+	'''
+	parent_class	: empty
+	'''
+	global dirFunc, currentFunction, programName, inObject, curr_class
+
+	parent_class = p[-1]
+	new_class = p[-3]
+
+	if(parent_class in dirFunc):
+		if(new_class in dirFunc):
+			raise SemanticError("Naming collisions multiple declaration of object")
+		
+		parent_class_vars_table = dirFunc[parent_class]['table']
+		parent_class_funcs = dirFunc[parent_class]['functions']
+		dirFunc[new_class] = {'name': new_class, 'type': 'object', 'table': parent_class_vars_table, 'functions': parent_class_funcs, 'paramsTable': None }
+		currentFunction = new_class
+		curr_class = new_class
+		inObject = True
+
+	else:
+		raise SemanticError(f"Class {parent_class} does not exist")
 	
 ################ END OF NEURAL POINTS ################
 

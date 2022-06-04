@@ -7,7 +7,7 @@ object SuperCar {
 
 };
 
-object Car {
+object Car inherits SuperCar {
     var int year, price;
 
    functions
@@ -60,6 +60,10 @@ main {
     x = mazda:china(5);
 
     write(x);
+    write("\n");
+
+    mazda.color = 100;
+    write(mazda.color);
     write("\n");
 
 }; 
