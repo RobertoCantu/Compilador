@@ -90,26 +90,15 @@ class Quadruple:
 
         try:
             res_type = SEMANTIC[l_type][r_type][operator]
-
             self.pTypes.append(res_type)
-
             r_operand = self.pilaO.pop()
             l_operand = self.pilaO.pop()
-
             va = virtualAddress.setAddress(res_type, f'temp{location}')
-
-            # print(f"{operator}, {l_operand}, {r_operand}, t{self.counter}")
-            # self.generateQuad(operator, l_operand, r_operand, self.counter)
-            # self.pilaO.append(self.counter)
-            # self.increment_counter()
-
             self.generateQuad(operator, l_operand, r_operand, va)
             self.pilaO.append(va)
 
         except:
             raise SemanticError("Type mismatched")
-            print('Error in operator')
-            exit()
     
     # When the call is returned, it creates an quadruple with equal. 
     def found_equal(self):
@@ -120,17 +109,11 @@ class Quadruple:
 
         try:
             res_type = SEMANTIC[l_type][r_type][operator]
-
             r_operand = self.pilaO.pop()
             l_operand = self.pilaO.pop()
-
-            # print(f"{operator}, t{r_operand}, null, {l_operand}")
             self.generateQuad(operator, r_operand, None, l_operand)
         except:
             raise SemanticError("Type mismatched")
-
-            print('Error in equal')
-            exit()
 
     # QUADRUPLE GENERATION AND FILL FUNCTIONS (GOTOs)
     def generateQuad(self, operator, left_operand, right_operand, result):
@@ -145,12 +128,7 @@ class Quadruple:
     def createIf(self, tag):
         if(self.pTypes.pop() != "bool"): 
             raise SemanticError("Type mismatched expected a boolean exp")
-
-            print('Expected boolean exp')
-            exit()
-
         oper = self.pilaO.pop()
-        
         self.pSaltos.append(self.quad_counter)
         self.generateQuad(tag, oper, None, None)
 
@@ -183,7 +161,6 @@ class Quadruple:
         v_control = self.pilaO_top()
         v_control_type = self.pTypes_top()
 
-        # NO SEGURO SI DEJAR O BORRAR
         self.pilaO.append(v_control) # Para poder luego incrementarla
         self.pTypes.append(v_control_type) # Para poder luego incrementarla
 
@@ -198,8 +175,6 @@ class Quadruple:
 
         if not(numerical(exp_type)):
             raise SemanticError(f"Type mismatched {exp_type} is not numeric")
-            print(f"Variable \"{exp_type}\" no numerica ")
-            exit()
         
         # CREATE v_final
         v_final_va = virtualAddress.setAddress(exp_type, f'temp{location}')
@@ -209,27 +184,15 @@ class Quadruple:
         v_control = self.pilaO_top()
         va = virtualAddress.setAddress('bool', f'temp{location}')
 
-        # self.generateQuad('<', v_control, 'v_final', self.counter)
-        # self.increment_counter()
         self.generateQuad('<', v_control, v_final_va, va)
-
         self.pSaltos.append(self.quad_counter-1)
-        # self.generateQuad('GOTOF', self.counter - 1, None, None)
         self.generateQuad('GOTOF', va , None, None)
-        
         self.pSaltos.append(self.quad_counter-1)
     
     # for loop end
     def for_end(self, location, address_one):
         v_control = self.pilaO.pop()
         v_control_type = self.pTypes.pop()
-
-        # USING COUNTER
-        # self.generateQuad('+', v_control, 1, self.counter) 
-        # self.generateQuad('=', self.counter, None, v_control)
-        # self.generateQuad('=', self.counter, None, self.pilaO_top())
-        # self.increment_counter()
-
         va = virtualAddress.setAddress('bool', f'temp{location}')
 
         # USING VIRTUAL ADDRESS
@@ -246,9 +209,6 @@ class Quadruple:
         # ELIM COUNTER
         self.pilaO.pop()
         self.pTypes.pop()
-
-
-        
 
 ################ AUX FUNCTIONS ################
 def numerical(val):
