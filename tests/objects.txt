@@ -66,4 +66,7 @@ main {
     write(mazda.color);
     write("\n");
 
+    write("hola Mundo");
+    write("\n");
+
 }; 

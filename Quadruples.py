@@ -125,7 +125,7 @@ class Quadruple:
             l_operand = self.pilaO.pop()
 
             # print(f"{operator}, t{r_operand}, null, {l_operand}")
-            self.generateQuad(operator, r_operand, 'empty', l_operand)
+            self.generateQuad(operator, r_operand, None, l_operand)
         except:
             raise SemanticError("Type mismatched")
 
