@@ -1,6 +1,12 @@
 program objs_;
 
 objects
+
+object SuperCar {
+    var int color;
+
+};
+
 object Car {
     var int year, price;
 
@@ -51,6 +57,9 @@ main {
     mazda:area(88);
     write("\n");
 
-    mazda:china(5);
+    x = mazda:china(5);
+
+    write(x);
+    write("\n");
 
 }; 

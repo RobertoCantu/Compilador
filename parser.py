@@ -288,6 +288,7 @@ def p_f(p):
 				| CTEF add_float
 				| CTESTRING add_str
 				| llamada
+				| object_function_call
 				| variable
 				| LPAREN add_fake_bottom exp pop_fake_bottom RPAREN
 	'''
@@ -313,7 +314,7 @@ def p_estatutos(p):
 					| for_loop
 					| while_loop
 					| llamada_void
-					| object_function_call
+					| object_function_call_void
 	'''
 
 def p_llamada(p):
@@ -340,10 +341,15 @@ def p_llamada_void2(p):
 					| add_fake_bottom exp pop_fake_bottom verify_param COMMA next_param llamada_void2
 	'''
 
+def p_object_function_call_void(p):
+	'''
+	object_function_call_void	: ID COLON add_curr_obj ID LPAREN func_exists_create_era llamada_void2 RPAREN verify_params_coherency SEMICOLON
+							| ID COLON add_curr_obj ID LPAREN func_exists_create_era RPAREN  gosub_no_params SEMICOLON
+	'''
 def p_object_function_call(p):
 	'''
-	object_function_call	: ID COLON add_curr_obj ID LPAREN func_exists_create_era llamada_void2 RPAREN verify_params_coherency SEMICOLON
-							| ID COLON add_curr_obj ID LPAREN func_exists_create_era RPAREN  gosub_no_params SEMICOLON
+	object_function_call	: ID COLON add_curr_obj ID LPAREN func_exists_create_era llamada2 RPAREN verify_params_coherency
+							| ID COLON add_curr_obj ID LPAREN func_exists_create_era RPAREN  gosub_no_params
 	'''
 
 def p_asignacion(p):
@@ -1482,7 +1488,7 @@ def p_add_curr_obj(p):
 	global curr_obj
 
 	curr_obj = p[-2]
-
+	
 ################ END OF NEURAL POINTS ################
 
 
