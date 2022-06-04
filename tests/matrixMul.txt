@@ -9,13 +9,18 @@ main {
   r = 3;
   c = 3;
 
-
+  write("Llena la primera matriz");
+  write("\n");
   for i = 0 to r do {
       for j = 0 to c do {
         read(a[i][j]);
       };
       write("\n");
   };
+
+  write("Llena la segunda matriz");
+  write("\n");
+
 
   for i = 0 to r do {
       for j = 0 to c do {
@@ -33,6 +38,9 @@ main {
         };
       };
   };
+
+  write("El resultado de la multiplicacion de matrices es de: ");
+  write("\n");
 
   for i = 0 to r do {
       for j = 0 to c do {

@@ -36,9 +36,9 @@ var Factorial b;
 
 main {
 
-     a = b:iterative(5);
+    a = b:iterative(5);
      
-     write(a, "\n");
+    write(a, "\n");
 
     res = b:recursive(10);
 

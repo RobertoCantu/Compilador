@@ -51,14 +51,18 @@ class Memory():
 
 class VirtualMachine():
   def __init__(self):
-    self.global_memory = None
-    self.local_memory = []
+    self.global_memory = None # Data segment
+    self.local_memory = [] # Stack Segment
     self.curr_local_memory = []
-    self.extra_memory = []
+    self.extra_memory = [] # Extra Memory
 
+  # Parameters for this function are total global int, float, string, bool used in compilation
+  # Creates the global memory in the virtual machine
   def create_global_memory(self, int_size, float_size, string_size, bool_size):
     self.global_memory = Memory(int_size, float_size, string_size, bool_size )
 
+  # Parameters for this function are the directoy of constants from compilation and the total int, float, bool , string temporal global used in compilation
+  # Creates the extra memory in the virtual machine
   def create_extra_segment_memory(self, constant_table, int_global_temp_size, float_global_temp_size, string_global_temp_size, bool_global_temp_size, pointer_global_temp_size):
     const_mem = Memory()
     for key, value in constant_table.items():
@@ -83,6 +87,9 @@ class VirtualMachine():
     self.extra_memory.append(const_mem)
     self.extra_memory.append(temp_global_mem)
   
+  # This function receive as parameter the memory address and the value to insert
+  # This funcion insert the value to the correct space memory base on address range
+  # It does not return any value
   def insert_to_memory(self, address,value):
     # Globals logic
     # Insert global int
@@ -161,12 +168,11 @@ class VirtualMachine():
     elif(address >= 70000 and address <= 70999):
       self.extra_memory[1].insert(address - 70000, value, "pointer")
 
-  def get_val_from_memory(self, address, get_just_address= False):
+  # Parameters for this function is the memory adress
+  # Base on memory ranges it finds the correct memory where the value is located
+  # This function returns the value extracted from the correct memory space
+  def get_val_from_memory(self, address):
     # Global address range
-    # Hay que corregir esto, es un parche bien feo mientras
-    if(get_just_address):
-      return address
-
     # Globals logic
     # Return global int
     if(address >= 1000 and address <= 1999):
@@ -240,7 +246,7 @@ class VirtualMachine():
     elif(address >= 16000 and address <= 16999):
       return  self.curr_local_memory[1].return_memory_space("bool")[address - 16000]
       
-      # !!!!!!!!!!!!!!!! This is a local temp pointer
+    # Return Local temp pointer
     elif(address >= 71000 and address <= 71999):
       return  self.curr_local_memory[1].return_memory_space("pointer")[address - 71000]
 
@@ -278,10 +284,15 @@ class VirtualMachine():
     elif(address >= 12000 and address <= 12999):
       return  self.extra_memory[1].return_memory_space("bool")[address - 12000]
 
-    # !!!!!!!!!!!!!!!! This is a global temp pointer
+    # Return global temp pointer
     elif(address >= 70000 and address <= 70999):
       return  self.extra_memory[1].return_memory_space("pointer")[address - 70000]
 
+  # This function received as parameters the memory address and a boolean flag
+  # If the flag is turn on the function return the address, this is useful
+  # in cases such as in assigment operation
+  # This function is very useful for pointers because it allows double indexing
+  # If the flag is turn off it returns the value from the correct space memory
   def get_val(self, address, get_just_address= False):
     if(get_just_address):
       if(address >= 70000):
@@ -295,6 +306,8 @@ class VirtualMachine():
 
     return ret_value
 
+  # This function receive as parameter all que quadruples created in compilation
+  # All the logic of opearation code is hanlde in ths function
   def start_machine(self, quads):
     ip = 0
     checkpoint = []
@@ -305,13 +318,9 @@ class VirtualMachine():
     curr_quad = get_quad(quads, ip)
 
     while(curr_quad[0] != 'END'):
-      # print("Memoria local array: ", local_memory)
       curr_quad = get_quad(quads, ip)
 
-      # print(f'{ip}: {curr_quad}')
-      # print(global_memory.printMemory())
-
-      # Switch
+      # Big Switch
       # Assign
       if(curr_quad[0] == '='):
         val_to_assign = self.get_val(curr_quad[1]) 
@@ -331,7 +340,6 @@ class VirtualMachine():
           raise RuntimeError("Variable without value")
         ip +=1
 
-
       elif(curr_quad[0] == '-'):
         # print(curr_quad)
         left_value = self.get_val(curr_quad[1])
@@ -342,7 +350,6 @@ class VirtualMachine():
         except:
           raise RuntimeError("Variable without value")
         ip +=1
-
 
       elif(curr_quad[0] == '*'):
         left_value = self.get_val(curr_quad[1])
@@ -371,8 +378,6 @@ class VirtualMachine():
         left_value = self.get_val(curr_quad[1])
         right_value = self.get_val(curr_quad[2])
         temp_address = curr_quad[3]
-        # insert_to_memory(get_val(temp_address, True), left_value == right_value)
-
         self.insert_to_memory(temp_address, left_value == right_value)
         ip += 1
 
@@ -559,7 +564,7 @@ class VirtualMachine():
         self.insert_to_memory(address, argument_value)
         ip += 1
         
-      elif(curr_quad[0] == 'GOSUB'): # Need to asign ARGUMENTS  to PARAMETERS
+      elif(curr_quad[0] == 'GOSUB'):
         # Reset counter of params
         int_count   = 0
         float_count = 0
@@ -569,11 +574,7 @@ class VirtualMachine():
         checkpoint.append(ip)
         ip = curr_quad[3]
 
-      elif(curr_quad[0] == 'ENDFUNC'):
-        # Print before erasing local memory
-        # print("Memoria local antes de destruirse")
-        # curr_local_memory.printMemory()
-          
+      elif(curr_quad[0] == 'ENDFUNC'):   
         # Erase local memory
         self.local_memory.pop()
         # Update current memory
