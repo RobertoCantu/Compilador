@@ -63,7 +63,7 @@ def p_program(p):
 	dirFunc["globalsUsed"] = {}
 	dirFunc["globalsUsed"]["int"] = globals[0]
 	dirFunc["globalsUsed"]["float"] = globals[1]
-	dirFunc["globalsUsed"]["char"] = globals[2]
+	dirFunc["globalsUsed"]["string"] = globals[2]
 	dirFunc["globalsUsed"]["bool"] = globals[3]
 
 	# Count globals temp
@@ -71,7 +71,7 @@ def p_program(p):
 	dirFunc["globalsTempUsed"] = {}
 	dirFunc["globalsTempUsed"]["int"] = globals[0]
 	dirFunc["globalsTempUsed"]["float"] = globals[1]
-	dirFunc["globalsTempUsed"]["char"] = globals[2]
+	dirFunc["globalsTempUsed"]["string"] = globals[2]
 	dirFunc["globalsTempUsed"]["bool"] = globals[3]
 	dirFunc["globalsTempUsed"]["pointer"] = globals[4]
 
@@ -696,7 +696,7 @@ def p_add_str(p):
 		constantsTable.addConstant(cstr, virtualAddress.setAddress('char', 'constant'))
 
 	address_str = constantsTable.getConstantByValue(cstr)['address']
-	quadruple.push_pTypes("char")
+	quadruple.push_pTypes("string")
 	quadruple.push_pilaO(address_str)
 
 def p_add_float(p):
@@ -943,7 +943,7 @@ def p_count_function_elements(p):
 	current_function["localsUsed"] = {}
 	current_function["localsUsed"]["int"] = locals[0]
 	current_function["localsUsed"]["float"] = locals[1]
-	current_function["localsUsed"]["char"] = locals[2]
+	current_function["localsUsed"]["string"] = locals[2]
 	current_function["localsUsed"]["bool"] = locals[3]
 	current_function["startAtQuad"] = quadruple.quad_counter
 
@@ -1017,7 +1017,7 @@ def p_end_of_func(p):
 	curr_func['usedTemp'] = {}
 	curr_func['usedTemp']['int'] = locals_temp_used[0]
 	curr_func['usedTemp']['float'] = locals_temp_used[1]
-	curr_func['usedTemp']['char'] = locals_temp_used[2]
+	curr_func['usedTemp']['string'] = locals_temp_used[2]
 	curr_func['usedTemp']['bool'] = locals_temp_used[3]
 	curr_func['usedTemp']['pointer'] = locals_temp_used[4]
 

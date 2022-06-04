@@ -1,20 +1,9 @@
 import pickle
 from error import RuntimeError
 
-# Define same memory bases as the compiler
-int_local_base = 5000
-float_local_base = 6000
-char_local_base = 7000
-bool_local_base = 8000
-
-int_local_temp_base = 13000
-float_local_temp_base = 14000
-char_local_temp_base = 15000
-bool_local_temp_base = 16000
-
 class Memory():
-  def __init__(self, intSize = 0, floatSize = 0, charSize = 0, boolSize = 0, pointerSize = 0):
-    self.data = [[None] * intSize,[None] * floatSize,[None] * charSize,[None] * boolSize, [None] * pointerSize]
+  def __init__(self, intSize = 0, floatSize = 0, stringSize = 0, boolSize = 0, pointerSize = 0):
+    self.data = [[None] * intSize,[None] * floatSize,[None] * stringSize,[None] * boolSize, [None] * pointerSize]
 
   def insert(self, address, value, type):
     if(type == 'int'):
@@ -23,7 +12,7 @@ class Memory():
     elif(type == 'float'):
       self.data[1][address] = value
 
-    elif(type == 'char'):
+    elif(type == 'string'):
       self.data[2][address] = value
 
     elif(type == 'bool'):
@@ -48,7 +37,7 @@ class Memory():
     elif(type == 'float'):
       return self.data[1]
 
-    elif(type == 'char'):
+    elif(type == 'string'):
       return self.data[2]
 
     elif(type == 'bool'):
@@ -67,10 +56,10 @@ class VirtualMachine():
     self.curr_local_memory = []
     self.extra_memory = []
 
-  def create_global_memory(self, int_size, float_size, char_size, bool_size):
-    self.global_memory = Memory(int_size, float_size, char_size, bool_size )
+  def create_global_memory(self, int_size, float_size, string_size, bool_size):
+    self.global_memory = Memory(int_size, float_size, string_size, bool_size )
 
-  def create_extra_segment_memory(self, constant_table, int_global_temp_size, float_global_temp_size, char_global_temp_size, bool_global_temp_size, pointer_global_temp_size):
+  def create_extra_segment_memory(self, constant_table, int_global_temp_size, float_global_temp_size, string_global_temp_size, bool_global_temp_size, pointer_global_temp_size):
     const_mem = Memory()
     for key, value in constant_table.items():
       #Add it to list of constants ints
@@ -81,15 +70,15 @@ class VirtualMachine():
       elif(value['address'] >= 18000 and value['address'] <= 18999):
         const_mem.return_memory_space("float").append(value['name'])
 
-      #Add it to list of constants chars
+      #Add it to list of constants strings
       elif(value['address'] >= 19000 and value['address'] <= 19999):
-        const_mem.return_memory_space("char").append(value['name'])
+        const_mem.return_memory_space("string").append(value['name'])
 
       #Add it to list of constants bools
       elif(value['address'] >= 20000 and value['address'] <= 20999):
         const_mem.return_memory_space("bool").append(value['name'])
 
-    temp_global_mem = Memory(int_global_temp_size, float_global_temp_size, char_global_temp_size, bool_global_temp_size, pointer_global_temp_size)
+    temp_global_mem = Memory(int_global_temp_size, float_global_temp_size, string_global_temp_size, bool_global_temp_size, pointer_global_temp_size)
     
     self.extra_memory.append(const_mem)
     self.extra_memory.append(temp_global_mem)
@@ -103,9 +92,9 @@ class VirtualMachine():
     elif(address >= 2000 and address <= 2999):
       self.global_memory.insert(address-2000, value, 'float')
 
-    # Insert global char
+    # Insert global string
     elif(address >= 3000 and address <= 3999):
-      self.global_memory.insert(address-3000, value, 'char')
+      self.global_memory.insert(address-3000, value, 'string')
 
     # Insert global bool
     elif(address >= 4000 and address <= 4999):
@@ -121,9 +110,9 @@ class VirtualMachine():
     elif(address >= 6000 and address <= 6999):
       self.curr_local_memory[0].insert(address - 6000, value, "float")
 
-    # Insert Local temp char
+    # Insert Local temp string
     elif(address >= 7000 and address <= 7999):
-      self.curr_local_memory[0].insert(address - 7000, value, "char")
+      self.curr_local_memory[0].insert(address - 7000, value, "string")
 
     # Insert Local temp bool
     elif(address >= 8000 and address <= 8999):
@@ -138,9 +127,9 @@ class VirtualMachine():
     elif(address >= 14000 and address <= 14999):
       self.curr_local_memory[1].insert(address - 14000, value, "float")
 
-    # Insert Local temp char
+    # Insert Local temp string
     elif(address >= 15000 and address <= 15999):
-      self.curr_local_memory[1].insert(address - 15000, value, "char")
+      self.curr_local_memory[1].insert(address - 15000, value, "string")
 
     # Insert Local temp bool
     elif(address >= 16000 and address <= 16999):
@@ -160,9 +149,9 @@ class VirtualMachine():
     elif(address >= 10000 and address <= 10999):
       self.extra_memory[1].insert(address - 10000, value, "float")
 
-    # Insert global temp char
+    # Insert global temp string
     elif(address >= 11000 and address <= 11999):
-      self.extra_memory[1].insert(address - 11000, value, "char")
+      self.extra_memory[1].insert(address - 11000, value, "string")
 
     # Insert global temp bool
     elif(address >= 12000 and address <= 12999):
@@ -187,9 +176,9 @@ class VirtualMachine():
     elif(address >= 2000 and address <= 2999):
       return  self.global_memory.return_memory_space("float")[address - 2000]
 
-    # Return global char
+    # Return global string
     elif(address >= 3000 and address <= 3999):
-      return  self.global_memory.return_memory_space("char")[address - 3000]
+      return  self.global_memory.return_memory_space("string")[address - 3000]
 
     # Return global bool
     elif(address >= 4000 and address <= 4999):
@@ -215,13 +204,13 @@ class VirtualMachine():
         value = last_call_memory[0].return_memory_space("float")[address - 6000]
         return value
       return value
-    # Return Local char
+    # Return Local string
     elif(address >= 7000 and address <= 7999):
-      value =  self.curr_local_memory[0].return_memory_space("char")[address - 7000]
+      value =  self.curr_local_memory[0].return_memory_space("string")[address - 7000]
       if(value == None):
         # Look one space of memory behind
         last_call_memory = self.local_memory[len(self.local_memory) - 2]
-        value = last_call_memory[0].return_memory_space("char")[address - 7000]
+        value = last_call_memory[0].return_memory_space("string")[address - 7000]
         return value
       return value
     # Return Local bool
@@ -243,9 +232,9 @@ class VirtualMachine():
     elif(address >= 14000 and address <= 14999):
       return  self.curr_local_memory[1].return_memory_space("float")[address - 14000]
 
-    # Return Local temp  char
+    # Return Local temp  string
     elif(address >= 15000 and address <= 15999):
-      return  self.curr_local_memory[1].return_memory_space("char")[address - 15000]
+      return  self.curr_local_memory[1].return_memory_space("string")[address - 15000]
 
     # Return Local temp  bool
     elif(address >= 16000 and address <= 16999):
@@ -264,9 +253,9 @@ class VirtualMachine():
     elif(address >= 18000 and address <= 18999):
       return  self.extra_memory[0].return_memory_space("float")[address - 18000]
 
-    # Return constant char
+    # Return constant string
     elif(address >= 19000 and address <= 19999):
-      return  self.extra_memory[0].return_memory_space("char")[address - 19000]
+      return  self.extra_memory[0].return_memory_space("string")[address - 19000]
 
     # Return constant bool
     elif(address >= 20000 and address <= 20999):
@@ -281,9 +270,9 @@ class VirtualMachine():
     elif(address >= 10000 and address <= 10999):
       return  self.extra_memory[1].return_memory_space("float")[address - 10000]
 
-    # Return global temp  char
+    # Return global temp  string
     elif(address >= 11000 and address <= 11999):
-      return  self.extra_memory[1].return_memory_space("char")[address - 11000]
+      return  self.extra_memory[1].return_memory_space("string")[address - 11000]
 
     # Return global temp  bool
     elif(address >= 12000 and address <= 12999):
@@ -506,20 +495,20 @@ class VirtualMachine():
         locals = curr_func['localsUsed']
         ints = locals['int']
         floats = locals['float']
-        chars = locals['char']
+        strings = locals['string']
         bools = locals['bool']
 
         # Obtain required temp locals
         temp_locals = curr_func['usedTemp']
         ints_temp = temp_locals['int']
         floats_temp = temp_locals['float']
-        chars_temp = temp_locals['char']
+        strings_temp = temp_locals['string']
         bools_temp = temp_locals['bool']
         pointer_temp = temp_locals['pointer']
 
         # Create space memory
-        new_local_memory = Memory(ints, floats, chars, bools)
-        new_local_temp_memory = Memory(ints_temp, floats_temp, chars_temp, bools_temp, pointer_temp)
+        new_local_memory = Memory(ints, floats, strings, bools)
+        new_local_temp_memory = Memory(ints_temp, floats_temp, strings_temp, bools_temp, pointer_temp)
 
         # Points to new space of memory
         self.curr_local_memory.append(new_local_memory)
@@ -531,7 +520,7 @@ class VirtualMachine():
         # Create counters useful for managing parameters
         int_count = 0
         float_count = 0
-        char_count = 0
+        string_count = 0
         bool_count = 0
         ip += 1
         
@@ -556,9 +545,9 @@ class VirtualMachine():
           address = 6000 + float_count
           float_count += 1
 
-        elif(argument_type == 'char'):
-          address = 7000 + char_count
-          char_count += 1
+        elif(argument_type == 'string'):
+          address = 7000 + string_count
+          string_count += 1
 
         elif(argument_type == 'bool'):
           address = 8000 + bool_count
@@ -574,7 +563,7 @@ class VirtualMachine():
         # Reset counter of params
         int_count   = 0
         float_count = 0
-        char_count  = 0
+        string_count  = 0
         bool_count  = 0
         # Save the current IP
         checkpoint.append(ip)
@@ -621,24 +610,24 @@ constantsTable = objectCodeData['constantsTable']
 # Count total of globals vars
 int_global_size = dirFunc['globalsUsed']['int']
 float_global_size = dirFunc['globalsUsed']['float']
-char_global_size = dirFunc['globalsUsed']['char']
+string_global_size = dirFunc['globalsUsed']['string']
 bool_global_size = dirFunc['globalsUsed']['bool']
 
 
 # Count temp globals
 int_global_temp_size = dirFunc['globalsTempUsed']['int']
 float_global_temp_size = dirFunc['globalsTempUsed']['float']
-char_global_temp_size = dirFunc['globalsTempUsed']['char']
+string_global_temp_size = dirFunc['globalsTempUsed']['string']
 bool_global_temp_size = dirFunc['globalsTempUsed']['bool']
 pointer_global_temp_size = dirFunc['globalsTempUsed']['pointer']
 
 virtual_machine = VirtualMachine()
 
 # Create global memory
-virtual_machine.create_global_memory(int_global_size, float_global_size, char_global_size, bool_global_size)
+virtual_machine.create_global_memory(int_global_size, float_global_size, string_global_size, bool_global_size)
 
 # Create extra segment memory
-virtual_machine.create_extra_segment_memory(constantsTable,int_global_temp_size, float_global_temp_size, char_global_temp_size, bool_global_temp_size, pointer_global_temp_size)
+virtual_machine.create_extra_segment_memory(constantsTable,int_global_temp_size, float_global_temp_size, string_global_temp_size, bool_global_temp_size, pointer_global_temp_size)
 
 # Start the virtual machine
 virtual_machine.start_machine(quads)
