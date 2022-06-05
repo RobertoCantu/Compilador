@@ -5,6 +5,15 @@ objects
 object SuperCar {
     var int color;
 
+    functions
+    function void setColor(int a){
+        color = a;
+    }
+
+    function int getColor(){
+        return (color);
+    }
+
 };
 
 object Car inherits SuperCar {
@@ -18,55 +27,40 @@ object Car inherits SuperCar {
        price = price + 1;
    }
 
-   function void area(int a){
-       write(a);
+   function int getPrice(){
+       return (price);
    }
 
-   function int china(int a){
-       return (5);
+    function int getYear(){
+        return (year);
+    }
+
+   function void setPrice(int a){
+       price = a;
    }
+
+    function void setYear(int a){
+        year = a;
+    }
+
 };
 
 var Car ford;
 var Car mazda;
 var int x;
 
-functions
-function void hello(int a) {
-    write("Hello world");
-    write("\n");
-}
-
 main {
-    ford.price = 8;
-    ford.year = 0;
+    mazda:setPrice(100);
+    write("Price:");
+    write(mazda:getPrice(), "\n"); 
 
-    mazda.year = 0;
-    mazda.price = 4;
+    mazda:setYear(2020);
+    write("Year:");
+    write(mazda:getYear(),"\n");
 
-    ford:calc(4);
-
-    write(ford.price);
+    write("Inheritance");
     write("\n");
-
-    mazda:calc(4);
-
-    write(mazda.price);
-    write("\n");
-
-    mazda:area(88);
-    write("\n");
-
-    x = mazda:china(5);
-
-    write(x);
-    write("\n");
-
-    mazda.color = 100;
-    write(mazda.color);
-    write("\n");
-
-    write("hola Mundo");
-    write("\n");
-
+    mazda:setColor(5);
+    write("Color:");
+    write(mazda:getColor(), "\n");
 }; 

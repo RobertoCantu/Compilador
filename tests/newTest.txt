@@ -1,0 +1,24 @@
+program pelos;
+
+var int i , j, x;
+
+functions
+function int a(int b){
+  return (b * 2);
+}
+
+function int c(int d, int b){
+
+  return (a(d+b));
+}
+
+
+main {
+  i = 5 * 2;
+  j = 3;
+
+  x = c(i, j);
+
+  write(x, "\n");
+
+};

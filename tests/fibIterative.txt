@@ -20,5 +20,6 @@ function int fib(int n){
 
 main {
   a = fib(4);
-  write(a);
+  write("Resultado:");
+  write(a, "\n");
 };

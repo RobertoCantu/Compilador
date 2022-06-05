@@ -31,18 +31,15 @@ object Factorial {
 
 };
 
-var int a, res;
+var int iter, rec;
 var Factorial b;
 
 main {
+    iter = b:iterative(5);
+    write("Resultado iterativo:");
+    write(iter, "\n");
 
-    a = b:iterative(5);
-     
-    write(a, "\n");
-
-    res = b:recursive(10);
-
-    write(res, "\n");
-
-
+    rec = b:recursive(5);
+    write("Resultado recursivo:");
+    write(rec, "\n");
 }; 

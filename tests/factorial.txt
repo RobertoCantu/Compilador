@@ -17,7 +17,7 @@ function int factorial(int n){
 }
 
 main {
-  a = factorial(500);
+  a = factorial(6);
   write(a);
   write("\n");
 };

@@ -2,7 +2,6 @@ program test_;
 
 var int arr[6], x, i;
 
-
 functions
 function int partition(int low, int high) {
     var int pivot, i, aux, aux2, j;

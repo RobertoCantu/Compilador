@@ -2,8 +2,6 @@ program test_;
 
 var int a[3][3], b[3][3], mult[3][3], i, j, r , c, k;
 
-
-
 main {
 
   r = 3;
@@ -48,7 +46,4 @@ main {
       };
     write("\n");
   };
-
-
-  
 };

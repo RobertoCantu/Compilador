@@ -22,14 +22,6 @@ class Memory():
       # print(self.data)
       self.data[4][address] = value
 
-  def get_value_by_address(self, address):
-    if (address in self.data):
-      return self.data[address]
-
-    else:
-      print("Runtime error")
-      # exit()
-  
   def return_memory_space(self, type):
     if(type == 'int'):
       return self.data[0]
@@ -84,6 +76,7 @@ class VirtualMachine():
 
     temp_global_mem = Memory(int_global_temp_size, float_global_temp_size, string_global_temp_size, bool_global_temp_size, pointer_global_temp_size)
     
+    # Extra memory is now created
     self.extra_memory.append(const_mem)
     self.extra_memory.append(temp_global_mem)
   
@@ -194,41 +187,73 @@ class VirtualMachine():
     # Local  logic
     # Return Local int
     if(address >= 5000 and address <= 5999):
-      value =  self.curr_local_memory[0].return_memory_space("int")[address - 5000]
-      if(value == None):
+      # print(address)
+      index = address - 5000
+      if 0 <= index < len(self.curr_local_memory[0].return_memory_space("int")):
+        value =  self.curr_local_memory[0].return_memory_space("int")[address - 5000] 
+        if(value == None):
+          # Look one space of memory behind
+          last_call_memory = self.local_memory[len(self.local_memory) - 2]
+          value =  last_call_memory[0].return_memory_space("int")[address - 5000]
+          return value
+        else:
+          return value
+      else:
         # Look one space of memory behind
         last_call_memory = self.local_memory[len(self.local_memory) - 2]
         value =  last_call_memory[0].return_memory_space("int")[address - 5000]
         return value
-      return value
     # Return Local float
     elif(address >= 6000 and address <= 6999):
-      value =  self.curr_local_memory[0].return_memory_space("float")[address - 6000]
-      if(value == None):
+      index = address - 6000
+      if 0 <= index < len(self.curr_local_memory[0].return_memory_space("float")):
+        value =  self.curr_local_memory[0].return_memory_space("float")[address - 6000] 
+        if(value == None):
+          # Look one space of memory behind
+          last_call_memory = self.local_memory[len(self.local_memory) - 2]
+          value =  last_call_memory[0].return_memory_space("float")[address - 6000]
+          return value
+        else:
+          return value
+      else:
         # Look one space of memory behind
         last_call_memory = self.local_memory[len(self.local_memory) - 2]
-        value = last_call_memory[0].return_memory_space("float")[address - 6000]
+        value =  last_call_memory[0].return_memory_space("float")[address - 5000]
         return value
-      return value
     # Return Local string
     elif(address >= 7000 and address <= 7999):
-      value =  self.curr_local_memory[0].return_memory_space("string")[address - 7000]
-      if(value == None):
+      index = address - 7000
+      if 0 <= index < len(self.curr_local_memory[0].return_memory_space("string")):
+        value =  self.curr_local_memory[0].return_memory_space("string")[address - 7000] 
+        if(value == None):
+          # Look one space of memory behind
+          last_call_memory = self.local_memory[len(self.local_memory) - 2]
+          value =  last_call_memory[0].return_memory_space("string")[address - 7000]
+          return value
+        else:
+          return value
+      else:
         # Look one space of memory behind
         last_call_memory = self.local_memory[len(self.local_memory) - 2]
-        value = last_call_memory[0].return_memory_space("string")[address - 7000]
+        value =  last_call_memory[0].return_memory_space("string")[address - 7000]
         return value
-      return value
     # Return Local bool
     elif(address >= 8000 and address <= 8999):
-      value =  self.curr_local_memory[0].return_memory_space("bool")[address - 8000]
-      if(value == None):
+      index = address - 8000
+      if 0 <= index < len(self.curr_local_memory[0].return_memory_space("bool")):
+        value =  self.curr_local_memory[0].return_memory_space("bool")[address - 8000] 
+        if(value == None):
+          # Look one space of memory behind
+          last_call_memory = self.local_memory[len(self.local_memory) - 2]
+          value =  last_call_memory[0].return_memory_space("bool")[address - 8000]
+          return value
+        else:
+          return value
+      else:
         # Look one space of memory behind
         last_call_memory = self.local_memory[len(self.local_memory) - 2]
-        value = last_call_memory[0].return_memory_space("bool")[address - 8000]
-        return value
-      return value
-      
+        value =  last_call_memory[0].return_memory_space("bool")[address - 8000]
+        return value   
     # Local temp logic - Local Memory
     # Return Local temp  int
     if(address >= 13000 and address <= 13999):
